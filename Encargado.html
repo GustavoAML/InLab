@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LabManager - Encargados</title>
+    <link rel="stylesheet" href="CSS/dashboard.css">
+    <link rel="stylesheet" href="CSS/encargado.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo-area"><a href="Dashboard.html">INLAB</a></div>
+            <nav>
+                <a href="laboratorios.html" class="nav-item">Laboratorios</a>
+                <a href="Encargado.html" class="nav-item active">Encargados</a>
+                <a href="Categoria.html" class="nav-item">Categoria</a>
+                <a href="Equipo.html" class="nav-item">Equipo</a>
+                <a href="#" class="nav-item" onclick="toggleDrawer()">Incidencias</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section class="section-header">
+                <h2>Encargados de Sistema</h2>
+                <button class="btn-add-cyan" onclick="openStaffModal('add')">+ Nuevo Encargado</button>
+            </section>
+
+            <section class="staff-grid">
+                <div class="staff-card">
+                    <div class="card-header-bg"></div>
+                    <div class="avatar-container">
+                        <div class="avatar-circle">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        </div>
+                    </div>
+                    <div class="staff-info">
+                        <h3>Jorgo</h3>
+                        <p class="role">Encargado</p>
+                        <div class="details">
+                            <p><strong>ID:</strong> 2026-001</p>
+                            <p><strong>📧</strong> c.mendez@utm.edu.mx</p>
+                            <p><strong>☀️</strong> Matutino</p>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-edit" onclick="openStaffModal('edit', 'Jorgo', '2026-001', 'c.mendez@utm.edu.mx', 'Administrador General', 'Matutino')">Editar</button>
+                        <button class="btn-delete" onclick="openDeleteModal('Jorgo')">Eliminar</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="staffModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modalTitle">Nuevo Encargado</h3>
+            <form id="staffForm">
+                <div class="form-group">
+                    <label>ID de Empleado</label>
+                    <input type="text" id="staffID" placeholder="Ej. 2026-000" required>
+                </div>
+                <div class="form-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" id="staffName" placeholder="Nombre del encargado" required>
+                </div>
+                <div class="form-group">
+                    <label>Correo Institucional</label>
+                    <input type="email" id="staffEmail" placeholder="usuario@utm.edu.mx" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Puesto / Rol</label>
+                        <select id="staffRole">
+                            <option value="Administrador General">Encargado de Lab</option>
+                            <option value="Técnico de Laboratorio">Profesor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Turno</label>
+                        <select id="turno">
+                            <option value="Matutino">Matutino</option>
+                            <option value="Verspertino">Verspertino</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal('staffModal')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Datos</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-content confirm-delete">
+            <div class="warning-icon">⚠️</div>
+            <h3>¿Estás seguro?</h3>
+            <p>Se eliminarán los datos de <strong id="deleteTarget"></strong> definitivamente.</p>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal('deleteModal')">No</button>
+                <button type="button" class="btn-danger-action">Sí, Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="sideDrawer" class="side-drawer">
+        <div class="drawer-header">
+            <h2 class="drawer-title" style="color: var(--primary-cyan); margin: 0;">Incidencias</h2>
+            <button class="btn-close-drawer" onclick="toggleDrawer()">×</button>
+        </div>
+        
+        <p class="drawer-subtitle">Gestión de reportes y bitácora.</p>
+        
+        <div class="drawer-options">
+            <a href="incidencias_gestion.html" class="drawer-card">
+                <div class="card-icon">⚠️</div>
+                <div class="card-content">
+                    <h3>Gestión Actual</h3>
+                    <p>Reporta fallas, describe el problema y actualiza el estado del equipo.</p>
+                </div>
+            </a>
+            <a href="incidencias_historial.html" class="drawer-card">
+                <div class="card-icon">📜</div>
+                <div class="card-content">
+                    <h3>Historial Completo</h3>
+                    <p>Consulta la bitácora de acciones y responsables.</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div id="drawerOverlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
+
+    <script>
+        // Funciones de las Modales
+        function openStaffModal(mode, name='', id='', email='', role='Administrador General', turn='Matutino') {
+            document.getElementById('modalTitle').innerText = mode === 'add' ? 'Registrar Encargado' : 'Editar Encargado';
+            document.getElementById('staffName').value = name;
+            document.getElementById('staffID').value = id;
+            document.getElementById('staffEmail').value = email;
+            document.getElementById('staffRole').value = role;
+            document.getElementById('turno').value = turn;
+            document.getElementById('staffModal').classList.add('active');
+        }
+
+        function openDeleteModal(name) {
+            document.getElementById('deleteTarget').innerText = name;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Función del Side Drawer
+        function toggleDrawer() {
+            document.getElementById('sideDrawer').classList.toggle('active');
+            document.getElementById('drawerOverlay').classList.toggle('active');
+        }
+
+        // Cerrar con Escape
+        window.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") {
+                closeModal('staffModal');
+                closeModal('deleteModal');
+                document.getElementById('sideDrawer').classList.remove('active');
+                document.getElementById('drawerOverlay').classList.remove('active');
+            }
+        });
+
+        // Cerrar modales haciendo clic fuera
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+/* Variables de color */
+:root {
+    --bg-dark: #0f172a;
+    --bg-split: #1e293b;
+    --primary-cyan: #00bcd4;
+    --text-gray: #94a3b8;
+    --white: #ffffff;
+}
+
+/* Reset y Base */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+}
+
+/* --- SECCIÓN IZQUIERDA --- */
+.login-side {
+    flex: 1.2;
+    background-color: var(--bg-dark);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 10%;
+    position: relative;
+}
+
+.badge {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    background-color: var(--primary-cyan);
+    color: var(--bg-dark);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+h1 {
+    font-size: 2.8rem;
+    margin: 0 0 8px 0;
+    letter-spacing: -1px;
+}
+
+.subtitle {
+    color: var(--text-gray);
+    margin-bottom: 45px;
+    font-size: 1.1rem;
+}
+
+/* Formulario */
+.form-group {
+    margin-bottom: 25px;
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    color: var(--white);
+}
+
+input {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 16px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+}
+
+input:focus {
+    border-color: var(--primary-cyan);
+    background-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 4px rgba(0, 188, 212, 0.15);
+}
+
+/* Botón con Animación */
+.btn-submit {
+    background-color: var(--primary-cyan);
+    color: var(--bg-dark);
+    border: none;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 15px;
+    transition: transform 0.2s, background-color 0.3s, box-shadow 0.3s;
+}
+
+.btn-submit:hover {
+    background-color: #26c6da;
+    box-shadow: 0 8px 20px rgba(0, 188, 212, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-submit:active {
+    transform: translateY(1px);
+}
+
+/* --- SECCIÓN DERECHA --- */
+.info-side {
+    flex: 0.8;
+    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 60px;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.icon-box {
+    color: var(--primary-cyan);
+    margin-bottom: 30px;
+    animation: float 5s ease-in-out infinite;
+}
+
+.info-side h2 {
+    font-size: 2.2rem;
+    margin: 0 0 15px 0;
+}
+
+.info-side p {
+    color: var(--text-gray);
+    line-height: 1.7;
+    max-width: 320px;
+    font-size: 1.05rem;
+}
+
+/* Keyframes para el efecto flotante */
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(2deg); }
+}
+
+/* Responsive: Se adapta a tablets y móviles */
+@media (max-width: 900px) {
+    .info-side { display: none; }
+    .login-side { flex: 1; padding: 0 15%; }
+}
+
+@media (max-width: 480px) {
+    .login-side { padding: 0 8%; }
+    h1 { font-size: 2.2rem; }
+}

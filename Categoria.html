@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LabManager - Categorías</title>
+    <link rel="stylesheet" href="/CSS/dashboard.css">
+    <link rel="stylesheet" href="/CSS/categoria.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo-area"><a href="dashboard.html">INLAB</a></div>
+            <nav>
+                
+                <a href="laboratorios.html" class="nav-item">Laboratorios</a>
+                <a href="Encargado.html" class="nav-item">Encargados</a>
+                <a href="#" class="nav-item active">Categorías</a>
+                <a href="Equipo.html" class="nav-item">Equipo</a>
+                <a href="#" class="nav-item" onclick="toggleDrawer()">Incidencias</a>
+                
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section class="section-header">
+                <h2>Categorías de Inventario</h2>
+                <button class="btn-add-cyan" onclick="openCatModal('add')">+ Nueva Categoría</button>
+            </section>
+
+            <section class="staff-grid">
+                
+                <div class="staff-card">
+                    <div class="card-header-bg"></div>
+                    <div class="avatar-container">
+                        <div class="avatar-circle">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+                        </div>
+                    </div>
+                    <div class="staff-info">
+                        <h3>Computadoras</h3>
+                        <p class="role">ID_CAT: 001</p>
+                        <div class="details">
+                            <p><strong>Marcas:</strong> HP, Mac, Dell, Lenovo</p>
+                            <p>📦 <strong>Stock:</strong> 24 Unidades</p>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-edit" onclick="openCatModal('edit', 'Computadoras', '001')">Editar</button>
+                        <button class="btn-delete" onclick="openDeleteModal('Computadoras')">Eliminar</button>
+                    </div>
+                </div>
+
+                <div class="staff-card">
+                    <div class="card-header-bg"></div>
+                    <div class="avatar-container">
+                        <div class="avatar-circle">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4"/></svg>
+                        </div>
+                    </div>
+                    <div class="staff-info">
+                        <h3>Mouses</h3>
+                        <p class="role">ID_CAT: 002</p>
+                        <div class="details">
+                            <p><strong>Marcas:</strong> Logitech, HP, Genérico</p>
+                            <p>📦 <strong>Stock:</strong> 30 Unidades</p>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-edit" onclick="openCatModal('edit', 'Mouses', '002')">Editar</button>
+                        <button class="btn-delete" onclick="openDeleteModal('Mouses')">Eliminar</button>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <div id="catModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modalTitle">Nueva Categoría</h3>
+            <form id="catForm">
+                <div class="form-group">
+                    <label>ID_Categoría</label>
+                    <input type="text" id="catID" placeholder="Ej. 001" required>
+                </div>
+                <div class="form-group">
+                    <label>Nombre de Categoría</label>
+                    <input type="text" id="catName" placeholder="Ej. Teclados" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal('catModal')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-content confirm-delete">
+            <div class="warning-icon">⚠️</div>
+            <h3>¿Eliminar categoría?</h3>
+            <p>Se borrará la categoría <strong id="deleteTarget"></strong> del catálogo.</p>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal('deleteModal')">Cancelar</button>
+                <button type="button" class="btn-danger-action">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openCatModal(mode, name = '', id = '') {
+            document.getElementById('modalTitle').innerText = mode === 'add' ? 'Registrar Categoría' : 'Editar Categoría';
+            document.getElementById('catName').value = name;
+            document.getElementById('catID').value = id;
+            document.getElementById('catModal').classList.add('active');
+        }
+
+        function openDeleteModal(name) {
+            document.getElementById('deleteTarget').innerText = name;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        function toggleDrawer() {
+    document.getElementById('sideDrawer').classList.toggle('active');
+    document.getElementById('drawerOverlay').classList.toggle('active');
+}
+
+//  Cerrar con la tecla Escape
+window.addEventListener('keydown', function(e) {
+    if (e.key === "Escape") {
+        document.getElementById('sideDrawer').classList.remove('active');
+        document.getElementById('drawerOverlay').classList.remove('active');
+    }
+});
+    </script>
+ <div id="sideDrawer" class="side-drawer">
+    <div class="centered-drawer-header">
+        <div class="header-top-row">
+            <h2 class="drawer-title">Incidencias</h2>
+            <button class="btn-close-drawer" onclick="toggleDrawer()">×</button>
+        </div>
+        <p class="drawer-subtitle">Gestión de reportes y bitácora.</p>
+    </div>
+    
+    <div class="drawer-options">
+        <a href="incidencias_gestion.html" class="drawer-card">
+            <div class="card-icon">⚠️</div>
+            <div class="card-content">
+                <h3>Gestión Actual</h3>
+                <p>Reporta fallas, describe el problema y actualiza el estado del equipo.</p>
+            </div>
+        </a>
+
+        <a href="incidencias_historial.html" class="drawer-card">
+            <div class="card-icon">📜</div>
+            <div class="card-content">
+                <h3>Historial Completo</h3>
+                <p>Consulta la bitácora de acciones, fechas y usuarios responsables.</p>
+            </div>
+        </a>
+    </div>
+</div>
+</div>
+</body>
+</html>

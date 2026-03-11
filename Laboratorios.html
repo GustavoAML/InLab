@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LabManager - Gestión de Laboratorios</title>
+    <link rel="stylesheet" href="/CSS/dashboard.css">
+    <link rel="stylesheet" href="/CSS/laboratorios.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo-area"><a href="dashboard.html">INLAB</a></div>
+            <nav>
+                
+              <a href="laboratorios.html" class="nav-item">Laboratorios</a>
+                <a href="Encargado.html" class="nav-item active">Encargados</a>
+                <a href="Categoria.html" class="nav-item">Categoria</a>
+                <a href="Equipo.html" class="nav-item">Equipo</a>
+                  <a href="#" class="nav-item" onclick="toggleDrawer()">Incidencias</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section class="section-header">
+                <h2>Gestión de Laboratorios</h2>
+                <button class="btn-add-cyan" onclick="openLabModal('add')">+ Nuevo Laboratorio</button>
+            </section>
+
+            <div class="labs-grid">
+                
+                <div class="lab-card">
+                    <div class="lab-card-header">
+                        <div class="lab-icon">💻</div>
+                        <span class="lab-id-badge">ID: 1</span>
+                    </div>
+                    <div class="lab-card-body">
+                        <h3>Cómputo</h3>
+                        <div class="lab-meta">
+                            <p>🏢 <strong>Edificio:</strong> Edificio A</p>
+                            <p>📶 <strong>Planta:</strong> Planta Baja</p>
+                        </div>
+                    </div>
+                    <div class="lab-card-actions">
+                        <button class="btn-lab-edit" onclick="openLabModal('edit', 'Cómputo', '1', 'Edificio A', 'Planta Baja')">Editar</button>
+                        <button class="btn-lab-delete" onclick="openDeleteModal('Cómputo')">Eliminar</button>
+                    </div>
+                </div>
+
+                <div class="lab-card">
+                    <div class="lab-card-header">
+                        <div class="lab-icon">📡</div>
+                        <span class="lab-id-badge">ID: 2</span>
+                    </div>
+                    <div class="lab-card-body">
+                        <h3>Redes</h3>
+                        <div class="lab-meta">
+                            <p>🏢 <strong>Edificio:</strong> Edificio B</p>
+                            <p>📶 <strong>Planta:</strong> Piso 1</p>
+                        </div>
+                    </div>
+                    <div class="lab-card-actions">
+                        <button class="btn-lab-edit" onclick="openLabModal('edit', 'Redes', '2', 'Edificio B', 'Piso 1')">Editar</button>
+                        <button class="btn-lab-delete" onclick="openDeleteModal('Redes')">Eliminar</button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <div id="labModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modalTitle">Registrar Laboratorio</h3>
+            <form id="labForm">
+                <div class="form-group">
+                    <label>Nombre del Laboratorio</label>
+                    <input type="text" id="labName" placeholder="Ej. Laboratorio de Redes" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Edificio</label>
+                        <input type="text" id="labEdificio" placeholder="Ej. Edificio A" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Planta / Piso</label>
+                        <input type="text" id="labPlanta" placeholder="Ej. Planta Alta" required>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal('labModal')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Lab</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-content confirm-delete">
+            <div class="warning-icon">⚠️</div>
+            <h3>¿Eliminar Laboratorio?</h3>
+            <p>Se borrará <strong id="deleteTarget"></strong> de forma permanente.</p>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal('deleteModal')">No</button>
+                <button type="button" class="btn-danger-action">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openLabModal(mode, name='', id='', edificio='', planta='') {
+            document.getElementById('modalTitle').innerText = mode === 'add' ? 'Registrar Laboratorio' : 'Editar Laboratorio';
+            document.getElementById('labName').value = name;
+            document.getElementById('labEdificio').value = edificio;
+            document.getElementById('labPlanta').value = planta;
+            document.getElementById('labModal').classList.add('active');
+        }
+
+        function openDeleteModal(name) {
+            document.getElementById('deleteTarget').innerText = name;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+         function toggleDrawer() {
+    document.getElementById('sideDrawer').classList.toggle('active');
+    document.getElementById('drawerOverlay').classList.toggle('active');
+}
+
+//  Cerrar con la tecla Escape
+window.addEventListener('keydown', function(e) {
+    if (e.key === "Escape") {
+        document.getElementById('sideDrawer').classList.remove('active');
+        document.getElementById('drawerOverlay').classList.remove('active');
+    }
+});
+    </script>
+    <div id="sideDrawer" class="side-drawer">
+    <div class="centered-drawer-header">
+        <div class="header-top-row">
+            <h2 class="drawer-title">Incidencias</h2>
+            <button class="btn-close-drawer" onclick="toggleDrawer()">×</button>
+        </div>
+        <p class="drawer-subtitle">Gestión de reportes y bitácora.</p>
+    </div>
+    
+    <div class="drawer-options">
+        <a href="incidencias_gestion.html" class="drawer-card">
+            <div class="card-icon">⚠️</div>
+            <div class="card-content">
+                <h3>Gestión Actual</h3>
+                <p>Reporta fallas, describe el problema y actualiza el estado del equipo.</p>
+            </div>
+        </a>
+
+        <a href="incidencias_historial.html" class="drawer-card">
+            <div class="card-icon">📜</div>
+            <div class="card-content">
+                <h3>Historial Completo</h3>
+                <p>Consulta la bitácora de acciones, fechas y usuarios responsables.</p>
+            </div>
+        </a>
+    </div>
+</body>
+</html>

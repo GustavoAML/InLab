@@ -1,0 +1,387 @@
+/* --- VARIABLES --- */
+:root {
+    --bg-dark: #0f172a;
+    --bg-split: #1e293b;
+    --primary-cyan: #00bcd4;
+    --text-gray: #94a3b8;
+    --white: #ffffff;
+    --danger-red: #ef4444;
+    --warning-orange: #f39c12;
+    --shadow-cyan: 0 0 20px rgba(0, 188, 212, 0.2);
+}
+
+/* --- GRID Y LABS --- */
+.lab-group { margin-top: 40px; }
+.lab-title {
+    font-size: 1.2rem;
+    color: var(--white);
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 25px;
+}
+
+.equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+/* --- TARJETA --- */
+.eq-card {
+    background: var(--bg-split);
+    border-radius: 24px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: 0.3s;
+    text-align: center;
+    position: relative;
+}
+
+.eq-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-cyan);
+    border-color: var(--primary-cyan);
+}
+
+/* ESTADOS */
+.eq-status-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: -10px;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.status-in-use { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.status-out { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+.status-repair { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+/* ICONOS E INFO */
+.eq-icon-box {
+    width: 100%; height: 100px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--primary-cyan); margin-bottom: 20px;
+}
+
+.sn-text {
+    color: var(--warning-orange);
+    font-weight: 700;
+    font-family: monospace;
+    background: rgba(243, 156, 18, 0.1);
+    padding: 4px 8px; border-radius: 5px;
+    display: inline-block; margin-top: 10px;
+}
+
+.db-details {
+    display: flex; flex-direction: column; gap: 5px;
+    margin-top: 15px; padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: left; font-size: 0.8rem; color: var(--text-gray);
+}
+
+/* BOTONES CARD */
+.eq-actions { display: flex; gap: 10px; margin-top: 20px; }
+.btn-eq-edit, .btn-eq-delete {
+    flex: 1; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s;
+}
+.btn-eq-edit { background: transparent; border: 1px solid var(--primary-cyan); color: var(--primary-cyan); }
+.btn-eq-delete { background: transparent; border: 1px solid var(--danger-red); color: var(--danger-red); }
+
+/* MODALES */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+    display: flex; justify-content: center; align-items: center;
+    visibility: hidden; opacity: 0; transition: 0.3s; z-index: 1000;
+}
+.modal-overlay.active { visibility: visible; opacity: 1; }
+.modal-content {
+    background: var(--bg-split); padding: 35px; border-radius: 24px;
+    width: 100%; max-width: 450px; border: 1px solid var(--primary-cyan);
+}
+.form-row { display: flex; gap: 15px; }
+.form-group { margin-bottom: 15px; flex: 1; }
+.form-group label { display: block; margin-bottom: 5px; color: var(--text-gray); font-size: 0.85rem; }
+.form-group input, .form-group select {
+    width: 100%; padding: 12px; background: rgba(255,255,255,0.05);
+    border: 1px solid #334155; border-radius: 10px; color: white; outline: none; box-sizing: border-box;
+}
+.modal-actions { display: flex; gap: 10px; margin-top: 25px; }
+.btn-save { background: var(--primary-cyan); border: none; flex: 2; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+.btn-danger-action { background: var(--danger-red); color: white; border: none; flex: 2; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+.btn-cancel { background: transparent; border: 1px solid var(--text-gray); color: var(--text-gray); flex: 1; padding: 12px; border-radius: 10px; cursor: pointer; }
+.warning-icon { font-size: 3rem; margin-bottom: 10px; display: block; text-align: center; }
+.btn-add-cyan {
+    background-color: var(--primary-cyan);
+    color: var(--bg-dark);
+    border: none;
+    padding: 12px 25px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow-cyan);
+    transition: all 0.3s;
+}
+
+.btn-add-cyan:hover {
+    transform: scale(1.05);
+    background-color: var(--primary-hover);
+}
+.side-drawer {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 350px;
+            height: 100%;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid var(--primary-cyan);
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 200;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .side-drawer.active { right: 0; }
+        .drawer-btn {
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 25px;
+            margin: 15px 0;
+            border-radius: 15px;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .side-drawer {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 350px;
+            height: 100%;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid var(--primary-cyan);
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 200;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .side-drawer.active { right: 0; }
+        .drawer-btn {
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 25px;
+            margin: 15px 0;
+            border-radius: 15px;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        /* --- PANEL LATERAL (DRAWER) --- */
+.side-drawer {
+    position: fixed;
+    right: -450px; /* Oculto por defecto */
+    top: 0;
+    width: 400px;
+    height: 100%;
+    background: rgba(30, 41, 59, 0.7); /* Transparente */
+    backdrop-filter: blur(20px);      /* Efecto cristal */
+    -webkit-backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(0, 188, 212, 0.3);
+    z-index: 2000;
+    padding: 40px 30px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+.side-drawer.active {
+    right: 0; /* Se desliza hacia adentro */
+}
+
+/* --- CABECERA Y SUBTÍTULO --- */
+.drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.drawer-subtitle {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+    margin-bottom: 40px;
+}
+
+.btn-close-drawer {
+    background: none;
+    border: none;
+    color: var(--text-gray);
+    font-size: 2.5rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.btn-close-drawer:hover { color: var(--primary-cyan); }
+
+/* --- TARJETAS DE OPCIÓN --- */
+.drawer-options {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.drawer-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 25px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.3s ease;
+}
+
+.drawer-card:hover {
+    background: rgba(0, 188, 212, 0.1);
+    border-color: var(--primary-cyan);
+    transform: translateX(-10px);
+}
+
+.card-icon { font-size: 2.5rem; }
+
+.card-content h3 {
+    margin: 0 0 5px 0;
+    color: var(--primary-cyan);
+    font-size: 1.1rem;
+}
+
+.card-content p {
+    margin: 0;
+    color: var(--text-gray);
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+/* --- OVERLAY DE FONDO --- */
+.drawer-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    visibility: hidden;
+    opacity: 0;
+    transition: 0.3s;
+    z-index: 1500;
+}
+
+.drawer-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+/* --- PANEL LATERAL IZQUIERDO (DRAWER) --- */
+.side-drawer {
+    position: fixed;
+    left: -450px; /* Cambiado de right a left (oculto a la izquierda) */
+    top: 0;
+    width: 400px;
+    height: 100%;
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(0, 188, 212, 0.3); /* Borde ahora a la derecha */
+    z-index: 2000;
+    padding: 40px 30px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5); /* Sombra hacia la derecha */
+    display: flex;
+    flex-direction: column;
+}
+
+.side-drawer.active {
+    left: 0; /* Se desliza desde la izquierda */
+}
+/* --- CABECERA CENTRADA DEL DRAWER (image_8.png) --- */
+
+.centered-drawer-header {
+    width: 100%;
+    margin-bottom: 40px; /* Espacio antes de las tarjetas de opciones */
+    text-align: center;   /* Centra todo el contenido por defecto */
+}
+
+/* Fila superior: Título a la izquierda, X a la derecha */
+.header-top-row {
+    display: flex;
+    justify-content: space-between; /* Empuja los elementos a los extremos */
+    align-items: center;           /* Alinea verticalmente el texto y la X */
+    width: 100%;
+    margin-bottom: 10px;           /* Espacio antes del subtítulo */
+}
+
+/* Estilo del título 'Incidencias' (image_8.png) */
+.drawer-title {
+    color: #00bcd4; /* Tu color Cian eléctrico */
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin: 0;
+    letter-spacing: -1px;
+    filter: drop-shadow(0 0 5px rgba(0, 188, 212, 0.4)); /* Brillo sutil */
+}
+
+/* Estilo del botón de cerrar 'X' (image_8.png) */
+.btn-close-drawer {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5); /* Blanco semitransparente */
+    font-size: 2.5rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.3s, transform 0.3s;
+    padding: 0;
+    margin: 0;
+}
+
+.btn-close-drawer:hover {
+    color: white;
+    transform: rotate(90deg); /* Efecto de rotación al pasar el mouse */
+}
+
+/* Estilo del subtítulo centrado debajo (image_8.png) */
+.drawer-subtitle {
+    color: #94a3b8; /* Tu color gris de texto secundario */
+    font-size: 1rem;
+    margin: 0;
+    width: 100%;
+    text-align: center; /* Asegura que el subtítulo esté centrado */
+    opacity: 0.8;
+}
+/* Ajuste del botón cerrar para que quede bien en el nuevo lado */
+.drawer-header {
+    display: flex;
+    flex-direction: row-reverse; /* Cambia el orden para que la X quede a la derecha */
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1px;
+}
+
+/* Efecto Hover en las tarjetas para que se muevan hacia la derecha */
+.drawer-card:hover {
+    background: rgba(0, 188, 212, 0.1);
+    border-color: var(--primary-cyan);
+    transform: translateX(10px); /* Ahora se mueve a la derecha */
+}
