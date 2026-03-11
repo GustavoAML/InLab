@@ -414,114 +414,86 @@ body, html {
     .cards-grid { grid-template-columns: repeat(2, 1fr); }
 }
 .side-drawer {
-            position: fixed;
-            right: -400px;
-            top: 0;
-            width: 350px;
-            height: 100%;
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(20px);
-            border-left: 1px solid var(--primary-cyan);
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 200;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .side-drawer.active { right: 0; }
-        .drawer-btn {
-            background: var(--glass);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            padding: 25px;
-            margin: 15px 0;
-            border-radius: 15px;
-            text-align: left;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .side-drawer {
-            position: fixed;
-            right: -400px;
-            top: 0;
-            width: 350px;
-            height: 100%;
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(20px);
-            border-left: 1px solid var(--primary-cyan);
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 200;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .side-drawer.active { right: 0; }
-        .drawer-btn {
-            background: var(--glass);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            padding: 25px;
-            margin: 15px 0;
-            border-radius: 15px;
-            text-align: left;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        /* --- PANEL LATERAL (DRAWER) --- */
-.side-drawer {
     position: fixed;
-    right: -450px; /* Oculto por defecto */
+    left: -450px; /* Escondido a la izquierda */
     top: 0;
     width: 400px;
     height: 100%;
-    background: rgba(30, 41, 59, 0.7); /* Transparente */
-    backdrop-filter: blur(20px);      /* Efecto cristal */
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-left: 1px solid rgba(0, 188, 212, 0.3);
+    border-right: 1px solid rgba(0, 188, 212, 0.3);
     z-index: 2000;
-    padding: 40px 30px;
+    padding: 20px 30px;
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+    
+    /* Alineación al tope */
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
 }
 
+/* Clase para activar el panel con JavaScript */
 .side-drawer.active {
-    right: 0; /* Se desliza hacia adentro */
+    left: 0; 
 }
 
-/* --- CABECERA Y SUBTÍTULO --- */
-.drawer-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+/* 2. Cabecera: Controla la X y el Título */
+.centered-drawer-header {
+    width: 100%;
+    position: relative;
+    padding-top: 60px; /* Este espacio empuja el título hacia abajo de la X */
+    text-align: center;
+    margin-bottom: 5px;
 }
 
-.drawer-subtitle {
-    color: var(--text-gray);
-    font-size: 0.9rem;
-    margin-bottom: 40px;
-}
-
+/* Botón de cerrar (X) - Se queda fijo "arribita" */
 .btn-close-drawer {
+    position: absolute !important;
+    right: 0;
+    top: 0;
     background: none;
     border: none;
-    color: var(--text-gray);
+    color: rgba(255, 255, 255, 0.4);
     font-size: 2.5rem;
     cursor: pointer;
     line-height: 1;
+    transition: all 0.3s ease;
 }
 
-.btn-close-drawer:hover { color: var(--primary-cyan); }
+.btn-close-drawer:hover {
+    color: var(--white);
+    transform: rotate(90deg);
+}
 
-/* --- TARJETAS DE OPCIÓN --- */
+/* Título Azul Cian */
+.drawer-title {
+    color: var(--primary-cyan);
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin: 0 auto 10px auto !important;
+    filter: drop-shadow(0 0 8px rgba(0, 188, 212, 0.4));
+    display: block;
+}
+
+/* Subtítulo Gris */
+.drawer-subtitle {
+    color: var(--text-gray);
+    font-size: 1rem;
+    margin-bottom: 40px;
+    text-align: center;
+    opacity: 0.7;
+    width: 100%;
+}
+
+/* 3. Tarjetas de Opciones dentro del panel */
 .drawer-options {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    width: 100%;
 }
 
 .drawer-card {
@@ -536,18 +508,21 @@ body, html {
     transition: all 0.3s ease;
 }
 
+/* Hover: Se desliza a la derecha */
 .drawer-card:hover {
     background: rgba(0, 188, 212, 0.1);
     border-color: var(--primary-cyan);
-    transform: translateX(-10px);
+    transform: translateX(10px);
 }
 
-.card-icon { font-size: 2.5rem; }
+.card-icon {
+    font-size: 2.5rem;
+}
 
 .card-content h3 {
     margin: 0 0 5px 0;
     color: var(--primary-cyan);
-    font-size: 1.1rem;
+    font-size: 1.2rem;
 }
 
 .card-content p {
@@ -557,7 +532,7 @@ body, html {
     line-height: 1.4;
 }
 
-/* --- OVERLAY DE FONDO --- */
+/* 4. Capa oscura de fondo (Overlay) */
 .drawer-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -571,95 +546,4 @@ body, html {
 .drawer-overlay.active {
     visibility: visible;
     opacity: 1;
-}
-/* --- PANEL LATERAL IZQUIERDO (DRAWER) --- */
-.side-drawer {
-    position: fixed;
-    left: -450px; /* Cambiado de right a left (oculto a la izquierda) */
-    top: 0;
-    width: 400px;
-    height: 100%;
-    background: rgba(30, 41, 59, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-right: 1px solid rgba(0, 188, 212, 0.3); /* Borde ahora a la derecha */
-    z-index: 2000;
-    padding: 40px 30px;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5); /* Sombra hacia la derecha */
-    display: flex;
-    flex-direction: column;
-}
-
-.side-drawer.active {
-    left: 0; /* Se desliza desde la izquierda */
-}
-/* --- CABECERA CENTRADA DEL DRAWER (image_8.png) --- */
-
-.centered-drawer-header {
-    width: 100%;
-    margin-bottom: 40px; /* Espacio antes de las tarjetas de opciones */
-    text-align: center;   /* Centra todo el contenido por defecto */
-}
-
-/* Fila superior: Título a la izquierda, X a la derecha */
-.header-top-row {
-    display: flex;
-    justify-content: space-between; /* Empuja los elementos a los extremos */
-    align-items: center;           /* Alinea verticalmente el texto y la X */
-    width: 100%;
-    margin-bottom: 10px;           /* Espacio antes del subtítulo */
-}
-
-/* Estilo del título 'Incidencias' (image_8.png) */
-.drawer-title {
-    color: #00bcd4; /* Tu color Cian eléctrico */
-    font-size: 2.2rem;
-    font-weight: bold;
-    margin: 0;
-    letter-spacing: -1px;
-    filter: drop-shadow(0 0 5px rgba(0, 188, 212, 0.4)); /* Brillo sutil */
-}
-
-/* Estilo del botón de cerrar 'X' (image_8.png) */
-.btn-close-drawer {
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.5); /* Blanco semitransparente */
-    font-size: 2.5rem;
-    cursor: pointer;
-    line-height: 1;
-    transition: color 0.3s, transform 0.3s;
-    padding: 0;
-    margin: 0;
-}
-
-.btn-close-drawer:hover {
-    color: white;
-    transform: rotate(90deg); /* Efecto de rotación al pasar el mouse */
-}
-
-/* Estilo del subtítulo centrado debajo (image_8.png) */
-.drawer-subtitle {
-    color: #94a3b8; /* Tu color gris de texto secundario */
-    font-size: 1rem;
-    margin: 0;
-    width: 100%;
-    text-align: center; /* Asegura que el subtítulo esté centrado */
-    opacity: 0.8;
-}
-/* Ajuste del botón cerrar para que quede bien en el nuevo lado */
-.drawer-header {
-    display: flex;
-    flex-direction: row-reverse; /* Cambia el orden para que la X quede a la derecha */
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1px;
-}
-
-/* Efecto Hover en las tarjetas para que se muevan hacia la derecha */
-.drawer-card:hover {
-    background: rgba(0, 188, 212, 0.1);
-    border-color: var(--primary-cyan);
-    transform: translateX(10px); /* Ahora se mueve a la derecha */
 }
