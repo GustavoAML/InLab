@@ -13,11 +13,12 @@
         <aside class="sidebar">
             <div class="logo-area"><a href="Dashboard.html">INLAB</a></div>
             <nav>
-                <a href="laboratorios.html" class="nav-item">Laboratorios</a>
-                <a href="Encargado.html" class="nav-item">Encargados</a>
-                <a href="Categoria.html" class="nav-item">Categoria</a>
-                <a href="Equipo.html" class="nav-item">Equipo</a>
-                <a href="#" class="nav-item active" onclick="toggleDrawer()">Incidencias</a>
+                <a href="#" class="nav-item" onclick="irAPractica('laboratorios')">Laboratorios</a>
+                <a href="#" class="nav-item active" onclick="irAPractica('encargados')">Encargados</a>
+                <a href="#" class="nav-item" onclick="irAPractica('categorias')">Categoria</a>
+                <a href="#" class="nav-item" onclick="irAPractica('equipos')">Equipo</a>
+              <a href="#" class="nav-item" onclick="toggleDrawer()">Incidencias</a>
+              <a href="#" class="nav-item" onclick="logout()">Salir</a>
             </nav>
         </aside>
 
@@ -119,21 +120,22 @@
             <p class="drawer-subtitle">Gestión de reportes y bitácora.</p>
         </div>
         <div class="drawer-options">
-            <a href="incidencias_gestion.html" class="drawer-card" style="border-color: var(--primary-cyan);">
-                <div class="card-icon">⚠️</div>
-                <div class="card-content">
-                    <h3>Gestión Actual</h3>
-                    <p>Reporta fallas y seguimiento de reportes</p>
-                </div>
-            </a>
-            <a href="incidencias_historial.html" class="drawer-card">
-                <div class="card-icon">📜</div>
-                <div class="card-content">
-                    <h3>Historial Completo</h3>
-                    <p>Bitácora de todos los movimientos</p>
-                </div>
-            </a>
-        </div>
+        <a href="#" class="drawer-card" onclick="irAPractica('incidencias_actual')">
+            <div class="card-icon">⚠️</div>
+            <div class="card-content">
+                <h3>Gestión Actual</h3>
+                <p>Reporta fallas, describe el problema y actualiza el estado del equipo.</p>
+            </div>
+        </a>
+
+        <a href="#" class="drawer-card" onclick="irAPractica('historial_completo')">
+            <div class="card-icon">📜</div>
+            <div class="card-content">
+                <h3>Historial Completo</h3>
+                <p>Consulta la bitácora de acciones, fechas y usuarios responsables.</p>
+            </div>
+        </a>
+    </div>
     </div>
 
     <div id="drawerOverlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
@@ -148,6 +150,69 @@
         function toggleDrawer() {
             document.getElementById('sideDrawer').classList.toggle('active');
             document.getElementById('drawerOverlay').classList.toggle('active');
+        }
+
+        // Verificar autenticación
+        const token = localStorage.getItem('token');
+        const usuario = localStorage.getItem('correo');
+        const rol = localStorage.getItem('rol');
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        function irAPractica(tipo) {
+            switch(tipo) {
+                case 'laboratorios':
+                 if (rol !== 'admin') {
+                    window.location.href = '.html';
+                    return;
+                }
+                    window.location.href = 'laboratorios.html';
+                    break;
+                case 'categorias':
+                 if (rol !== 'admin' && rol !=="consulta") {
+                    window.location.href = '.html';
+                    return;
+                }
+                    window.location.href = 'categoria.html';
+                    break;
+                case 'encargados':
+                 if (rol !== 'admin' && rol !=="consulta") {
+                    window.location.href = '.html';
+                    return;
+                }
+                    window.location.href = 'encargado.html';
+                    break;
+                case 'equipos':
+                 if (rol !== 'admin') {
+                    window.location.href = '.html';
+                    return;
+                }
+                    window.location.href = 'equipo.html';
+                    break;
+                case 'historial_completo':
+                if (rol !== 'admin') {
+                    window.location.href = '.html';
+                    return;
+                }
+                    window.location.href = 'historial_completo.html';
+                    break;
+                case 'incidencias_actual':
+                if (rol !== 'admin') {
+                    window.location.href = '.html';
+                    return;
+                }
+                    window.location.href = 'incidencias_actual.html';
+                    break;
+            }
+        }
+        async function logout() {
+
+            localStorage.removeItem('token');
+            localStorage.removeItem('correo');
+            localStorage.removeItem('rol');
+            document.cookie = 'token=; Max-Age=0; path=/';
+            window.location.href = '/login.html';
         }
     </script>
 </body>
