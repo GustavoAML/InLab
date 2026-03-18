@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inlab - Login</title>
-    <link rel="stylesheet" href="/CSS/Login.css">
+    <link rel="stylesheet" href="/CSS/login.css">
 </head>
 <body>
 
@@ -16,19 +16,21 @@
                 <p class="subtitle">Gestión integral de laboratorios</p>
             </header>
 
-            <form action="Dashboard.html"> 
-    <div class="form-group">
-        <label for="usuario">Usuario</label>
-        <input type="text" id="usuario" name="usuario" placeholder="Ingresa tu usuario" required>
-    </div>
+            <form action="#" id="formLogin">
+                <div class="form-group">
+                    <label for="correo">Correo</label>
+                    <input type="text" id="correo" name="correo" placeholder="Ingresa tu correo" required>
+                </div>
 
-    <div class="form-group">
-        <label for="password">Contraseña</label>
-        <input type="password" id="password" name="password" placeholder="••••••••" required>
-    </div>
-
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                    <h3 id="msg"></h3>
+                </div>
     <button type="submit" class="btn-submit">Login</button>
-</form>
+                </form>
         </div>
 
         <div class="info-side">
@@ -39,9 +41,11 @@
                 </svg>
             </div>
             <h2>Control Total</h2>
-            <p>Administra equipos, profesores desde un solo lugar.</p>
+            <p>Administra equipos, profesores y horarios desde un solo lugar.</p>
         </div>
     </div>
+
+<script src="/JS/login.js"></script>
 
 </body>
 </html>

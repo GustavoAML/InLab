@@ -14,11 +14,12 @@
             <div class="logo-area"><a href="dashboard.html">INLAB</a></div>
             <nav>
                 
-              <a href="laboratorios.html" class="nav-item">Laboratorios</a>
-                <a href="Encargado.html" class="nav-item active">Encargados</a>
-                <a href="Categoria.html" class="nav-item">Categoria</a>
-                <a href="Equipo.html" class="nav-item">Equipo</a>
-                  <a href="#" class="nav-item" onclick="toggleDrawer()">Incidencias</a>
+              <a href="#" class="nav-item" onclick="irAPractica('laboratorios')">Laboratorios</a>
+                <a href="#" class="nav-item active" onclick="irAPractica('encargados')">Encargados</a>
+                <a href="#" class="nav-item" onclick="irAPractica('categorias')">Categoria</a>
+                <a href="#" class="nav-item" onclick="irAPractica('equipos')">Equipo</a>
+              <a href="#" class="nav-item" onclick="toggleDrawer()">Incidencias</a>
+              <a href="#" class="nav-item" onclick="logout()">Salir</a>
             </nav>
         </aside>
 
@@ -136,6 +137,55 @@ window.addEventListener('keydown', function(e) {
         document.getElementById('drawerOverlay').classList.remove('active');
     }
 });
+
+// Verificar autenticación
+        const token = localStorage.getItem('token');
+        const usuario = localStorage.getItem('correo');
+        const rol = localStorage.getItem('rol');
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        function irAPractica(tipo) {
+            switch(tipo) {
+                case 'laboratorios':
+                 if (rol !== 'admin') {
+                    window.location.href = '.html';
+                    return;
+                }
+                    window.location.href = 'laboratorios.html';
+                    break;
+                case 'categorias':
+                 if (rol !== 'admin') {
+                    window.location.href = '.html';
+                    return;
+                }
+                    window.location.href = 'categoria.html';
+                    break;
+                case 'encargados':
+                 if (rol !== 'admin') {
+                    window.location.href = '.html';
+                    return;
+                }
+                    window.location.href = 'encargado.html';
+                    break;
+                case 'equipos':
+                 if (rol !== 'admin') {
+                    window.location.href = '.html';
+                    return;
+                }
+                    window.location.href = 'equipo.html';
+                    break;
+            }
+        }
+        async function logout() {
+
+            localStorage.removeItem('token');
+            localStorage.removeItem('correo');
+            localStorage.removeItem('rol');
+            document.cookie = 'token=; Max-Age=0; path=/';
+            window.location.href = '/login.html';
+        }
     </script>
     <div id="sideDrawer" class="side-drawer">
     <div class="centered-drawer-header">
