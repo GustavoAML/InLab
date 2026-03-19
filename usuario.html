@@ -19,13 +19,16 @@
                 <a href="Categoria.html" class="nav-item">Categoria</a>
                 <a href="Equipo.html" class="nav-item">Equipo</a>
                 <a href="#" class="nav-item" onclick="toggleDrawer()">Incidencias</a>
-                <a href="#" class="nav-item" onclick="logout()">Salir</a>
+                <a href="#" class="btn-logout-card" onclick="logout()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+    Cerrar Sesión
+</a>
             </nav>
         </aside>
 
         <main class="main-content">
             <section class="section-header">
-                <h2>Gestion de Usuarios</h2>
+                <h2>Gestión de Usuarios</h2>
                 <button class="btn-add-cyan" onclick="openStaffModal('add')">+ Nuevo Usuario</button>
             </section>
 
@@ -38,7 +41,7 @@
                         </div>
                     </div>
                     <div class="staff-info">
-                        <h3>Jorgo</h3>
+                        <h3>Jorge Méndez</h3>
                         <p class="role">Encargado</p>
                         <div class="details">
                             <p><strong>ID:</strong> 2026-001</p>
@@ -46,8 +49,8 @@
                         </div>
                     </div>
                     <div class="card-actions">
-                        <button class="btn-edit" onclick="openStaffModal('edit', 'Jorgo', '2026-001', 'c.mendez@utm.edu.mx', 'Administrador General', 'Matutino')">Editar</button>
-                        <button class="btn-delete" onclick="openDeleteModal('Jorgo')">Eliminar</button>
+                        <button class="btn-edit" onclick="openStaffModal('edit', 'Jorge', 'Méndez', 'Pérez', '2026-001', 'c.mendez@utm.edu.mx', 'Encargado de Lab')">Editar</button>
+                        <button class="btn-delete" onclick="openDeleteModal('Jorge')">Eliminar</button>
                     </div>
                 </div>
             </section>
@@ -58,31 +61,47 @@
         <div class="modal-content">
             <h3 id="modalTitle">Nuevo Encargado</h3>
             <form id="staffForm">
-                <div class="form-group">
-                    <label>ID de Usuario</label>
-                    <input type="text" id="staffID" placeholder="Ej. 2026-000" required>
-                </div>
-                <div class="form-group">
-                    <label>Nombre Completo</label>
-                    <input type="text" id="staffName" placeholder="Nombre del usuario" required> 
-                    <label>Apellido Paterno</label>
-                    <input type="text" id="staffName" placeholder="Apellido Paterno del usuario" required>
-                    <label>Apellido Materno</label>
-                    <input type="text" id="staffName" placeholder="Apellido Materno del usuario" required>
-                </div>
-                <div class="form-group">
-                    <label>Correo Institucional</label>
-                    <input type="email" id="staffEmail" placeholder="usuario@utm.edu.mx" required>
-                </div>
+                
                 <div class="form-row">
+                    <div class="form-group">
+                        <label>ID de Usuario</label>
+                        <input type="text" id="staffID" placeholder="Ej. 2026-000" required>
+                    </div>
                     <div class="form-group">
                         <label>Puesto / Rol</label>
                         <select id="staffRole">
-                            <option value="Administrador General">Encargado de Lab</option>
-                            <option value="Técnico de Laboratorio">Profesor</option>
+                            <option value="Encargado de Lab">Encargado de Lab</option>
+                            <option value="Profesor">Profesor</option>
                         </select>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label for="staffName">Nombre(s)</label>
+                    <input type="text" id="staffName" placeholder="Nombre del usuario" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="apellidoP">Apellido Paterno</label>
+                        <input type="text" id="apellidoP" placeholder="Ej. Méndez" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="apellidoM">Apellido Materno</label>
+                        <input type="text" id="apellidoM" placeholder="Ej. Pérez" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="staffEmail">Correo Institucional</label>
+                    <input type="email" id="staffEmail" placeholder="usuario@utm.edu.mx" required>
+                </div>
+                 <div class="form-group">
+    <label for="password">Contraseña</label>
+    <input type="password" id="password" placeholder="••••••••" required>
+</div>
+
+
                 <div class="modal-actions">
                     <button type="button" class="btn-cancel" onclick="closeModal('staffModal')">Cancelar</button>
                     <button type="submit" class="btn-save">Guardar Datos</button>
@@ -103,45 +122,21 @@
         </div>
     </div>
 
-    <div id="sideDrawer" class="side-drawer">
-        <div class="drawer-header">
-            <h2 class="drawer-title" style="color: var(--primary-cyan); margin: 0;">Incidencias</h2>
-            <button class="btn-close-drawer" onclick="toggleDrawer()">×</button>
-        </div>
-        
-        <p class="drawer-subtitle">Gestión de reportes y bitácora.</p>
-        
-        <div class="drawer-options">
-            <a href="incidencias_gestion.html" class="drawer-card">
-                <div class="card-icon">⚠️</div>
-                <div class="card-content">
-                    <h3>Gestión Actual</h3>
-                    <p>Reporta fallas, describe el problema y actualiza el estado del equipo.</p>
-                </div>
-            </a>
-            <a href="incidencias_historial.html" class="drawer-card">
-                <div class="card-icon">📜</div>
-                <div class="card-content">
-                    <h3>Historial Completo</h3>
-                    <p>Consulta la bitácora de acciones y responsables.</p>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <div id="drawerOverlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
-
     <script>
-        // Funciones de las Modales
-        function openStaffModal(mode, name='', id='', email='', role='Administrador General', turn='Matutino') {
-            document.getElementById('modalTitle').innerText = mode === 'add' ? 'Registrar Encargado' : 'Editar Encargado';
-            document.getElementById('staffName').value = name;
-            document.getElementById('staffID').value = id;
-            document.getElementById('staffEmail').value = email;
-            document.getElementById('staffRole').value = role;
-            document.getElementById('staffModal').classList.add('active');
-        }
-
+     function openStaffModal(mode, name='', apeP='', apeM='', id='', email='', passw="", role='Encargado de Lab') {
+    document.getElementById('modalTitle').innerText = mode === 'add' ? 'Registrar Encargado' : 'Editar Encargado';
+    
+ 
+    document.getElementById('staffName').value = name;
+    document.getElementById('apellidoP').value = apeP;
+    document.getElementById('apellidoM').value = apeM;
+    document.getElementById('staffID').value = id;
+    document.getElementById('staffEmail').value = email;
+    document.getElementById('staffRole').value = role;
+    document.getElementById('password').value = passw;
+    
+    document.getElementById('staffModal').classList.add('active');
+}
         function openDeleteModal(name) {
             document.getElementById('deleteTarget').innerText = name;
             document.getElementById('deleteModal').classList.add('active');
@@ -151,28 +146,57 @@
             document.getElementById(id).classList.remove('active');
         }
 
-        // Función del Side Drawer
-        function toggleDrawer() {
-            document.getElementById('sideDrawer').classList.toggle('active');
-            document.getElementById('drawerOverlay').classList.toggle('active');
-        }
-
-        // Cerrar con Escape
-        window.addEventListener('keydown', (e) => {
-            if (e.key === "Escape") {
-                closeModal('staffModal');
-                closeModal('deleteModal');
-                document.getElementById('sideDrawer').classList.remove('active');
-                document.getElementById('drawerOverlay').classList.remove('active');
-            }
-        });
-
-        // Cerrar modales haciendo clic fuera
         window.onclick = function(event) {
             if (event.target.classList.contains('modal-overlay')) {
                 event.target.classList.remove('active');
             }
         }
+          function openDeleteModal(name) {
+            document.getElementById('deleteTarget').innerText = name;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+         function toggleDrawer() {
+    document.getElementById('sideDrawer').classList.toggle('active');
+    document.getElementById('drawerOverlay').classList.toggle('active');
+}
+
+//  Cerrar con la tecla Escape
+window.addEventListener('keydown', function(e) {
+    if (e.key === "Escape") {
+        document.getElementById('sideDrawer').classList.remove('active');
+        document.getElementById('drawerOverlay').classList.remove('active');
+    }
+});
+
     </script>
+    <div id="sideDrawer" class="side-drawer">
+    <div class="centered-drawer-header">
+        <div class="header-top-row">
+            <h2 class="drawer-title">Incidencias</h2>
+            <button class="btn-close-drawer" onclick="toggleDrawer()">×</button>
+        </div>
+        <p class="drawer-subtitle">Gestión de reportes y bitácora.</p>
+    </div>
+    
+    <div class="drawer-options">
+        <a href="#" class="drawer-card" onclick="irAPractica('incidencias_actual')">
+            <div class="card-icon">⚠️</div>
+            <div class="card-content">
+                <h3>Gestión Actual</h3>
+                <p>Reporta fallas, describe el problema y actualiza el estado del equipo.</p>
+            </div>
+        </a>
+
+        <a href="#" class="drawer-card" onclick="irAPractica('historial_completo')">
+            <div class="card-icon">📜</div>
+            <div class="card-content">
+                <h3>Historial Completo</h3>
+                <p>Consulta la bitácora de acciones, fechas y usuarios responsables.</p>
+            </div>
+        </a>
+    </div>
 </body>
 </html>
