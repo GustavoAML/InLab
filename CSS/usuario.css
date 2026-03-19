@@ -1,0 +1,254 @@
+/* ==========================================================================
+   1. VARIABLES Y BASE (Identidad INLAB)
+   ========================================================================== */
+:root {
+    --bg-dark: #0f172a;
+    --bg-split: #1e293b;
+    --primary-cyan: #00bcd4;
+    --primary-hover: #26c6da;
+    --text-gray: #94a3b8;
+    --white: #ffffff;
+    --danger-red: #ef4444;
+    --warning-orange: #f39c12;
+    --shadow-cyan: 0 0 20px rgba(0, 188, 212, 0.2);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+/* ==========================================================================
+   2. BOTÓN "NUEVO ENCARGADO"
+   ========================================================================== */
+.btn-add-cyan {
+    background-color: var(--primary-cyan);
+    color: var(--bg-dark);
+    border: none;
+    padding: 12px 25px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow-cyan);
+    transition: all 0.3s;
+}
+
+.btn-add-cyan:hover {
+    transform: translateY(-3px) scale(1.02);
+    background-color: var(--primary-hover);
+    box-shadow: 0 0 25px rgba(0, 188, 212, 0.4);
+}
+
+/* ==========================================================================
+   3. TARJETAS DE ENCARGADOS
+   ========================================================================== */
+.staff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+}
+
+.staff-card {
+    background-color: var(--bg-split);
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    transition: 0.3s;
+}
+
+.staff-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-cyan);
+    border-color: var(--primary-cyan);
+}
+
+.card-header-bg { height: 80px; background-color: #334155; opacity: 0.5; }
+
+.avatar-container { display: flex; justify-content: center; margin-top: -45px; }
+
+.avatar-circle {
+    width: 90px; height: 90px;
+    background-color: var(--bg-split);
+    border: 3px solid var(--primary-cyan);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--primary-cyan);
+}
+
+.staff-info { padding: 20px 25px; text-align: center; }
+
+.details {
+    text-align: left; 
+    background: rgba(15, 23, 42, 0.5) !important;
+    padding: 15px; 
+    border-radius: 15px; 
+    margin: 15px 0;
+}
+
+.details p { margin: 8px 0; font-size: 0.9rem; color: var(--text-gray); }
+.details strong { color: var(--white); }
+
+.card-actions { display: flex; padding: 0 25px 25px; gap: 12px; }
+
+.btn-edit, .btn-delete {
+    flex: 1; padding: 10px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; background: transparent;
+}
+.btn-edit { border: 1px solid var(--primary-cyan); color: var(--primary-cyan); }
+.btn-edit:hover { background: var(--primary-cyan); color: var(--bg-dark); }
+.btn-delete { border: 1px solid var(--danger-red); color: var(--danger-red); }
+.btn-delete:hover { background: var(--danger-red); color: white; }
+
+/* ==========================================================================
+   4. VENTANAS MODALES (CON ANIMACIONES)
+   ========================================================================== */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
+    display: flex; justify-content: center; align-items: center;
+    opacity: 0; visibility: hidden; transition: 0.3s; z-index: 3000;
+}
+
+.modal-overlay.active { opacity: 1; visibility: visible; }
+
+.modal-content {
+    background-color: var(--bg-split); border: 1px solid var(--primary-cyan);
+    border-radius: 24px; padding: 30px; width: 100%; max-width: 450px; text-align: center;
+}
+
+.modal-overlay.active .modal-content { animation: modalShow 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+@keyframes modalShow {
+    from { opacity: 0; transform: translateY(-30px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.form-group { text-align: left; margin-bottom: 15px; }
+.form-group label { display: block; color: var(--text-gray); margin-bottom: 5px; font-size: 0.85rem; }
+.form-group input, .form-group select {
+    width: 100%; padding: 12px; background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; outline: none;
+}
+
+.modal-actions { display: flex; gap: 12px; margin-top: 25px; }
+
+.btn-save, .btn-danger-action, .btn-cancel { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-weight: bold; cursor: pointer; }
+
+.btn-save { background: var(--primary-cyan); color: var(--bg-dark); border: none; flex: 2; padding: 12px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 188, 212, 0.2); }
+.btn-save:hover { background-color: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 188, 212, 0.4); filter: brightness(1.1); }
+
+.btn-danger-action { background: var(--danger-red); color: white; border: none; flex: 2; padding: 12px; border-radius: 10px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2); }
+.btn-danger-action:hover { background-color: #ff5f5f; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4); }
+
+.btn-cancel { background: transparent; border: 1px solid var(--text-gray); color: var(--text-gray); flex: 1; padding: 12px; border-radius: 10px; }
+.btn-cancel:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--white); color: var(--white); transform: translateY(-2px); }
+
+.warning-icon { font-size: 3rem; color: var(--warning-orange); margin-bottom: 10px; animation: pulseWarning 2s infinite; }
+
+@keyframes pulseWarning {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ==========================================================================
+   5. VENTANA DE INCIDENCIAS (SIDE DRAWER) - DISEÑO FINAL
+   ========================================================================== */
+.side-drawer {
+    position: fixed;
+    left: -450px;
+    top: 0;
+    width: 400px;
+    height: 100%;
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(0, 188, 212, 0.3);
+    z-index: 2000;
+    padding: 20px 30px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+}
+
+.side-drawer.active { left: 0; }
+
+.centered-drawer-header {
+    width: 100%;
+    position: relative;
+    padding-top: 60px;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.btn-close-drawer {
+    position: absolute !important;
+    right: 0; top: 0;
+    background: none; border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 2.5rem; cursor: pointer;
+    line-height: 1; transition: all 0.3s ease;
+}
+
+.btn-close-drawer:hover { color: var(--white); transform: rotate(90deg); }
+
+.drawer-title {
+    color: var(--primary-cyan);
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin: 0 auto 10px auto !important;
+    filter: drop-shadow(0 0 8px rgba(0, 188, 212, 0.4));
+    display: block;
+}
+
+.drawer-subtitle {
+    color: var(--text-gray);
+    font-size: 1rem;
+    margin-bottom: 40px;
+    text-align: center;
+    opacity: 0.7;
+    width: 100%;
+}
+
+.drawer-options {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.drawer-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 25px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.3s ease;
+}
+
+.drawer-card:hover {
+    background: rgba(0, 188, 212, 0.1);
+    border-color: var(--primary-cyan);
+    transform: translateX(10px);
+}
+
+.drawer-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    visibility: hidden;
+    opacity: 0;
+    transition: 0.3s;
+    z-index: 1500;
+}
+
+.drawer-overlay.active { visibility: visible; opacity: 1; }
