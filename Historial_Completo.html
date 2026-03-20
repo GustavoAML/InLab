@@ -179,6 +179,13 @@
                 }
                     window.location.href = 'incidencias_actual.html';
                     break;
+                case 'usuario':
+                if (rol !== 'admin') {
+                    window.location.href = '.html';
+                    return;
+                }
+                    window.location.href = 'usuario.html';
+                    break;
             }
         }
         async function logout() {

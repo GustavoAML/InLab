@@ -108,6 +108,126 @@ function requireRole(...roles) {
   };
 }
 
+//Obtener Usuarios
+app.get('/api/usuarios', auth, requireRole('admin'), (req, res) => {
+
+    const query = 'SELECT id_usuario, nombre, appaterno, apmaterno, rol, correo FROM usuario u';
+
+    connection.query(query, (err, results) => {
+
+        if (err) {
+            console.error('Error:', err);
+            return res.status(500).json({ error: 'Error al obtener usuarios' });
+        }
+
+        res.json(results);
+    });
+});
+
+app.get('/api/encargados', auth, requireRole('admin'), (req, res) => {
+
+    const query = `
+        SELECT 
+            u.id_usuario, 
+            e.id_encargado, 
+            u.nombre, 
+            u.appaterno, 
+            u.correo
+        FROM encargado AS e
+        JOIN usuario AS u ON e.id_usuario = u.id_usuario
+        ORDER BY u.nombre ASC
+    `;
+
+    connection.query(query, (err, results) => {
+
+        if (err) {
+            console.error('Error:', err);
+            return res.status(500).json({ error: 'Error al obtener encargados' });
+        }
+
+        res.json(results);
+    });
+});
+
+// Crear usuarios
+app.post('/api/usuarios', auth, requireRole('admin'), (req, res) => { 
+    const { nombre, appaterno, apmaterno, correo, rol, password } = req.body;
+    
+    if (!nombre || !appaterno || !correo || !rol || !password ) { 
+        return res.status(400).json({ error: 'Campos obligatorios faltantes '}); 
+    } 
+    
+    const query = 
+    'INSERT INTO usuario (nombre, appaterno, apmaterno, correo, rol, password) VALUES (?, ?, ?, ?, ?, ?)'; 
+    
+    connection.query( 
+        query, 
+        [nombre, appaterno, apmaterno, correo, rol, password], 
+        (err, result) => { 
+            
+            if (err) { 
+                console.error('Error:', err); 
+                return res.status(500).json({ error: 'Error al crear usuario' }); 
+            } 
+            
+        res.status(201).json({ mensaje: 'Usuario creado', id: result.insertId }); 
+    }); 
+});
+
+// Editar usuarios
+app.put('/api/usuarios/:id', auth, requireRole('admin'), (req, res) => {
+
+    const { id } = req.params;
+    const { nombre, appaterno, apmaterno, correo, rol, password } = req.body;
+
+    if (!nombre || !appaterno || !correo || !rol || !password ) {
+        return res.status(400).json({ error: 'Campos obligatorios faltantes '});
+    }
+
+    const query =
+    'UPDATE usuario SET nombre = ?, appaterno = ?, apmaterno = ?, correo = ?, rol = ?, password = ? WHERE id_usuario = ?';
+
+    connection.query(
+        query,
+        [nombre, appaterno, apmaterno, correo, rol, password, id],
+        (err, result) => {
+
+            if (err) {
+                console.error('Error:', err);
+                return res.status(500).json({ error: 'Error al editar usuario'});
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ error: 'Usuario no encontrado' });
+            }
+
+            res.json({ mensaje: 'Usuario actualizado'})
+        }
+    );
+});
+
+// Eliminar usuario
+app.delete('/api/usuarios/:id', auth, requireRole('admin'), (req, res) => {
+
+    const {id} = req.params;
+
+    const query = 'DELETE FROM usuario WHERE id_usuario = ?';
+
+    connection.query(query, [id], (err, result) => {
+
+        if (err) {
+            console.error('Error:', err);
+            return res.status(500).json({ error: 'Error al eliminar usuario'});
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        res.json({ mensaje: 'Usuario eliminado'});
+    });
+});
+
 // Página principal
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard.html'));

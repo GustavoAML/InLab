@@ -159,14 +159,14 @@ window.addEventListener('keydown', function(e) {
                     window.location.href = 'laboratorios.html';
                     break;
                 case 'categorias':
-                 if (rol !== 'admin') {
+                 if (rol !== 'admin' && rol !=="consulta") {
                     window.location.href = '.html';
                     return;
                 }
                     window.location.href = 'categoria.html';
                     break;
                 case 'encargados':
-                 if (rol !== 'admin') {
+                 if (rol !== 'admin' && rol !=="consulta") {
                     window.location.href = '.html';
                     return;
                 }
@@ -178,6 +178,27 @@ window.addEventListener('keydown', function(e) {
                     return;
                 }
                     window.location.href = 'equipo.html';
+                    break;
+                case 'historial_completo':
+                if (rol !== 'admin') {
+                    window.location.href = '.html';
+                    return;
+                }
+                    window.location.href = 'historial_completo.html';
+                    break;
+                case 'incidencias_actual':
+                if (rol !== 'admin') {
+                    window.location.href = '.html';
+                    return;
+                }
+                    window.location.href = 'incidencias_actual.html';
+                    break;
+                case 'usuario':
+                if (rol !== 'admin') {
+                    window.location.href = '.html';
+                    return;
+                }
+                    window.location.href = 'usuario.html';
                     break;
             }
         }
