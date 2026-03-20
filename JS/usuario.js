@@ -120,7 +120,7 @@ async function guardarOActualizar(event) {
 
   const usuario = {
     nombre: inputNombre.value.trim(),
-    appaterno: inputapMaterno.value,
+    appaterno: inputapPaterno.value,
     apmaterno: inputapMaterno.value,
     rol: inputRol.value,
     correo: inputCorreo.value,

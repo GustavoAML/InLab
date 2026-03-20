@@ -111,7 +111,7 @@ function requireRole(...roles) {
 //Obtener Usuarios
 app.get('/api/usuarios', auth, requireRole('admin'), (req, res) => {
 
-    const query = 'SELECT id_usuario, nombre, appaterno, apmaterno, rol, correo FROM usuario u';
+    const query = 'SELECT id_usuario, nombre, appaterno, apmaterno, rol, correo, password FROM usuario u';
 
     connection.query(query, (err, results) => {
 
