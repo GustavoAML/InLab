@@ -124,6 +124,7 @@ app.get('/api/usuarios', auth, requireRole('admin'), (req, res) => {
     });
 });
 
+//Obtener Encargados
 app.get('/api/encargados', auth, requireRole('admin'), (req, res) => {
 
     const query = `
@@ -145,6 +146,45 @@ app.get('/api/encargados', auth, requireRole('admin'), (req, res) => {
             return res.status(500).json({ error: 'Error al obtener encargados' });
         }
 
+        res.json(results);
+    });
+});
+
+//Obtener Consumibles
+app.get('/api/consumibles', auth, requireRole('admin'), (req, res) => {
+
+    const query = `
+        SELECT 
+            c.id, 
+            l.id_laboratorio, 
+            c.nombre_con, 
+            c.stock, 
+            l.nombre,
+            l.edificio
+        FROM consumibles AS c
+        JOIN laboratorio AS l ON c.id_laboratorio = l.id_laboratorio
+        ORDER BY c.nombre_con ASC
+    `;
+
+    connection.query(query, (err, results) => {
+
+        if (err) {
+            console.error('Error:', err);
+            return res.status(500).json({ error: 'Error al obtener consumibles' });
+        }
+
+        res.json(results);
+    });
+});
+
+app.get('/api/laboratorios', (req, res) => {
+    const query = 'SELECT id_laboratorio, nombre, edificio FROM laboratorio ORDER BY nombre ASC';
+    
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('Error:', err);
+            return res.status(500).json({ success: false, message: 'Error interno del servidor' });
+        }
         res.json(results);
     });
 });
@@ -171,6 +211,31 @@ app.post('/api/usuarios', auth, requireRole('admin'), (req, res) => {
             } 
             
         res.status(201).json({ mensaje: 'Usuario creado', id: result.insertId }); 
+    }); 
+});
+
+// Crear consumibles
+app.post('/api/consumibles', auth, requireRole('admin'), (req, res) => { 
+    const { nombre, stock, id_laboratorio } = req.body;
+    
+    if (!nombre || !stock || !id_laboratorio  ) { 
+        return res.status(400).json({ error: 'Campos obligatorios faltantes '}); 
+    } 
+    
+    const query = 
+    'INSERT INTO consumibles (nombre_con, stock, id_laboratorio) VALUES (?, ?, ?)'; 
+    
+    connection.query( 
+        query, 
+        [nombre, stock, id_laboratorio], 
+        (err, result) => { 
+            
+            if (err) { 
+                console.error('Error:', err); 
+                return res.status(500).json({ error: 'Error al crear consumible' }); 
+            } 
+            
+        res.status(201).json({ mensaje: 'Consumible creado', id: result.insertId }); 
     }); 
 });
 
@@ -206,6 +271,38 @@ app.put('/api/usuarios/:id', auth, requireRole('admin'), (req, res) => {
     );
 });
 
+// Editar consumibles
+app.put('/api/consumibles/:id', auth, requireRole('admin'), (req, res) => {
+
+    const { id } = req.params;
+    const { nombre, stock } = req.body;
+
+    if (!nombre || !stock ) {
+        return res.status(400).json({ error: 'Campos obligatorios faltantes '});
+    }
+
+    const query =
+    'UPDATE consumibles SET nombre_con = ?, stock = ? WHERE id = ?';
+
+    connection.query(
+        query,
+        [nombre, stock, id],
+        (err, result) => {
+
+            if (err) {
+                console.error('Error:', err);
+                return res.status(500).json({ error: 'Error al editar consumibles'});
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ error: 'Consumible no encontrado' });
+            }
+
+            res.json({ mensaje: 'Consumible actualizado'})
+        }
+    );
+});
+
 // Eliminar usuario
 app.delete('/api/usuarios/:id', auth, requireRole('admin'), (req, res) => {
 
@@ -225,6 +322,28 @@ app.delete('/api/usuarios/:id', auth, requireRole('admin'), (req, res) => {
         }
 
         res.json({ mensaje: 'Usuario eliminado'});
+    });
+});
+
+// Eliminar consumibles
+app.delete('/api/consumibles/:id', auth, requireRole('admin'), (req, res) => {
+
+    const {id} = req.params;
+
+    const query = 'DELETE FROM consumibles WHERE id = ?';
+
+    connection.query(query, [id], (err, result) => {
+
+        if (err) {
+            console.error('Error:', err);
+            return res.status(500).json({ error: 'Error al eliminar consumible'});
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Consumible no encontrado' });
+        }
+
+        res.json({ mensaje: 'Consumible eliminado'});
     });
 });
 

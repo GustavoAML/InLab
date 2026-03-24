@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LabManager - Categorías</title>
+    <title>LabManager - Consumibles</title>
     <link rel="stylesheet" href="/CSS/dashboard.css">
-    <link rel="stylesheet" href="/CSS/categoria.css">
+    <link rel="stylesheet" href="/CSS/consumible.css">
 </head>
 <body>
 
@@ -16,7 +16,7 @@
                 <a href="usuario.html" class="nav-item" onclick="irAPractica('usuario')">Usuarios</a>
                 <a href="#" class="nav-item" onclick="irAPractica('laboratorios')">Laboratorios</a>
                 <a href="#" class="nav-item active" onclick="irAPractica('encargados')">Encargados</a>
-                <a href="#" class="nav-item" onclick="irAPractica('categorias')">Categoria</a>
+                <a href="#" class="nav-item" onclick="irAPractica('consumibles')">Consumibles</a>
                 <a href="#" class="nav-item" onclick="irAPractica('equipos')">Equipo</a>
               <a href="#" class="nav-item" onclick="toggleDrawer()">Incidencias</a>
                <a href="#" class="btn-logout-card" onclick="logout()">
@@ -29,73 +29,39 @@
 
         <main class="main-content">
             <section class="section-header">
-                <h2>Categorías de Inventario</h2>
-                <button class="btn-add-cyan" onclick="openCatModal('add')">+ Nueva Categoría</button>
+                <h2>Consumibles</h2>
+                <button class="btn-add-cyan" id="btnNuevo" onclick="openConModal('add')">+ Nuevo Consumible</button>
             </section>
 
-            <section class="staff-grid">
-                
-                <div class="staff-card">
-                    <div class="card-header-bg"></div>
-                    <div class="avatar-container">
-                        <div class="avatar-circle">
-                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
-                        </div>
-                    </div>
-                    <div class="staff-info">
-                        <h3>Computadoras</h3>
-                        <p class="role">ID_CAT: 001</p>
-                        <div class="details">
-                            <p><strong>Marcas:</strong> HP, Mac, Dell, Lenovo</p>
-                            <p>📦 <strong>Stock:</strong> 24 Unidades</p>
-                        </div>
-                    </div>
-                    <div class="card-actions">
-                        <button class="btn-edit" onclick="openCatModal('edit', 'Computadoras', '001')">Editar</button>
-                        <button class="btn-delete" onclick="openDeleteModal('Computadoras')">Eliminar</button>
-                    </div>
-                </div>
-
-                <div class="staff-card">
-                    <div class="card-header-bg"></div>
-                    <div class="avatar-container">
-                        <div class="avatar-circle">
-                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4"/></svg>
-                        </div>
-                    </div>
-                    <div class="staff-info">
-                        <h3>Mouses</h3>
-                        <p class="role">ID_CAT: 002</p>
-                        <div class="details">
-                            <p><strong>Marcas:</strong> Logitech, HP, Genérico</p>
-                            <p>📦 <strong>Stock:</strong> 30 Unidades</p>
-                        </div>
-                    </div>
-                    <div class="card-actions">
-                        <button class="btn-edit" onclick="openCatModal('edit', 'Mouses', '002')">Editar</button>
-                        <button class="btn-delete" onclick="openDeleteModal('Mouses')">Eliminar</button>
-                    </div>
-                </div>
+            <section class="staff-grid" id="listaConsumibles"></section>
 
             </section>
         </main>
     </div>
 
-    <div id="catModal" class="modal-overlay">
+    <div id="conModal" class="modal-overlay">
         <div class="modal-content">
-            <h3 id="modalTitle">Nueva Categoría</h3>
-            <form id="catForm">
+            <h3 id="modalTitle">Nuevo Consumible</h3>
+            <form id="conForm">
                 <div class="form-group">
-                    <label>ID_Categoría</label>
-                    <input type="text" id="catID" placeholder="Ej. 001" required>
+                    <label>ID</label>
+                    <input type="text" id="consumibleId" placeholder="Ej. 001" readonly>
                 </div>
                 <div class="form-group">
-                    <label>Nombre de Categoría</label>
-                    <input type="text" id="catName" placeholder="Ej. Teclados" required>
+                    <label>Nombre del Consumible</label>
+                    <input type="text" id="nombre" placeholder="Ej. Teclados" required>
+                </div>
+                <div class="form-group">
+                    <label>Stock</label>
+                    <input type="number" id="stock" placeholder="Ej. 24" required>
+                </div>
+                <div class="form-group">
+                    <label>Laboratorio</label>
+                    <select id="id_laboratorio" required></select>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="btn-cancel" onclick="closeModal('catModal')">Cancelar</button>
-                    <button type="submit" class="btn-save">Guardar</button>
+                    <button type="button" class="btn-cancel" onclick="closeModal('conModal')">Cancelar</button>
+                    <button type="submit" class="btn-save" id="btnGuardar">Guardar</button>
                 </div>
             </form>
         </div>
@@ -104,23 +70,16 @@
     <div id="deleteModal" class="modal-overlay">
         <div class="modal-content confirm-delete">
             <div class="warning-icon">⚠️</div>
-            <h3>¿Eliminar categoría?</h3>
-            <p>Se borrará la categoría <strong id="deleteTarget"></strong> del catálogo.</p>
+            <h3>¿Eliminar consumible?</h3>
+            <p>Se borrará el consumible <strong id="deleteTarget"></strong> del catálogo.</p>
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" onclick="closeModal('deleteModal')">Cancelar</button>
-                <button type="button" class="btn-danger-action">Eliminar</button>
+                <button type="button" class="btn-danger-action" onclick="confirmarEliminacion()">Eliminar</button>
             </div>
         </div>
     </div>
 
     <script>
-        function openCatModal(mode, name = '', id = '') {
-            document.getElementById('modalTitle').innerText = mode === 'add' ? 'Registrar Categoría' : 'Editar Categoría';
-            document.getElementById('catName').value = name;
-            document.getElementById('catID').value = id;
-            document.getElementById('catModal').classList.add('active');
-        }
-
         function openDeleteModal(name) {
             document.getElementById('deleteTarget').innerText = name;
             document.getElementById('deleteModal').classList.add('active');
@@ -129,6 +88,19 @@
         function closeModal(id) {
             document.getElementById(id).classList.remove('active');
         }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.classList.remove('active');
+            }
+        }
+          function openDeleteModal(name) {
+            document.getElementById('deleteTarget').innerText = name;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
         function toggleDrawer() {
     document.getElementById('sideDrawer').classList.toggle('active');
     document.getElementById('drawerOverlay').classList.toggle('active');
@@ -141,6 +113,17 @@ window.addEventListener('keydown', function(e) {
         document.getElementById('drawerOverlay').classList.remove('active');
     }
 });
+
+function openConModal(modo) {
+    const modal = document.getElementById('conModal');
+
+    // Mostrar modal
+    modal.classList.add('active');
+
+    if (modo === 'add') {
+        prepararModoCrear(); // ya la tienes en tu JS
+    }
+}
 
 // Verificar autenticación
         const token = localStorage.getItem('token');
@@ -159,12 +142,12 @@ window.addEventListener('keydown', function(e) {
                 }
                     window.location.href = 'laboratorios.html';
                     break;
-                case 'categorias':
+                case 'consumibles':
                  if (rol !== 'admin' && rol !=="consulta") {
                     window.location.href = '.html';
                     return;
                 }
-                    window.location.href = 'categoria.html';
+                    window.location.href = 'consumibles.html';
                     break;
                 case 'encargados':
                  if (rol !== 'admin' && rol !=="consulta") {
@@ -240,5 +223,6 @@ window.addEventListener('keydown', function(e) {
     </div>
 </div>
 </div>
+<script src="/JS/consumibles.js"></script>
 </body>
 </html>

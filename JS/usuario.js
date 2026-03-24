@@ -3,7 +3,6 @@ const API_URL = 'http://localhost:3000/api/usuarios';
 let usuarioAEliminar = null;
 
 const listaUsuarios = document.getElementById('listaUsuarios');
-const sinLaboratorios = document.getElementById('sinLaboratorios');
 const staffForm = document.getElementById('staffForm');
 
 const modalTitulo = document.getElementById('modalTitle');
@@ -66,14 +65,6 @@ async function cargarUsuarios() {
 function mostrarUsuarios(usuarios) {
 
   listaUsuarios.innerHTML = '';
-
-  //if (laboratorios.length === 0) {
-    //sinLaboratorios.style.display = 'block';
-    //return;
-  //}
-
-  //sinLaboratorios.style.display = 'none';
-
 
   usuarios.forEach((u) => {
 

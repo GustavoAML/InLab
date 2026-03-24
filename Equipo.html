@@ -16,7 +16,7 @@
                 <a href="usuario.html" class="nav-item" onclick="irAPractica('usuario')">Usuarios</a>
                <a href="#" class="nav-item" onclick="irAPractica('laboratorios')">Laboratorios</a>
                 <a href="#" class="nav-item active" onclick="irAPractica('encargados')">Encargados</a>
-                <a href="#" class="nav-item" onclick="irAPractica('categorias')">Categoria</a>
+                <a href="#" class="nav-item" onclick="irAPractica('consumibles')">Consumibles</a>
                 <a href="#" class="nav-item" onclick="irAPractica('equipos')">Equipo</a>
               <a href="#" class="nav-item" onclick="toggleDrawer()">Incidencias</a>
                <a href="#" class="btn-logout-card" onclick="logout()">
@@ -235,12 +235,12 @@ window.addEventListener('keydown', function(e) {
                 }
                     window.location.href = 'laboratorios.html';
                     break;
-                case 'categorias':
+                case 'consumibles':
                  if (rol !== 'admin' && rol !=="consulta") {
                     window.location.href = '.html';
                     return;
                 }
-                    window.location.href = 'categoria.html';
+                    window.location.href = 'consumibles.html';
                     break;
                 case 'encargados':
                  if (rol !== 'admin' && rol !=="consulta") {
