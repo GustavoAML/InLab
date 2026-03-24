@@ -11,31 +11,49 @@
 
     <div class="dashboard-container">
         <aside class="sidebar">
-            <div class="logo-area"><a href="dashboard.html">INLAB</a></div>
+            <div class="logo-area">
+                <div class="logo-wrapper">
+                    <a href="Dashboard.html">INLAB</a>
+                </div>
+            </div>
+
             <nav>
-                <a href="usuario.html" class="nav-item" onclick="irAPractica('usuario')">Usuarios</a>
+                <a href="#" class="nav-item" onclick="irAPractica('usuario')">Usuarios</a>
                 <a href="#" class="nav-item" onclick="irAPractica('laboratorios')">Laboratorios</a>
-                <a href="#" class="nav-item active" onclick="irAPractica('encargados')">Encargados</a>
+                <a href="#" class="nav-item" onclick="irAPractica('encargados')">Encargados</a>
                 <a href="#" class="nav-item" onclick="irAPractica('consumibles')">Consumibles</a>
                 <a href="#" class="nav-item" onclick="irAPractica('equipos')">Equipo</a>
-              <a href="#" class="nav-item" onclick="toggleDrawer()">Incidencias</a>
-               <a href="#" class="btn-logout-card" onclick="logout()">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-    Cerrar Sesión
-</a>
+                <a href="#" class="nav-item" onclick="toggleDrawer()">Incidencias</a>
                 
+                <a href="#" class="btn-logout-card" onclick="logout()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Cerrar Sesión
+                </a>
             </nav>
         </aside>
 
         <main class="main-content">
             <section class="section-header">
                 <h2>Consumibles</h2>
+
+                <div class="search-box-container">
+                    <input type="text" id="inputBusqueda" placeholder="Buscar por nombre o ID..." onkeyup="filtrarConsumibles()">
+                    <div class="search-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                </div>
+
                 <button class="btn-add-cyan" id="btnNuevo" onclick="openConModal('add')">+ Nuevo Consumible</button>
             </section>
 
             <section class="staff-grid" id="listaConsumibles"></section>
-
-            </section>
         </main>
     </div>
 
@@ -79,150 +97,127 @@
         </div>
     </div>
 
+    <div id="sideDrawer" class="side-drawer">
+        <div class="centered-drawer-header">
+            <div class="header-top-row">
+                <h2 class="drawer-title">Incidencias</h2>
+                <button class="btn-close-drawer" onclick="toggleDrawer()">×</button>
+            </div>
+            <p class="drawer-subtitle">Gestión de reportes y bitácora.</p>
+        </div>
+        <div class="drawer-options">
+            <a href="#" class="drawer-card" onclick="irAPractica('incidencias_actual')">
+                <div class="card-icon">⚠️</div>
+                <div class="card-content">
+                    <h3>Gestión Actual</h3>
+                    <p>Reporta fallas, describe el problema y actualiza el estado del equipo.</p>
+                </div>
+            </a>
+            <a href="#" class="drawer-card" onclick="irAPractica('historial_completo')">
+                <div class="card-icon">📜</div>
+                <div class="card-content">
+                    <h3>Historial Completo</h3>
+                    <p>Consulta la bitácora de acciones, fechas y usuarios responsables.</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div id="drawerOverlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
+
     <script>
-        function openDeleteModal(name) {
-            document.getElementById('deleteTarget').innerText = name;
-            document.getElementById('deleteModal').classList.add('active');
+        function openConModal(mode, name='', id='', lab='', stock='') {
+    // 1. Buscamos el modal por su ID real: "conModal"
+    const modal = document.getElementById('conModal');
+    const modalTitle = document.getElementById('modalTitle');
+    
+    if (modal) {
+        modalTitle.innerText = mode === 'add' ? 'Registrar Nuevo Consumible' : 'Editar Consumible';
+        
+        // 2. Llenamos los campos con los IDs correctos de TU HTML
+        document.getElementById('consumibleId').value = id; 
+        document.getElementById('nombre').value = name;
+        document.getElementById('stock').value = stock;
+        document.getElementById('id_laboratorio').value = lab;
+
+        // 3. Mostramos el modal
+        modal.classList.add('active');
+    } else {
+        console.error("No se encontró el modal con ID 'conModal'");
+    }
+}
+        
+        // Función de filtrado
+    function filtrarConsumibles() {
+    const busqueda = document.getElementById('inputBusqueda').value.toLowerCase().trim();
+    const tarjetas = document.querySelectorAll('.staff-card'); 
+
+    tarjetas.forEach(tarjeta => {
+        // 1. Buscamos el texto del nombre (h3) y el texto del ID (ID_CONSUMIBLE: X)
+        const nombre = tarjeta.querySelector('h3')?.innerText.toLowerCase() || "";
+        
+        // Buscamos cualquier elemento que tenga el ID. 
+        // Si no tienes una clase específica, busca en los span o p.
+        const idTexto = tarjeta.querySelector('.id-text, span, p')?.innerText.toLowerCase() || "";
+
+        // 2. Comprobamos si la búsqueda está en el nombre O en el texto del ID
+        // Esto permite que si pones "1", encuentre "ID: 1", "ID: 10", "ID: 101", etc.
+        const coincideNombre = nombre.includes(busqueda);
+        const coincideID = idTexto.includes(busqueda);
+
+        // 3. Mostramos si coincide cualquiera de los dos
+        if (busqueda === "" || coincideNombre || coincideID) {
+            tarjeta.style.display = "";
+        } else {
+            tarjeta.style.display = "none";
+        }
+    });
+}
+
+        // Navegación y Auth
+        const token = localStorage.getItem('token');
+        const rol = localStorage.getItem('rol');
+        if (!token) window.location.href = 'login.html';
+
+        function irAPractica(tipo) {
+            const paginas = {
+                'laboratorios': 'laboratorios.html',
+                'consumibles': 'consumibles.html',
+                'encargados': 'encargado.html',
+                'equipos': 'equipo.html',
+                'usuario': 'usuario.html',
+                'historial_completo': 'historial_completo.html',
+                'incidencias_actual': 'incidencias_actual.html'
+            };
+            if (rol !== 'admin' && (tipo !== 'consumibles' && tipo !== 'encargados')) return;
+            window.location.href = paginas[tipo];
         }
 
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal-overlay')) {
-                event.target.classList.remove('active');
-            }
-        }
-          function openDeleteModal(name) {
-            document.getElementById('deleteTarget').innerText = name;
-            document.getElementById('deleteModal').classList.add('active');
+        function toggleDrawer() {
+            document.getElementById('sideDrawer').classList.toggle('active');
+            document.getElementById('drawerOverlay').classList.toggle('active');
         }
 
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        function toggleDrawer() {
-    document.getElementById('sideDrawer').classList.toggle('active');
-    document.getElementById('drawerOverlay').classList.toggle('active');
-}
-
-//  Cerrar con la tecla Escape
-window.addEventListener('keydown', function(e) {
-    if (e.key === "Escape") {
-        document.getElementById('sideDrawer').classList.remove('active');
-        document.getElementById('drawerOverlay').classList.remove('active');
-    }
-});
-
-function openConModal(modo) {
-    const modal = document.getElementById('conModal');
-
-    // Mostrar modal
-    modal.classList.add('active');
-
-    if (modo === 'add') {
-        prepararModoCrear(); // ya la tienes en tu JS
-    }
-}
-
-// Verificar autenticación
-        const token = localStorage.getItem('token');
-        const usuario = localStorage.getItem('correo');
-        const rol = localStorage.getItem('rol');
-        if (!token) {
-            window.location.href = 'login.html';
-        }
-
-        function irAPractica(tipo) {
-            switch(tipo) {
-                case 'laboratorios':
-                 if (rol !== 'admin') {
-                    window.location.href = '.html';
-                    return;
-                }
-                    window.location.href = 'laboratorios.html';
-                    break;
-                case 'consumibles':
-                 if (rol !== 'admin' && rol !=="consulta") {
-                    window.location.href = '.html';
-                    return;
-                }
-                    window.location.href = 'consumibles.html';
-                    break;
-                case 'encargados':
-                 if (rol !== 'admin' && rol !=="consulta") {
-                    window.location.href = '.html';
-                    return;
-                }
-                    window.location.href = 'encargado.html';
-                    break;
-                case 'equipos':
-                 if (rol !== 'admin') {
-                    window.location.href = '.html';
-                    return;
-                }
-                    window.location.href = 'equipo.html';
-                    break;
-                case 'historial_completo':
-                if (rol !== 'admin') {
-                    window.location.href = '.html';
-                    return;
-                }
-                    window.location.href = 'historial_completo.html';
-                    break;
-                case 'incidencias_actual':
-                if (rol !== 'admin') {
-                    window.location.href = '.html';
-                    return;
-                }
-                    window.location.href = 'incidencias_actual.html';
-                    break;
-                case 'usuario':
-                if (rol !== 'admin') {
-                    window.location.href = '.html';
-                    return;
-                }
-                    window.location.href = 'usuario.html';
-                    break;
-            }
-        }
         async function logout() {
-
-            localStorage.removeItem('token');
-            localStorage.removeItem('correo');
-            localStorage.removeItem('rol');
+            localStorage.clear();
             document.cookie = 'token=; Max-Age=0; path=/';
             window.location.href = '/login.html';
         }
-    </script>
- <div id="sideDrawer" class="side-drawer">
-    <div class="centered-drawer-header">
-        <div class="header-top-row">
-            <h2 class="drawer-title">Incidencias</h2>
-            <button class="btn-close-drawer" onclick="toggleDrawer()">×</button>
-        </div>
-        <p class="drawer-subtitle">Gestión de reportes y bitácora.</p>
-    </div>
-    
-    <div class="drawer-options">
-        <a href="#" class="drawer-card" onclick="irAPractica('incidencias_actual')">
-            <div class="card-icon">⚠️</div>
-            <div class="card-content">
-                <h3>Gestión Actual</h3>
-                <p>Reporta fallas, describe el problema y actualiza el estado del equipo.</p>
-            </div>
-        </a>
 
-        <a href="#" class="drawer-card" onclick="irAPractica('historial_completo')">
-            <div class="card-icon">📜</div>
-            <div class="card-content">
-                <h3>Historial Completo</h3>
-                <p>Consulta la bitácora de acciones, fechas y usuarios responsables.</p>
-            </div>
-        </a>
-    </div>
-</div>
-</div>
-<script src="/JS/consumibles.js"></script>
+        // Active Link Logic
+        document.addEventListener("DOMContentLoaded", () => {
+            const currentFile = window.location.pathname.split("/").pop();
+            const map = { 'usuario.html': 'usuario', 'laboratorios.html': 'laboratorios', 'encargado.html': 'encargados', 'consumibles.html': 'consumibles', 'equipo.html': 'equipos' };
+            const activeSec = map[currentFile];
+            document.querySelectorAll('.nav-item').forEach(item => {
+                const attr = item.getAttribute('onclick');
+                if (activeSec && attr && attr.includes(`'${activeSec}'`)) item.classList.add('active');
+            });
+        });
+        
+    </script>
+    <script src="/JS/consumibles.js"></script>
 </body>
 </html>

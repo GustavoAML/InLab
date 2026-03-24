@@ -6,7 +6,12 @@
     align-items: center;
     margin-bottom: 30px;
 }
-
+.nav-item.active {
+    background-color: rgba(0, 188, 212, 0.15) !important; /* El color cian de tu logo */
+    color: var(--primary-cyan) !important;
+    border-right: 3px solid var(--primary-cyan); /* Una rayita para que resalte más */
+    font-weight: bold;
+}
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -103,7 +108,60 @@
     --danger-hover: #dc2626;
     --shadow-cyan: 0 0 20px rgba(0, 188, 212, 0.2);
 }
+/* --- ESTILOS DEL BUSCADOR --- */
+.search-box-container {
+    position: relative;
+    flex: 1;
+    max-width: 450px; /* Tamaño ideal para que no se vea gigante */
+    margin: 0 30px;
+    display: flex;
+    align-items: center;
+}
 
+.search-box-container input {
+    width: 100%;
+    padding: 12px 45px 12px 20px;
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid rgba(0, 188, 212, 0.2);
+    border-radius: 12px;
+    color: white;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-box-container input:focus {
+    border-color: var(--primary-cyan);
+    background: rgba(30, 41, 59, 0.7);
+    box-shadow: 0 0 15px rgba(0, 188, 212, 0.2);
+}
+
+.search-icon {
+    position: absolute;
+    right: 15px;
+    color: var(--text-gray);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.search-box-container input:focus + .search-icon {
+    color: var(--primary-cyan);
+    transform: scale(1.1);
+}
+
+/* Ajuste para que el header no se rompa en pantallas pequeñas */
+@media (max-width: 900px) {
+    .section-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .search-box-container {
+        max-width: 100%;
+        margin: 0;
+    }
+}
 /* --- ESTRUCTURA DE LA SECCIÓN --- */
 .section-header {
     display: flex;

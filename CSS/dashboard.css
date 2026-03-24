@@ -43,7 +43,81 @@ body, html {
     flex-direction: column;
     border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
+/* ==========================================================================
+   Logo INLAB con Animación y Estilo Card
+   ========================================================================== */
 
+/* 1. Contenedor principal del logo (Márgenes) */
+.logo-area {
+    margin-bottom: 50px;
+    text-align: center; /* Centramos el logo en la sidebar */
+    display: flex;
+    justify-content: center;
+}
+
+/* 2. El "Wrapper" que crea el efecto de tarjeta y animación */
+.logo-wrapper {
+    position: relative;
+    padding: 15px 30px; /* Espaciado interno de la tarjeta */
+    background: #1a2236; /* Un tono un poco más claro que la sidebar para que resalte */
+    border-radius: 12px; /* Bordes redondeados de tarjeta */
+    box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.3), /* Sombra de tarjeta flotante */
+        0 0 10px rgba(0, 188, 212, 0.1); /* Brillo cian muy sutil */
+    overflow: hidden; /* Importante para que la animación no se salga */
+    display: inline-block;
+    border: 1px solid rgba(255, 255, 255, 0.05); /* Borde muy fino */
+}
+
+/* 3. Estilo del texto "INLAB" */
+.logo-wrapper a {
+    color: var(--text-white);
+    text-decoration: none;
+    font-size: 1.8rem;
+    font-weight: 800; /* Más grueso para que resalte */
+    letter-spacing: 2px;
+    position: relative;
+    z-index: 2; /* Ponemos el texto por encima de la animación */
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(0, 188, 212, 0.5); /* Brillo en el texto */
+}
+
+/* 4. La animación: Un rayo de luz que gira (Pseudoelemento ::before) */
+.logo-wrapper::before {
+    content: '';
+    position: absolute;
+    width: 200%; /* Muy ancho para que al girar cubra las esquinas */
+    height: 200%;
+    background: conic-gradient(
+        transparent, 
+        rgba(0, 188, 212, 0.8), /* El color cian del rayo */
+        transparent 30%
+    );
+    top: -50%;
+    left: -50%;
+    animation: rotateLogoGlow 4s linear infinite; /* 4 segundos por vuelta */
+    z-index: 1; /* Por detrás del texto */
+}
+
+/* 5. Un "overlay" para suavizar la animación (Pseudoelemento ::after) */
+.logo-wrapper::after {
+    content: '';
+    position: absolute;
+    background: #1a2236; /* Mismo fondo de la tarjeta */
+    inset: 3px; /* Deja ver solo 3px del borde animado */
+    border-radius: 10px; /* Un poco menos que el wrapper */
+    z-index: 1; /* Por detrás del texto */
+}
+
+/* 6. Definición de la animación de rotación */
+@keyframes rotateLogoGlow {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
 /* Esto selecciona el enlace que está exactamente dentro de logo-area */
 .logo-area a {
     color: var(--white); /* O el color que estés usando para el texto */
@@ -667,7 +741,12 @@ nav {
     padding-top: 20px !important;
     font-weight: bold;
 }
-
+.nav-item.active {
+    background-color: rgba(0, 188, 212, 0.15) !important; /* El color cian de tu logo */
+    color: var(--primary-cyan) !important;
+    border-right: 3px solid var(--primary-cyan); /* Una rayita para que resalte más */
+    font-weight: bold;
+}
 .nav-item-logout:hover {
     background: rgba(239, 68, 68, 0.1) !important;
     color: #ff5f5f !important;
