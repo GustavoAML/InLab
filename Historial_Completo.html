@@ -6,74 +6,20 @@
     <title>INLAB - Historial de Incidencias</title>
     <link rel="stylesheet" href="CSS/dashboard.css">
     <link rel="stylesheet" href="CSS/historial.css">
-    <style>
-        /* Estilos específicos para la tabla de historial */
-        .history-table-container {
-            background: var(--bg-split);
-            border-radius: 20px;
-            padding: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: var(--shadow-cyan);
-            margin-top: 20px;
-        }
-
-        .action-badge {
-            padding: 5px 12px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        /* Colores basados en el tipo de acción */
-        .action-create { background: rgba(0, 188, 212, 0.1); color: var(--primary-cyan); }
-        .action-update { background: rgba(234, 179, 8, 0.1); color: #eab308; }
-        .action-delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-
-        /* Contenedor del buscador */
-        .search-box-container {
-            position: relative;
-            flex: 1;
-            max-width: 400px;
-            display: flex;
-            align-items: center;
-            margin: 0 20px;
-        }
-
-        .search-box-container input {
-            width: 100%;
-            padding: 10px 40px 10px 15px;
-            background: rgba(30, 41, 59, 0.5);
-            border: 1px solid rgba(0, 188, 212, 0.2);
-            border-radius: 10px;
-            color: white;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        .search-box-container input:focus {
-            border-color: #00bcd4;
-            box-shadow: 0 0 10px rgba(0, 188, 212, 0.3);
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 12px;
-            color: #94a3b8;
-            pointer-events: none;
-        }
-    </style>
+   
 </head>
 <body>
 
-    <div class="dashboard-container">
-        <aside class="sidebar">
-            <div class="logo-area">
-                <div class="logo-wrapper">
-                    <a href="Dashboard.html">INLAB</a>
-                </div>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+        <div class="logo-area">
+            <div class="logo-wrapper">
+                <a href="Dashboard.html" style="z-index: 10; display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                    <img src="/logo_nuevo2.png" alt="Logo" style="height: 35px; width: auto;">
+                    <span style="color: white; font-weight: 800; font-size: 1.5rem;">INLAB</span>
+                </a>
             </div>
-
+        </div>
             <nav>
                 <a href="#" class="nav-item" onclick="irAPractica('usuario')">Usuarios</a>
                 <a href="#" class="nav-item" onclick="irAPractica('laboratorios')">Laboratorios</a>

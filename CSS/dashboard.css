@@ -18,6 +18,72 @@
     --shadow-cyan: 0 0 20px rgba(0, 188, 212, 0.2);
 }
 
+/* --- CONTENEDOR DEL LOGO (TARJETA) --- */
+.logo-area {
+    margin-bottom: 800px; /* Antes era 50px */
+    display: flex;
+    justify-content: center;
+}
+
+/* 2. El "Wrapper" (Reducimos Ancho, Alto y Padding) */
+.logo-wrapper {
+    position: relative;
+    /* --- NUEVOS TAMAÑOS --- */
+    width: 150px;              /* Antes era ~200px */
+    height: 40px;              /* Antes era ~70px */
+    /* --------------------- */
+    padding: 10px 15px;        /* Reducimos espaciado interno */
+    background: #1a2236;
+    border-radius: 10px;       /* Bordes un poco menos redondeados */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;                  /* Menos espacio entre icono y texto */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* 3. Ajuste de la animación (Reducimos el grosor de la luz) */
+.logo-wrapper::after {
+    content: '';
+    position: absolute;
+    background: #1a2236;
+    inset: 3px;                /* Luz más fina (antes 3px) */
+    border-radius: 8px;
+    z-index: 1;
+}
+
+/* 4. Estilo del contenido (Reducimos tamaños de Icono y Texto) */
+.logo-wrapper a {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-decoration: none;
+}
+
+.logo-icon {
+    height: 45px;              /* Antes era ~35px */
+    width: auto;
+    filter: drop-shadow(0 0 4px var(--primary-cyan));
+}
+
+.logo-text {
+   color: var(--white);
+    font-size: 1.8rem;    /* Súbelo de 1.2rem a 1.4rem o 1.5rem */
+    font-weight: 900;     /* '900' es el máximo grosor disponible */
+    letter-spacing: 0px;  /* Si el texto es muy grande, reduce el espacio entre letras */
+    text-transform: uppercase;
+    text-shadow: 0 0 8px rgba(0, 188, 212, 0.3);
+}
+
+/* Hover suave */
+.logo-wrapper:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 188, 212, 0.3);
+}
 /* Reset y Base */
 body, html {
     margin: 0;
@@ -108,6 +174,7 @@ body, html {
     border-radius: 10px; /* Un poco menos que el wrapper */
     z-index: 1; /* Por detrás del texto */
 }
+
 
 /* 6. Definición de la animación de rotación */
 @keyframes rotateLogoGlow {
@@ -772,3 +839,185 @@ nav {
     box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
     transform: translateY(-2px);
 }
+/* --- VARIABLES --- */
+:root {
+    --bg-dark: #0f172a;
+    --bg-split: #1e293b;
+    --primary-cyan: #00bcd4;
+    --primary-hover: #26c6da;
+    --text-gray: #94a3b8;
+    --white: #ffffff;
+    --danger-red: #ef4444;
+    --warning-orange: #f39c12;
+    --shadow-cyan: 0 0 20px rgba(0, 188, 212, 0.2);
+    
+    /* Estados de la tabla */
+    --status-pending: rgba(239, 68, 68, 0.1);
+    --status-pending-text: #ef4444;
+    --status-resolved: rgba(34, 197, 94, 0.1);
+    --status-resolved-text: #22c55e;
+    --status-in-review: rgba(234, 179, 8, 0.1);
+    --status-in-review-text: #eab308;
+}
+
+/* --- RESET Y BASE --- */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    overflow-x: hidden;
+}
+
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* --- SIDEBAR IZQUIERDA --- */
+.sidebar {
+    width: 250px;
+    background-color: var(--bg-split);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* --- LOGO ÁREA (MODIFICADO PARA IMAGEN) --- */
+.logo-area {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+    margin-bottom: 30px;
+}
+
+.logo-area a {
+    color: var(--white);
+    text-decoration: none;
+    display: flex;       /* Esto pone la imagen y el texto en fila */
+    align-items: center; /* Centra la imagen con el texto verticalmente */
+    gap: 15px;           /* Espacio entre la imagen y el texto */
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.logo-area a img {
+    height: 40px;        /* Tamaño de tu logo */
+    width: auto;
+    filter: drop-shadow(0 0 5px var(--primary-cyan)); /* Brillo para la imagen */
+}
+
+.logo-area a:hover {
+    color: var(--primary-cyan);
+    text-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
+    transform: scale(1.05);
+}
+
+/* --- NAVEGACIÓN --- */
+nav {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 100px);
+}
+
+.nav-item {
+    color: var(--text-gray);
+    text-decoration: none;
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    display: block;
+    font-weight: 500;
+    font-size: 18px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-item:hover {
+    color: var(--white);
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateX(5px);
+}
+
+.nav-item.active {
+    background-color: rgba(0, 188, 212, 0.15);
+    color: var(--primary-cyan);
+    border-right: 3px solid var(--primary-cyan);
+    font-weight: bold;
+}
+
+/* Botón Salir al fondo */
+.btn-logout-card {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 12px;
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    text-decoration: none;
+    border-radius: 12px;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-logout-card:hover {
+    background: #ef4444;
+    color: white;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    transform: translateY(-2px);
+}
+
+/* --- CONTENIDO PRINCIPAL --- */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 30px 40px;
+}
+
+/* --- MODALES --- */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
+    display: flex; justify-content: center; align-items: center;
+    opacity: 0; visibility: hidden; transition: 0.3s; z-index: 3000;
+}
+
+.modal-overlay.active { opacity: 1; visibility: visible; }
+
+.modal-content {
+    background-color: var(--bg-split); 
+    border: 1px solid var(--primary-cyan);
+    border-radius: 24px; 
+    padding: 30px; 
+    width: 95%; max-width: 550px;
+    text-align: center;
+}
+
+.form-group { text-align: left; margin-bottom: 15px; }
+.form-group label { display: block; color: var(--text-gray); margin-bottom: 5px; font-size: 0.85rem; }
+
+.form-group input, .form-group select {
+    width: 100%; padding: 12px; 
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255,255,255,0.1); 
+    border-radius: 10px; color: white; outline: none;
+}
+
+.form-group input:focus { border-color: var(--primary-cyan); }
+
+.modal-actions { display: flex; gap: 12px; margin-top: 25px; }
+
+.btn-save { background: var(--primary-cyan); color: var(--bg-dark); border: none; flex: 2; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+.btn-cancel { background: transparent; border: 1px solid var(--text-gray); color: var(--text-gray); flex: 1; padding: 12px; border-radius: 10px; cursor: pointer; }
