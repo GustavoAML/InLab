@@ -83,7 +83,7 @@
     border-color: var(--primary-cyan);
 }
 
-.card-header-bg { height: 80px; background-color: #334155; opacity: 0.5; }
+.card-header-bg { height: 80px; background-color: #334155; }
 
 .avatar-container { display: flex; justify-content: center; margin-top: -45px; }
 

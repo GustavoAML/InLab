@@ -66,17 +66,25 @@
     border-color: var(--primary-cyan);
 }
 
-.card-header-bg { height: 80px; background-color: #334155; opacity: 0.5; }
+.card-header-bg { height: 80px; background-color: #334155;  }
 
-.avatar-container { display: flex; justify-content: center; margin-top: -45px; }
+.avatar-container {
+    display: flex;
+    justify-content: center;
+    margin-top: -50px;
+}
 
 .avatar-circle {
-    width: 90px; height: 90px;
+    width: 100px;
+    height: 100px;
     background-color: var(--bg-split);
     border: 3px solid var(--primary-cyan);
     border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: var(--primary-cyan);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 10px rgba(0, 188, 212, 0.2);
 }
 
 .staff-info { padding: 20px 25px; text-align: center; }
