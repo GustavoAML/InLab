@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 24-03-2026 a las 17:17:09
+-- Tiempo de generación: 26-03-2026 a las 17:36:08
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -100,9 +100,9 @@ CREATE TABLE `incidencia` (
 
 CREATE TABLE `laboratorio` (
   `id_laboratorio` int(11) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
+  `nombre_lab` varchar(100) NOT NULL,
   `edificio` varchar(25) NOT NULL,
-  `planta` tinyint(4) NOT NULL,
+  `planta` varchar(50) NOT NULL,
   `id_encargado` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -110,8 +110,8 @@ CREATE TABLE `laboratorio` (
 -- Volcado de datos para la tabla `laboratorio`
 --
 
-INSERT INTO `laboratorio` (`id_laboratorio`, `nombre`, `edificio`, `planta`, `id_encargado`) VALUES
-(1, 'Laboratorio de Redes', 'Pesado 2', 1, 10);
+INSERT INTO `laboratorio` (`id_laboratorio`, `nombre_lab`, `edificio`, `planta`, `id_encargado`) VALUES
+(1, 'Laboratorio de Redes', 'Pesado 2', 'Alta', 10);
 
 -- --------------------------------------------------------
 
@@ -247,7 +247,7 @@ ALTER TABLE `incidencia`
 -- AUTO_INCREMENT de la tabla `laboratorio`
 --
 ALTER TABLE `laboratorio`
-  MODIFY `id_laboratorio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_laboratorio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
