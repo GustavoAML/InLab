@@ -53,46 +53,10 @@
                     </div>
                 </div>
 
-                <button class="btn-add-cyan" onclick="openLabModal('add')">+ Nuevo Laboratorio</button>
+                <button class="btn-add-cyan" onclick="openLabModal('add')" id="btnNuevo">+ Nuevo Laboratorio</button>
             </section>
 
             <div class="labs-grid" id="listaLaboratorios">
-                
-                <div class="lab-card">
-                    <div class="lab-card-header">
-                        <div class="lab-icon">💻</div>
-                        <span class="lab-id-badge">ID: 1</span>
-                    </div>
-                    <div class="lab-card-body">
-                        <h3>Cómputo</h3>
-                        <div class="lab-meta">
-                            <p>🏢 <strong>Edificio:</strong> Edificio A</p>
-                            <p>📶 <strong>Planta:</strong> Planta Baja</p>
-                        </div>
-                    </div>
-                    <div class="lab-card-actions">
-                        <button class="btn-lab-edit" onclick="openLabModal('edit', 'Cómputo', '1', 'Edificio A', 'Planta Baja')">Editar</button>
-                        <button class="btn-lab-delete" onclick="openDeleteModal('Cómputo')">Eliminar</button>
-                    </div>
-                </div>
-
-                <div class="lab-card">
-                    <div class="lab-card-header">
-                        <div class="lab-icon">📡</div>
-                        <span class="lab-id-badge">ID: 2</span>
-                    </div>
-                    <div class="lab-card-body">
-                        <h3>Redes</h3>
-                        <div class="lab-meta">
-                            <p>🏢 <strong>Edificio:</strong> Edificio B</p>
-                            <p>📶 <strong>Planta:</strong> Piso 1</p>
-                        </div>
-                    </div>
-                    <div class="lab-card-actions">
-                        <button class="btn-lab-edit" onclick="openLabModal('edit', 'Redes', '2', 'Edificio B', 'Piso 1')">Editar</button>
-                        <button class="btn-lab-delete" onclick="openDeleteModal('Redes')">Eliminar</button>
-                    </div>
-                </div>
 
             </div>
         </main>
@@ -103,26 +67,46 @@
             <h3 id="modalTitle">Registrar Laboratorio</h3>
             <form id="labForm">
                 <div class="form-group">
+                    <label>Id de laboratorio</label>
+                    <input type="text" id="labId" readonly>
+                </div>
+                <div class="form-group">
                     <label>Nombre del Laboratorio</label>
                     <input type="text" id="labName" placeholder="Ej. Laboratorio de Redes" required>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Edificio</label>
-                        <input type="text" id="labEdificio" placeholder="Ej. Edificio A" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Planta / Piso</label>
-                        <input type="text" id="labPlanta" placeholder="Ej. Planta Alta" required>
-                    </div>
+                <div class="form-group">
+                    <label>Edificio</label>
+                    <select id="labEdificio" required>
+                        <option value="">Seleccione un edificio...</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="Pesado 1">Pesado 1</option>
+                        <option value="Pesado 2">Pesado 2</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Planta / Piso</label>
+                    <select id="labPlanta" required>
+                        <option value="">Seleccione una planta/piso...</option>
+                        <option value="Alta">Alta</option>
+                        <option value="Baja">Baja</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                        <label>Encargado</label>
+                        <select id="id_encargado" required></select>
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn-cancel" onclick="closeModal('labModal')">Cancelar</button>
-                    <button type="submit" class="btn-save">Guardar Lab</button>
+                    <button type="submit" class="btn-save" id="btnGuardar">Guardar Lab</button>
+                </div>
                 </div>
             </form>
         </div>
-    </div>
+
 
     <div id="deleteModal" class="modal-overlay">
         <div class="modal-content confirm-delete">
@@ -167,12 +151,15 @@
     <div id="drawerOverlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
 
     <script>
-        function openLabModal(mode, name='', id='', edificio='', planta='') {
-            document.getElementById('modalTitle').innerText = mode === 'add' ? 'Registrar Laboratorio' : 'Editar Laboratorio';
-            document.getElementById('labName').value = name;
-            document.getElementById('labEdificio').value = edificio;
-            document.getElementById('labPlanta').value = planta;
-            document.getElementById('labModal').classList.add('active');
+        function openLabModal(modo) {
+            const modal = document.getElementById('labModal');
+
+            // Mostrar modal
+            modal.classList.add('active');
+
+            if (modo === 'add') {
+                prepararModoCrear();
+            }
         }
 
         function openDeleteModal(name) {
@@ -244,12 +231,13 @@
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
                 const click = item.getAttribute('onclick');
-                if (seccionActiva && click && click.includes(`'${seccionActiva}'`)) {
+                if (seccionActiva && click && click.includes('${seccionActiva}')) {
                     item.classList.add('active');
                 }
             });
         });
-        <script>
+        
     </script>
+    <script src="/JS/laboratorio.js"></script>
 </body>
 </html>

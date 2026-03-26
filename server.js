@@ -159,7 +159,7 @@ app.get('/api/consumibles', auth, requireRole('admin'), (req, res) => {
             l.id_laboratorio, 
             c.nombre_con, 
             c.stock, 
-            l.nombre,
+            l.nombre_lab,
             l.edificio
         FROM consumibles AS c
         JOIN laboratorio AS l ON c.id_laboratorio = l.id_laboratorio
@@ -177,8 +177,9 @@ app.get('/api/consumibles', auth, requireRole('admin'), (req, res) => {
     });
 });
 
-app.get('/api/laboratorios', (req, res) => {
-    const query = 'SELECT id_laboratorio, nombre, edificio FROM laboratorio ORDER BY nombre ASC';
+//Obtener laboratorios
+app.get('/api/laboratorios', auth, requireRole('admin'), (req, res) => {
+    const query = 'SELECT id_laboratorio, nombre_lab, edificio, planta, id_encargado FROM laboratorio ORDER BY nombre_lab ASC';
     
     connection.query(query, (err, results) => {
         if (err) {
@@ -237,6 +238,27 @@ app.post('/api/consumibles', auth, requireRole('admin'), (req, res) => {
             
         res.status(201).json({ mensaje: 'Consumible creado', id: result.insertId }); 
     }); 
+});
+
+// Crear laboratorios
+app.post('/api/laboratorios', (req, res) => {
+  const { nombre, edificio, planta, id_encargado } = req.body;
+ 
+  if (!nombre || !edificio || !planta || !id_encargado) {
+    return res.status(400).json({ error: 'Campos obligatorios faltantes' });
+  }
+ 
+  connection.query(
+    'INSERT INTO laboratorio (nombre_lab, edificio, planta, id_encargado) VALUES (?, ?, ?, ?)',
+    [nombre, edificio, planta, id_encargado],
+    (err, result) => {
+      if (err) {
+        console.error('Error:', err);
+        return res.status(500).json({ error: 'Error al crear laboratorio' });
+      }
+      res.status(201).json({ mensaje: 'Laboratorio creado', id: result.insertId });
+    }
+  );
 });
 
 // Editar usuarios
@@ -303,6 +325,31 @@ app.put('/api/consumibles/:id', auth, requireRole('admin'), (req, res) => {
     );
 });
 
+// Editar laboratorios
+app.put('/api/laboratorios/:id', auth, requireRole('admin'), (req, res) => {
+  const { id } = req.params;
+  const { nombre, edificio, planta, id_encargado } = req.body;
+ 
+  if (!nombre || !edificio || !planta || !id_encargado) {
+    return res.status(400).json({ error: 'Campos obligatorios faltantes' });
+  }
+ 
+  connection.query(
+    'UPDATE laboratorio SET nombre_lab = ?, edificio = ?, planta = ? , id_encargado = ? WHERE id_laboratorio = ?',
+    [nombre, edificio, planta, id_encargado, id],
+    (err, result) => {
+      if (err) {
+        console.error('Error:', err);
+        return res.status(500).json({ error: 'Error al actualizar laboratorio' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Laboratorio no encontrado' });
+      }
+      res.json({ mensaje: 'Laboratorio actualizado' });
+    }
+  );
+});
+
 // Eliminar usuario
 app.delete('/api/usuarios/:id', auth, requireRole('admin'), (req, res) => {
 
@@ -347,11 +394,30 @@ app.delete('/api/consumibles/:id', auth, requireRole('admin'), (req, res) => {
     });
 });
 
+// Eliminar laboratorios
+app.delete('/api/laboratorios/:id', auth, requireRole('admin'), (req, res) => {
+  const { id } = req.params;
+  connection.query(
+    'DELETE FROM laboratorio WHERE id_laboratorio = ?',
+    [id],
+    (err, result) => {
+      if (err) {
+        console.error('Error:', err);
+        return res.status(500).json({ error: 'Error al eliminar laboratorio' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Laboratorio no encontrado' });
+      }
+      res.json({ mensaje: 'Laboratorio eliminado' });
+    }
+  );
+});
+
 // Página principal
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dashboard.html'));
+  res.sendFile(path.join(__dirname, 'login.html'));
 });
 
 app.listen(PORT, () => {
   console.log(`Servidor en http://localhost:${PORT}`);
-});
+});3

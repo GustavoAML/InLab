@@ -77,7 +77,7 @@ function mostrarConsumibles(consumibles) {
                         <h3>${c.nombre_con}</h3>
                         <p class="role">ID_CONSUMIBLE: ${c.id}</p>
                         <div class="details">
-                            <p><strong>Laboratorio: </strong> ${c.nombre}</p>
+                            <p><strong>Laboratorio: </strong> ${c.nombre_lab}</p>
                             <p><strong>Edificio: </strong> ${c.edificio}</p>
                             <p>📦 <strong>Stock:</strong> ${c.stock}</p>
                         </div>
@@ -172,11 +172,15 @@ async function guardarOActualizar(event) {
 // =============================
 // EDITAR
 // =============================
-function abrirEditar(consumible) {
+async function abrirEditar(consumible) {
 
   inputId.value = consumible.id;
   inputNombre.value = consumible.nombre_con || '';
   inputStock.value = consumible.stock || '';
+
+  await cargarLaboratorios();
+
+  inputIdLaboratorio.value = consumible.id_laboratorio || '';
   
   modalTitulo.textContent = 'Editar Consumible';
   btnGuardar.textContent = 'Actualizar';
@@ -243,13 +247,21 @@ async function confirmarEliminacion() {
     }
 }
 
+//Cargar responsables
 async function cargarLaboratorios() {
     const select = document.getElementById('id_laboratorio');
 
     try {
         // Petición al endpoint
-        const respuesta = await fetch('/api/laboratorios');
+        const respuesta = await fetch('/api/laboratorios', {
+            headers: {
+                'Authorization': `Bearer ${getToken()}`
+            }
+        });
+
         const laboratorios = await respuesta.json();
+
+        console.log(laboratorios);
 
         // Limpiar el select y poner opción inicial
         select.innerHTML = `<option value="">Seleccione un laboratorio...</option>`;
@@ -258,10 +270,10 @@ async function cargarLaboratorios() {
         laboratorios.forEach(item => {
             // Crear el elemento <option>
             const opcion = document.createElement('option');
-            
-            // Asignar los valores (ID para el sistema, Nombre para el laboratorio y edificio)
+
+            // Asignar los valores
             opcion.value = item.id_laboratorio;
-            opcion.textContent = `${item.nombre} - ${item.edificio}`;
+            opcion.textContent = `${item.nombre_lab} - ${item.edificio}`;
 
             //Insertarlo en el select
             select.appendChild(opcion);
@@ -271,6 +283,7 @@ async function cargarLaboratorios() {
         console.error("Error al cargar laboratorios:", error);
     }
 }
+
 
 // Llamar a la función cuando cargue la página
 document.addEventListener('DOMContentLoaded', cargarLaboratorios);
