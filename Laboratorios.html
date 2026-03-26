@@ -218,7 +218,7 @@
             window.location.href = '/login.html';
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
+       document.addEventListener("DOMContentLoaded", function() {
             const currentFile = window.location.pathname.split("/").pop();
             const mapPaginas = {
                 'usuario.html': 'usuario',
@@ -228,15 +228,16 @@
                 'equipo.html': 'equipos'
             };
             const seccionActiva = mapPaginas[currentFile];
-            document.querySelectorAll('.nav-item').forEach(item => {
+            const menuItems = document.querySelectorAll('.nav-item');
+            menuItems.forEach(item => {
                 item.classList.remove('active');
-                const click = item.getAttribute('onclick');
-                if (seccionActiva && click && click.includes('${seccionActiva}')) {
+                const clickAtributo = item.getAttribute('onclick');
+                if (seccionActiva && clickAtributo && clickAtributo.includes(`'${seccionActiva}'`)) {
                     item.classList.add('active');
                 }
             });
         });
-        
+
     </script>
     <script src="/JS/laboratorio.js"></script>
 </body>
