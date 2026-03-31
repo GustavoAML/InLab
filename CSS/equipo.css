@@ -44,24 +44,45 @@
 }
 
 /* ESTADOS */
-.eq-status-container {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: -10px;
-}
+.status-available { 
+    background: rgba(34, 197, 94, 0.1); 
+    color: #22c55e; 
+    border: 1px solid rgba(34, 197, 94, 0.3); 
+} /* Verde */
 
+.status-in-use { 
+    background: rgba(6, 182, 212, 0.1); 
+    color: #06b6d4; 
+    border: 1px solid rgba(6, 182, 212, 0.3); 
+} /* Cian/Azul */
+
+.status-maintenance { 
+    background: rgba(249, 115, 22, 0.1); 
+    color: #f97316; 
+    border: 1px solid rgba(249, 115, 22, 0.3); 
+} /* Naranja */
+
+.status-out-of-service { 
+    background: rgba(239, 68, 68, 0.1); 
+    color: #ef4444; 
+    border: 1px solid rgba(239, 68, 68, 0.3); 
+} /* Rojo */
+
+/* 2. Temas de la Tarjeta (Borde Superior de color) */
+.green-theme { border-top: 4px solid #22c55e !important; }
+.blue-theme { border-top: 4px solid #06b6d4 !important; }
+.orange-theme { border-top: 4px solid #f97316 !important; }
+.red-theme { border-top: 4px solid #ef4444 !important; }
+
+/* 3. Ajuste de la clase general del badge (asegúrate de que tenga esto) */
 .status-badge {
-    padding: 4px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 800;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
-
-.status-in-use { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
-.status-out { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
-.status-repair { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
-
 /* ICONOS E INFO */
 .eq-icon-box {
     width: 100%; height: 100px;
@@ -479,4 +500,30 @@ nav {
     color: white;
     box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
     transform: translateY(-2px);
+}
+/* Agrega esto a tu archivo CSS */
+.lab-group {
+    margin-bottom: 50px;
+    width: 100%;
+}
+
+.lab-title {
+    font-size: 1.5rem;
+    color: var(--primary-cyan);
+    border-bottom: 2px solid rgba(0, 188, 212, 0.2);
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+/* El grid ahora vive dentro de cada edificio */
+.equipment-grid-inner {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+/* Cambiamos el original por si acaso */
+#listaEquipos {
+    display: block; /* Para que los lab-groups bajen uno tras otro */
 }

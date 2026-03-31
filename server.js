@@ -413,6 +413,74 @@ app.delete('/api/laboratorios/:id', auth, requireRole('admin'), (req, res) => {
   );
 });
 
+// =============================
+// ENDPOINTS EQUIPOS (con callbacks)
+// =============================
+
+// Obtener todos los equipos
+app.get('/api/equipos', (req, res) => {
+  const query = `
+    SELECT e.id_equipo, e.nombre, e.no_serie, e.estado, 
+           e.tipo, l.nombre_lab, l.edificio, e.id_laboratorio
+    FROM equipo e
+    JOIN laboratorio l ON e.id_laboratorio = l.id_laboratorio
+  `;
+  connection.query(query, (err, rows) => {
+    if (err) {
+      console.error('Error al obtener equipos:', err);
+      return res.status(500).json({ error: 'Error al obtener equipos' });
+    }
+    res.json(rows);
+  });
+});
+
+// Crear nuevo equipo
+app.post('/api/equipos', (req, res) => {
+  const { nombre, no_serie, estado, id_laboratorio, tipo } = req.body;
+  const query = `
+    INSERT INTO equipo (nombre, no_serie, estado, id_laboratorio, tipo) 
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  connection.query(query, [nombre, no_serie, estado, id_laboratorio, tipo], (err) => {
+    if (err) {
+      console.error('Error al crear equipo:', err);
+      return res.status(500).json({ error: 'Error al crear equipo' });
+    }
+    res.json({ message: 'Equipo creado correctamente' });
+  });
+});
+
+// Actualizar equipo
+app.put('/api/equipos/:id', (req, res) => {
+  const { id } = req.params;
+  const { nombre, no_serie, estado, id_laboratorio, tipo } = req.body;
+  const query = `
+    UPDATE equipo 
+    SET nombre=?, no_serie=?, estado=?, id_laboratorio=?, tipo=? 
+    WHERE id_equipo=?
+  `;
+  connection.query(query, [nombre, no_serie, estado, id_laboratorio, tipo, id], (err) => {
+    if (err) {
+      console.error('Error al actualizar equipo:', err);
+      return res.status(500).json({ error: 'Error al actualizar equipo' });
+    }
+    res.json({ message: 'Equipo actualizado correctamente' });
+  });
+});
+
+// Eliminar equipo
+app.delete('/api/equipos/:id', (req, res) => {
+  const { id } = req.params;
+  const query = `DELETE FROM equipo WHERE id_equipo=?`;
+  connection.query(query, [id], (err) => {
+    if (err) {
+      console.error('Error al eliminar equipo:', err);
+      return res.status(500).json({ error: 'Error al eliminar equipo' });
+    }
+    res.json({ message: 'Equipo eliminado correctamente' });
+  });
+});
+
 // Página principal
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));

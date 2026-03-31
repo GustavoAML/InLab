@@ -818,27 +818,7 @@ nav {
     background: rgba(239, 68, 68, 0.1) !important;
     color: #ff5f5f !important;
 }
-.btn-logout-card {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 20px;
-    padding: 12px;
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-    text-decoration: none;
-    border-radius: 12px;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
 
-.btn-logout-card:hover {
-    background: #ef4444;
-    color: white;
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-    transform: translateY(-2px);
-}
 /* --- VARIABLES --- */
 :root {
     --bg-dark: #0f172a;
@@ -955,11 +935,10 @@ nav {
 
 /* Botón Salir al fondo */
 .btn-logout-card {
-    margin-top: auto;
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 20px;
+    margin: 20px;
     padding: 12px;
     background: rgba(239, 68, 68, 0.15);
     color: #ef4444;
@@ -976,7 +955,6 @@ nav {
     box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
     transform: translateY(-2px);
 }
-
 /* --- CONTENIDO PRINCIPAL --- */
 .main-content {
     flex: 1;

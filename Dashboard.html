@@ -9,15 +9,15 @@
 <body>
 
     <div class="dashboard-container">
-    <aside class="sidebar">
-        <div class="logo-area">
-            <div class="logo-wrapper">
-                <a href="Dashboard.html" style="z-index: 10; display: flex; align-items: center; gap: 10px; text-decoration: none;">
-                    <img src="/logo_nuevo2.png" alt="Logo" style="height: 35px; width: auto;">
-                    <span style="color: white; font-weight: 800; font-size: 1.5rem;">INLAB</span>
-                </a>
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo-wrapper">
+                    <a href="Dashboard.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                        <img src="/logo_nuevo2.png" alt="Logo" style="height: 35px; width: auto;">
+                        <span style="color: white; font-weight: 800; font-size: 1.5rem;">INLAB</span>
+                    </a>
+                </div>
             </div>
-        </div>
 
             <nav>
                 <a href="#" class="nav-item" onclick="irAPractica('usuario')">Usuarios</a>
@@ -39,15 +39,14 @@
         </aside>
 
         <main class="main-content">
-         
-
             <section class="panel-area">
                 <div class="panel-header">
                     <h2>Panel de Gestión Técnica</h2>
-                    <p>Bienvenido, Carlos. Tienes <span class="highlight-cyan">3 incidencias críticas</span> por revisar hoy.</p>
+                    <p>Bienvenido, <span id="userName" style="font-weight: bold; color: var(--primary-cyan);">Cargando...</span>. 
+                       Tienes <span id="criticasCount" class="highlight-cyan">0 incidencias</span> por revisar hoy.</p>
                 </div>
                 <div class="icon-side">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"></polyline>
                     </svg>
                 </div>
@@ -55,23 +54,23 @@
 
             <section class="cards-grid">
                 <div class="card">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line></svg>
-                    <p class="count">24</p>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+                    <p class="count" id="countPC">0</p>
                     <p class="label">COMPUTADORAS</p>
                 </div>
                 <div class="card">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
-                    <p class="count">30</p>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                    <p class="count" id="countMouses">0</p>
                     <p class="label">MOUSES</p>
                 </div>
                 <div class="card">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect></svg>
-                    <p class="count">28</p>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+                    <p class="count" id="countTeclados">0</p>
                     <p class="label">TECLADOS</p>
                 </div>
                 <div class="card">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path></svg>
-                    <p class="count">15</p>
+                    <p class="count" id="countMonitores">0</p>
                     <p class="label">MONITORES</p>
                 </div>
             </section>
@@ -79,132 +78,53 @@
             <section class="table-section">
                 <header class="table-header">
                     <h3>Incidencias Recientes</h3>
-                    <a href="#" class="view-all">Ver Historial</a>
+                    <a href="#" onclick="irAPractica('historial_completo')" class="view-all">Ver Historial</a>
                 </header>
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>EQUIPO (S/N)</th>
-                                <th>ENCARGADO</th>
+                                <th>REPORTÓ</th>
                                 <th>CATEGORÍA</th>
                                 <th>ESTADO</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>DELL-001 (0HD5W2)</td>
-                                <td>Carlos Méndez</td>
-                                <td>PC</td>
-                                <td><span class="status pending">PENDIENTE</span></td>
-                            </tr>
-                            <tr>
-                                <td>LOGI-M02 (SN-9923)</td>
-                                <td>Ana Martínez</td>
-                                <td>Mouse</td>
-                                <td><span class="status resolved">RESUELTO</span></td>
-                            </tr>
-                        </tbody>
+                        <tbody id="tablaIncidencias">
+                            </tbody>
                     </table>
                 </div>
             </section>
         </main>
     </div>
-
     <div id="sideDrawer" class="side-drawer">
-        <div class="centered-drawer-header">
-            <div class="header-top-row">
-                <h2 class="drawer-title">Incidencias</h2>
-                <button class="btn-close-drawer" onclick="toggleDrawer()">×</button>
-            </div>
-            <p class="drawer-subtitle">Gestión de reportes y bitácora.</p>
+    <div class="centered-drawer-header">
+        <div class="header-top-row">
+            <h2 class="drawer-title">Incidencias</h2>
+            <button class="btn-close-drawer" onclick="toggleDrawer()">×</button>
         </div>
-        <div class="drawer-options">
-            <a href="#" class="drawer-card" onclick="irAPractica('incidencias_actual')">
-                <div class="card-icon">⚠️</div>
-                <div class="card-content">
-                    <h3>Gestión Actual</h3>
-                    <p>Reporta fallas y actualiza el estado del equipo.</p>
-                </div>
-            </a>
-            <a href="#" class="drawer-card" onclick="irAPractica('historial_completo')">
-                <div class="card-icon">📜</div>
-                <div class="card-content">
-                    <h3>Historial Completo</h3>
-                    <p>Consulta la bitácora de acciones pasadas.</p>
-                </div>
-            </a>
-        </div>
+        <p class="drawer-subtitle">Gestión de reportes y bitácora.</p>
     </div>
-    
-    <div id="drawerOverlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
+    <div class="drawer-options">
+        <a href="#" class="drawer-card" onclick="irAPractica('incidencias_actual')">
+            <div class="card-icon">⚠️</div>
+            <div class="card-content">
+                <h3>Gestión Actual</h3>
+                <p>Reporta fallas y actualiza el estado.</p>
+            </div>
+        </a>
+        <a href="#" class="drawer-card" onclick="irAPractica('historial_completo')">
+            <div class="card-icon">📜</div>
+            <div class="card-content">
+                <h3>Historial Completo</h3>
+                <p>Consulta la bitácora de acciones.</p>
+            </div>
+        </a>
+    </div>
+</div>
 
-    <script>
-        // --- LÓGICA DE NAVEGACIÓN Y AUTH ---
-        const rol = localStorage.getItem('rol');
-        const token = localStorage.getItem('token');
+<div id="drawerOverlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
 
-        if (!token) { window.location.href = 'login.html'; }
-
-        function toggleDrawer() {
-            document.getElementById('sideDrawer').classList.toggle('active');
-            document.getElementById('drawerOverlay').classList.toggle('active');
-        }
-
-        window.addEventListener('keydown', (e) => {
-            if (e.key === "Escape") {
-                document.getElementById('sideDrawer').classList.remove('active');
-                document.getElementById('drawerOverlay').classList.remove('active');
-            }
-        });
-
-        function irAPractica(tipo) {
-            if (rol !== 'admin' && tipo !== 'consumibles' && tipo !== 'encargados') {
-                // Validación básica de permisos
-                alert("Acceso restringido");
-                return;
-            }
-            const rutas = {
-                'laboratorios': 'laboratorios.html',
-                'consumibles': 'consumibles.html',
-                'encargados': 'encargado.html',
-                'equipos': 'equipo.html',
-                'historial_completo': 'historial_completo.html',
-                'incidencias_actual': 'incidencias_actual.html',
-                'usuario': 'usuario.html'
-            };
-            if(rutas[tipo]) window.location.href = rutas[tipo];
-        }
-
-        function logout() {
-            localStorage.clear();
-            document.cookie = 'token=; Max-Age=0; path=/';
-            window.location.href = '/login.html';
-        }
-
-        // --- SELECCIÓN AUTOMÁTICA DEL MENÚ ---
-        document.addEventListener("DOMContentLoaded", function() {
-            const currentFile = window.location.pathname.split("/").pop() || 'Dashboard.html';
-            
-            const mapPaginas = {
-                'usuario.html': 'usuario',
-                'laboratorios.html': 'laboratorios',
-                'encargado.html': 'encargados',
-                'consumibles.html': 'consumibles',
-                'equipo.html': 'equipos',
-                'Dashboard.html': 'dashboard' // Por si quieres un active en el logo o dashboard
-            };
-
-            const seccionActiva = mapPaginas[currentFile];
-            const menuItems = document.querySelectorAll('.nav-item');
-
-            menuItems.forEach(item => {
-                const clickAttr = item.getAttribute('onclick');
-                if (seccionActiva && clickAttr && clickAttr.includes(`'${seccionActiva}'`)) {
-                    item.classList.add('active');
-                }
-            });
-        });
-    </script>
+    <script src="/JS/dashboard.js"></script>
 </body>
 </html>
