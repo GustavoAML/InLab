@@ -151,34 +151,72 @@ app.get('/api/encargados', auth, requireRole('admin'), (req, res) => {
 });
 
 //Obtener Consumibles
-app.get('/api/consumibles', auth, requireRole('admin'), (req, res) => {
+// Obtener Consumibles (admin ve todo, encargado solo su laboratorio)
+app.get('/api/consumibles', auth, (req, res) => {
 
-    const query = `
-        SELECT 
-            c.id, 
-            l.id_laboratorio, 
-            c.nombre_con, 
-            c.stock, 
-            l.nombre_lab,
-            l.edificio
-        FROM consumibles AS c
-        JOIN laboratorio AS l ON c.id_laboratorio = l.id_laboratorio
-        ORDER BY c.nombre_con ASC
-    `;
+    const userId = req.user.id;
+    const rol = req.user.rol;
+    //Si el rol es admin da todos los consumibles
+    if (rol === 'admin') {
 
-    connection.query(query, (err, results) => {
+        const query = `
+            SELECT 
+                c.id, 
+                c.nombre_con, 
+                c.stock, 
+                l.id_laboratorio,
+                l.nombre_lab,
+                l.edificio
+            FROM consumibles c
+            JOIN laboratorio l ON c.id_laboratorio = l.id_laboratorio
+            ORDER BY c.nombre_con ASC
+        `;
 
-        if (err) {
-            console.error('Error:', err);
-            return res.status(500).json({ error: 'Error al obtener consumibles' });
-        }
+        connection.query(query, (err, results) => {
+            if (err) {
+                console.error('Error:', err);
+                return res.status(500).json({ error: 'Error al obtener consumibles' });
+            }
 
-        res.json(results);
-    });
+            res.json(results);
+        });
+    }
+
+    //Si el rol es encargado da solo los consumibles de su laboratorio
+    else if (rol === 'encargado') {
+
+        const query = `
+            SELECT 
+                c.id, 
+                c.nombre_con, 
+                c.stock, 
+                l.id_laboratorio,
+                l.nombre_lab,
+                l.edificio
+            FROM consumibles c
+            JOIN laboratorio l ON c.id_laboratorio = l.id_laboratorio
+            JOIN encargado e ON l.id_encargado = e.id_encargado
+            WHERE e.id_usuario = ?
+            ORDER BY c.nombre_con ASC
+        `;
+
+        connection.query(query, [userId], (err, results) => {
+            if (err) {
+                console.error('Error:', err);
+                return res.status(500).json({ error: 'Error al obtener consumibles' });
+            }
+
+            res.json(results);
+        });
+    }
+    //Si no es ninguno de los roles anteriores se lanza la alerta de no autorzado
+    else {
+        return res.status(403).json({ error: 'No autorizado' });
+    }
 });
 
 //Obtener laboratorios
-app.get('/api/laboratorios', auth, requireRole('admin'), (req, res) => {
+app.get('/api/laboratorios', auth, requireRole('admin', 'encargado'), (req, res) => {
     const query = 'SELECT id_laboratorio, nombre_lab, edificio, planta, id_encargado FROM laboratorio ORDER BY nombre_lab ASC';
     
     connection.query(query, (err, results) => {
@@ -216,7 +254,7 @@ app.post('/api/usuarios', auth, requireRole('admin'), (req, res) => {
 });
 
 // Crear consumibles
-app.post('/api/consumibles', auth, requireRole('admin'), (req, res) => { 
+app.post('/api/consumibles', auth, requireRole('admin', 'encargado'), (req, res) => { 
     const { nombre, stock, id_laboratorio } = req.body;
     
     if (!nombre || !stock || !id_laboratorio  ) { 
@@ -241,7 +279,7 @@ app.post('/api/consumibles', auth, requireRole('admin'), (req, res) => {
 });
 
 // Crear laboratorios
-app.post('/api/laboratorios', (req, res) => {
+app.post('/api/laboratorios', requireRole('admin'), (req, res) => {
   const { nombre, edificio, planta, id_encargado } = req.body;
  
   if (!nombre || !edificio || !planta || !id_encargado) {
@@ -294,7 +332,7 @@ app.put('/api/usuarios/:id', auth, requireRole('admin'), (req, res) => {
 });
 
 // Editar consumibles
-app.put('/api/consumibles/:id', auth, requireRole('admin'), (req, res) => {
+app.put('/api/consumibles/:id', auth, requireRole('admin', 'consulta'), (req, res) => {
 
     const { id } = req.params;
     const { nombre, stock } = req.body;
@@ -417,31 +455,82 @@ app.delete('/api/laboratorios/:id', auth, requireRole('admin'), (req, res) => {
 // ENDPOINTS EQUIPOS (con callbacks)
 // =============================
 
-// Obtener todos los equipos
-app.get('/api/equipos', (req, res) => {
-  const query = `
-    SELECT e.id_equipo, e.nombre, e.no_serie, e.estado, 
-           e.tipo, l.nombre_lab, l.edificio, e.id_laboratorio
-    FROM equipo e
-    JOIN laboratorio l ON e.id_laboratorio = l.id_laboratorio
-  `;
-  connection.query(query, (err, rows) => {
-    if (err) {
-      console.error('Error al obtener equipos:', err);
-      return res.status(500).json({ error: 'Error al obtener equipos' });
-    }
-    res.json(rows);
-  });
+// Obtener equipos
+app.get('/api/equipos', auth, (req, res) => {
+
+  const userId = req.user.id;
+  const rol = req.user.rol;
+
+  if (rol === 'admin') {
+
+    const query = `
+      SELECT 
+        e.id_equipo, 
+        e.nombre, 
+        e.no_serie, 
+        e.numero,
+        e.tipo, 
+        l.nombre_lab, 
+        l.edificio, 
+        e.id_laboratorio
+      FROM equipo e
+      JOIN laboratorio l ON e.id_laboratorio = l.id_laboratorio
+      ORDER BY e.nombre ASC
+    `;
+
+    connection.query(query, (err, rows) => {
+      if (err) {
+        console.error('Error al obtener equipos:', err);
+        return res.status(500).json({ error: 'Error al obtener equipos' });
+      }
+      res.json(rows);
+    });
+
+  }
+
+  else if (rol === 'encargado') {
+
+    const query = `
+      SELECT 
+        e.id_equipo, 
+        e.nombre, 
+        e.no_serie, 
+        e.numero,
+        e.tipo, 
+        l.nombre_lab, 
+        l.edificio, 
+        e.id_laboratorio
+      FROM equipo e
+      JOIN laboratorio l ON e.id_laboratorio = l.id_laboratorio
+      JOIN encargado en ON l.id_encargado = en.id_encargado
+      WHERE en.id_usuario = ?
+      ORDER BY e.nombre ASC
+    `;
+
+    connection.query(query, [userId], (err, rows) => {
+      if (err) {
+        console.error('Error al obtener equipos:', err);
+        return res.status(500).json({ error: 'Error al obtener equipos' });
+      }
+      res.json(rows);
+    });
+
+  }
+
+  else {
+    return res.status(403).json({ error: 'No autorizado' });
+  }
+
 });
 
 // Crear nuevo equipo
 app.post('/api/equipos', (req, res) => {
-  const { nombre, no_serie, estado, id_laboratorio, tipo } = req.body;
+  const { nombre, no_serie, numero, id_laboratorio, tipo } = req.body;
   const query = `
-    INSERT INTO equipo (nombre, no_serie, estado, id_laboratorio, tipo) 
+    INSERT INTO equipo (nombre, no_serie, numero, id_laboratorio, tipo) 
     VALUES (?, ?, ?, ?, ?)
   `;
-  connection.query(query, [nombre, no_serie, estado, id_laboratorio, tipo], (err) => {
+  connection.query(query, [nombre, no_serie, numero, id_laboratorio, tipo], (err) => {
     if (err) {
       console.error('Error al crear equipo:', err);
       return res.status(500).json({ error: 'Error al crear equipo' });
@@ -453,13 +542,13 @@ app.post('/api/equipos', (req, res) => {
 // Actualizar equipo
 app.put('/api/equipos/:id', (req, res) => {
   const { id } = req.params;
-  const { nombre, no_serie, estado, id_laboratorio, tipo } = req.body;
+  const { nombre, no_serie, numero, id_laboratorio, tipo } = req.body;
   const query = `
     UPDATE equipo 
-    SET nombre=?, no_serie=?, estado=?, id_laboratorio=?, tipo=? 
+    SET nombre=?, no_serie=?, numero=?, id_laboratorio=?, tipo=? 
     WHERE id_equipo=?
   `;
-  connection.query(query, [nombre, no_serie, estado, id_laboratorio, tipo, id], (err) => {
+  connection.query(query, [nombre, no_serie, numero, id_laboratorio, tipo, id], (err) => {
     if (err) {
       console.error('Error al actualizar equipo:', err);
       return res.status(500).json({ error: 'Error al actualizar equipo' });
@@ -488,4 +577,4 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Servidor en http://localhost:${PORT}`);
-});3
+})

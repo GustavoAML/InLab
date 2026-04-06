@@ -63,34 +63,67 @@ function mostrarConsumibles(consumibles) {
 
   listaConsumibles.innerHTML = '';
 
-  consumibles.forEach((c) => {
+  const grupos = {};
 
-    const consumiblesHTML = `
-    <div class="staff-card">
-                    <div class="card-header-bg"></div>
-                    <div class="avatar-container">
-                        <div class="avatar-circle">
-                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4"/></svg>
-                        </div>
-                    </div>
-                    <div class="staff-info">
-                        <h3>${c.nombre_con}</h3>
-                        <p class="role">ID_CONSUMIBLE: ${c.id}</p>
-                        <div class="details">
-                            <p><strong>Laboratorio: </strong> ${c.nombre_lab}</p>
-                            <p><strong>Edificio: </strong> ${c.edificio}</p>
-                            <p>📦 <strong>Stock:</strong> ${c.stock}</p>
-                        </div>
-                    </div>
-                    <div class="card-actions">
-                        <button class="btn-edit" onclick='abrirEditar(${JSON.stringify(c)})'>Editar</button>
-                        <button class="btn-delete" onclick="abrirModalEliminar('${c.id}', '${c.nombre_con}')">Eliminar</button>
-                    </div>
-                </div>
+  consumibles.forEach(c => {
+    if (!grupos[c.id_laboratorio]) {
+      grupos[c.id_laboratorio] = {
+        nombre_lab: c.nombre_lab,
+        edificio: c.edificio,
+        consumibles: []
+      };
+    }
+    grupos[c.id_laboratorio].consumibles.push(c);
+  });
+
+  // 🔥 Recorrer cada laboratorio
+  Object.values(grupos).forEach(grupo => {
+
+    let html = `
+      <div class="lab-section">
+        <h2 class="lab-title">📍 ${grupo.nombre_lab} - ${grupo.edificio}</h2>
+        <div class="consumibles-grid">
     `;
 
+    grupo.consumibles.forEach(c => {
 
-    listaConsumibles.innerHTML += consumiblesHTML;
+      html += `
+        <div class="staff-card">
+            <div class="card-header-bg"></div>
+
+            <div class="avatar-container">
+                <div class="avatar-circle">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 2v4M12 18v4"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="staff-info">
+                <h3>${c.nombre_con}</h3>
+                <p class="role">ID_CONSUMIBLE: ${c.id}</p>
+
+                <div class="details">
+                    <p>📦 <strong>Stock:</strong> ${c.stock}</p>
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="btn-edit" onclick='abrirEditar(${JSON.stringify(c)})'>Editar</button>
+                <button class="btn-delete" onclick="abrirModalEliminar('${c.id}', '${c.nombre_con}')">Eliminar</button>
+            </div>
+        </div>
+      `;
+    });
+
+    html += `
+        </div>
+      </div>
+    `;
+
+    listaConsumibles.innerHTML += html;
 
   });
 
@@ -185,7 +218,6 @@ async function abrirEditar(consumible) {
   modalTitulo.textContent = 'Editar Consumible';
   btnGuardar.textContent = 'Actualizar';
 
-  // 🔥 ABRIR MODAL
   document.getElementById('conModal').classList.add('active');
 
 }

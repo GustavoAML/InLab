@@ -52,7 +52,7 @@
                 </div>
             </div>
 
-            <button class="btn-add-cyan" id="btnNuevo">+ Nuevo Equipo</button>
+            <button class="btn-add-cyan" id="btnNuevo" onclick="openConModal('add')">+ Nuevo Equipo</button>
         </section>
 
         <section id="listaEquipos" style="display: flex; flex-direction: column; gap: 40px;"></section>
@@ -65,30 +65,32 @@
             <form id="equipoForm">
                 <div class="form-row">
                     <div class="form-group">
-                        <label>ID_Equipo</label>
-                        <input type="text" id="equipoId" readonly placeholder="ID Automático">
-                    </div>
-                    <div class="form-group">
-                        <label>Nombre Equipo</label>
-                        <input type="text" id="nombre" required>
+                        <label>ID Equipo</label>
+                        <input type="text" id="equipoId" readonly placeholder="ID">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Número de Serie (S/N)</label>
-                    <input type="text" id="no_serie" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre Equipo</label>
+                        <input type="text" id="nombre" placeholder="Nombre del Equipo" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Numero de equipo</label>
+                        <input type="number" id="numero" placeholder="Numero asignado del equipo">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Número de Serie (S/N)</label>
+                        <input type="text" id="no_serie" required>
+                    </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Laboratorio</label>
                         <select id="id_laboratorio" required></select>
-                    </div>
-                    <div class="form-group">
-                        <label>Edificio (Referencia)</label>
-                        <select id="edificio">
-                            <option value="Edificio A">Edificio A</option>
-                            <option value="Edificio B">Edificio B</option>
-                            <option value="Edificio C">Edificio C</option>
-                        </select>
                     </div>
                 </div>
                 <div class="form-row">
@@ -97,15 +99,6 @@
                         <select id="tipo">
                             <option value="PC">PC</option>
                             <option value="Monitor">Monitor</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Estado</label>
-                        <select id="estado">
-                            <option value="Disponible">Disponible</option>
-                            <option value="En uso">En uso</option>
-                            <option value="Mantenimiento">Mantenimiento</option>
-                            <option value="Fuera de servicio">Fuera de servicio</option>
                         </select>
                     </div>
                 </div>
@@ -157,6 +150,29 @@
     <div id="drawerOverlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
 
     <script>
+        function openConModal(mode, name='', id='', lab='', numero='', no_serie='', tipo='') {
+    // 1. Buscamos el modal por su ID real: "equipoModal"
+    const modal = document.getElementById('equipoModal');
+    const modalTitle = document.getElementById('modalTitle');
+    
+    if (modal) {
+        modalTitle.innerText = mode === 'add' ? 'Registrar Nuevo Equipo' : 'Editar Equipo';
+        
+        // 2. Llenamos los campos con los IDs correctos de TU HTML
+        document.getElementById('equipoId').value = id; 
+        document.getElementById('nombre').value = name;
+        document.getElementById('numero').value = numero;
+        document.getElementById('no_serie').value = no_serie;
+        document.getElementById('tipo').value = tipo;
+        document.getElementById('id_laboratorio').value = lab;
+
+        // 3. Mostramos el modal
+        modal.classList.add('active');
+    } else {
+        console.error("No se encontró el modal con ID 'equipoModal'");
+    }
+}
+
         // Funciones de control de UI
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         

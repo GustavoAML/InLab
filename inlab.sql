@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 26-03-2026 a las 17:36:08
+-- Tiempo de generación: 06-04-2026 a las 06:21:44
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -40,7 +40,8 @@ CREATE TABLE `consumibles` (
 
 INSERT INTO `consumibles` (`id`, `nombre_con`, `stock`, `id_laboratorio`) VALUES
 (1, 'Memoria RAM DDR4', 24, 1),
-(4, 'Mouses', 35, 1);
+(4, 'Mouses', 35, 1),
+(5, 'Teclados', 34, 6);
 
 -- --------------------------------------------------------
 
@@ -58,7 +59,8 @@ CREATE TABLE `encargado` (
 --
 
 INSERT INTO `encargado` (`id_encargado`, `id_usuario`) VALUES
-(10, 12);
+(10, 12),
+(11, 13);
 
 -- --------------------------------------------------------
 
@@ -70,10 +72,18 @@ CREATE TABLE `equipo` (
   `id_equipo` int(11) NOT NULL,
   `nombre` varchar(100) NOT NULL,
   `no_serie` varchar(100) NOT NULL,
-  `estado` varchar(100) NOT NULL,
+  `numero` int(11) NOT NULL,
   `id_laboratorio` int(11) NOT NULL,
-  `tipo` enum('PC','Monitoe') DEFAULT NULL
+  `tipo` enum('PC','Monitor') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `equipo`
+--
+
+INSERT INTO `equipo` (`id_equipo`, `nombre`, `no_serie`, `numero`, `id_laboratorio`, `tipo`) VALUES
+(1, 'MAC', '2r32e23r', 22, 6, 'PC'),
+(2, 'Dell HP23', '2e2er33q', 22, 1, 'PC');
 
 -- --------------------------------------------------------
 
@@ -111,7 +121,8 @@ CREATE TABLE `laboratorio` (
 --
 
 INSERT INTO `laboratorio` (`id_laboratorio`, `nombre_lab`, `edificio`, `planta`, `id_encargado`) VALUES
-(1, 'Laboratorio de Redes', 'Pesado 2', 'Alta', 10);
+(1, 'Laboratorio de Redes', 'Pesado 2', 'Alta', 10),
+(6, 'Laboratorio de Idiomas', 'D', 'Alta', 11);
 
 -- --------------------------------------------------------
 
@@ -135,7 +146,8 @@ CREATE TABLE `usuario` (
 
 INSERT INTO `usuario` (`id_usuario`, `nombre`, `appaterno`, `apmaterno`, `rol`, `correo`, `password`) VALUES
 (1, 'Jorge', 'Salgado', 'Ceja', 'admin', 'jorgesalgado4521@gmail.com', 'Jorge123'),
-(12, 'David', 'Rangel', 'Solis', 'encargado', 'DavidSolis@gmail.com', 'David123');
+(12, 'David', 'Rangel', 'Solis', 'encargado', 'DavidSolis@gmail.com', 'David123'),
+(13, 'Daniel', 'Salgado', 'Ceja', 'encargado', 'Dani656@gmail.com', 'Dani1234');
 
 --
 -- Disparadores `usuario`
@@ -223,19 +235,19 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `consumibles`
 --
 ALTER TABLE `consumibles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `encargado`
 --
 ALTER TABLE `encargado`
-  MODIFY `id_encargado` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id_encargado` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `equipo`
 --
 ALTER TABLE `equipo`
-  MODIFY `id_equipo` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_equipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `incidencia`
@@ -247,13 +259,13 @@ ALTER TABLE `incidencia`
 -- AUTO_INCREMENT de la tabla `laboratorio`
 --
 ALTER TABLE `laboratorio`
-  MODIFY `id_laboratorio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_laboratorio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- Restricciones para tablas volcadas
