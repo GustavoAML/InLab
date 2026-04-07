@@ -578,3 +578,42 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor en http://localhost:${PORT}`);
 })
+
+
+app.get('/api/dashboard/stats', auth, (req, res) => {
+    const query = `
+        SELECT 
+            (SELECT COUNT(*) FROM equipo WHERE tipo = 'PC') as totalPCs,
+            (SELECT COUNT(*) FROM equipo WHERE tipo = 'Monitor') as totalMonitores,
+            (SELECT SUM(stock) FROM consumibles) as stockTotalConsumibles
+    `;
+    
+    connection.query(query, (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows[0]);
+    });
+});
+// Ruta para las incidencias del Dashboard
+app.get('/api/dashboard/incidencias-recientes', auth, (req, res) => {
+    const query = `
+        SELECT 
+            e.nombre AS nombre_equipo, 
+            e.no_serie, 
+            u.nombre AS nombre_usuario, 
+            e.tipo AS tipo_equipo, 
+            i.estado 
+        FROM incidencia i
+        JOIN equipo e ON i.id_equipo = e.id_equipo
+        JOIN usuario u ON i.id_usuario = u.id_usuario
+        ORDER BY i.fecha DESC, i.hora DESC 
+        LIMIT 5
+    `;
+    
+    connection.query(query, (err, rows) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Error al obtener incidencias' });
+        }
+        res.json(rows);
+    });
+});

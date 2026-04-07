@@ -38,64 +38,81 @@
             </nav>
         </aside>
 
-        <main class="main-content">
-            <section class="panel-area">
-                <div class="panel-header">
-                    <h2>Panel de Gestión Técnica</h2>
-                    <p>Bienvenido, <span id="userName" style="font-weight: bold; color: var(--primary-cyan);">Cargando...</span>. 
-                       Tienes <span id="criticasCount" class="highlight-cyan">0 incidencias</span> por revisar hoy.</p>
-                </div>
-                <div class="icon-side">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"></polyline>
-                    </svg>
-                </div>
-            </section>
+         <main class="main-content">
+    <section class="welcome-banner">
+        <div class="welcome-text">
+            <h2>Panel de Gestión Técnica</h2>
+            <p>Bienvenido, <span id="userName" class="user-highlight">Cargando...</span>. 
+               Tienes <span id="criticasCount" class="badge-critico">0 incidencias</span> por revisar hoy.</p>
+        </div>
+        <div class="pulse-icon">
+            <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+            </svg>
+        </div>
+    </section>
 
-            <section class="cards-grid">
-                <div class="card">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+    <section class="dashboard-main-grid">
+        
+        <div class="stats-stack">
+            <div class="glass-card pc-card">
+                <div class="card-icon">💻</div>
+                <div class="card-info">
                     <p class="count" id="countPC">0</p>
-                    <p class="label">COMPUTADORAS</p>
+                    <p class="label">EQUIPOS PC</p>
                 </div>
-                <div class="card">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
-                    <p class="count" id="countMouses">0</p>
-                    <p class="label">MOUSES</p>
-                </div>
-                <div class="card">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
-                    <p class="count" id="countTeclados">0</p>
-                    <p class="label">TECLADOS</p>
-                </div>
-                <div class="card">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path></svg>
+            </div>
+            <div class="glass-card monitor-card">
+                <div class="card-icon">🖥️</div>
+                <div class="card-info">
                     <p class="count" id="countMonitores">0</p>
                     <p class="label">MONITORES</p>
                 </div>
-            </section>
+            </div>
+        </div>
 
-            <section class="table-section">
-                <header class="table-header">
-                    <h3>Incidencias Recientes</h3>
-                    <a href="#" onclick="irAPractica('historial_completo')" class="view-all">Ver Historial</a>
-                </header>
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>EQUIPO (S/N)</th>
-                                <th>REPORTÓ</th>
-                                <th>CATEGORÍA</th>
-                                <th>ESTADO</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaIncidencias">
-                            </tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
+        <div class="glass-card inventory-preview">
+            <div class="card-header">
+                <h3>📦 Stock de Almacén</h3>
+                <span id="countConsumibles" class="total-stock-tag">Total: 0</span>
+            </div>
+            <div class="mini-table-wrapper">
+                <table class="minimal-table">
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>Stock</th>
+                            <th>Disoponibilidad</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaConsumiblesDashboard">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="glass-card table-section">
+        <div class="table-header">
+            <h3>⚠️ Incidencias Recientes</h3>
+            <a href="javascript:void(0)" onclick="irAPractica('historial_completo')" class="btn-link">Ver Historial</a>
+        </div>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>EQUIPO (S/N)</th>
+                        <th>REPORTÓ</th>
+                        <th>CATEGORÍA</th>
+                        <th>ESTADO</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaIncidencias">
+                    </tbody>
+            </table>
+        </div>
+    </section>
+</main>
     </div>
     <div id="sideDrawer" class="side-drawer">
     <div class="centered-drawer-header">

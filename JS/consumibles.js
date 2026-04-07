@@ -1,10 +1,8 @@
 const API_URL = 'http://localhost:3000/api/consumibles';
-
- let consumibleAEliminar = null;
+let consumibleAEliminar = null;
 
 const listaConsumibles = document.getElementById('listaConsumibles');
 const conForm = document.getElementById('conForm');
-
 const modalTitulo = document.getElementById('modalTitle');
 const btnGuardar = document.getElementById('btnGuardar');
 const btnNuevo = document.getElementById('btnNuevo');
@@ -14,121 +12,83 @@ const inputNombre = document.getElementById('nombre');
 const inputStock = document.getElementById('stock');
 const inputIdLaboratorio = document.getElementById('id_laboratorio');
 
-// Cargar consumibles al iniciar
 window.onload = cargarConsumibles;
 
-// Botón nuevo
-btnNuevo.addEventListener('click', () => {
-  prepararModoCrear();
-});
-
-// Manejar formulario
+btnNuevo.addEventListener('click', () => { prepararModoCrear(); document.getElementById('conModal').classList.add('active'); });
 conForm.addEventListener('submit', guardarOActualizar);
 
-// Obtener token
-function getToken() {
-  return localStorage.getItem('token');
-}
+function getToken() { return localStorage.getItem('token'); }
 
-// =============================
-// CARGAR CONSUMIBLES
-// =============================
 async function cargarConsumibles() {
-  try {
-
-    const response = await fetch(API_URL, {
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
-    });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.error || 'Error al obtener consumibles');
+    try {
+        const response = await fetch(API_URL, {
+            headers: { 'Authorization': `Bearer ${getToken()}` }
+        });
+        if (!response.ok) throw new Error('Error al obtener consumibles');
+        const consumibles = await response.json();
+        mostrarConsumibles(consumibles);
+    } catch (error) {
+        console.error('Error:', error);
     }
-
-    const consumibles = await response.json();
-    mostrarConsumibles(consumibles);
-
-  } catch (error) {
-    console.error('Error:', error);
-    alert(error.message || 'Error al cargar consumibles');
-  }
 }
 
-// =============================
-// MOSTRAR CONSUMIBLES
-// =============================
 function mostrarConsumibles(consumibles) {
+    listaConsumibles.innerHTML = '';
+    
+    // AGRUPAR POR LABORATORIO
+    const grupos = consumibles.reduce((acc, c) => {
+        const labKey = `${c.nombre_lab} - ${c.edificio}`;
+        if (!acc[labKey]) acc[labKey] = [];
+        acc[labKey].push(c);
+        return acc;
+    }, {});
 
-  listaConsumibles.innerHTML = '';
+    for (const lab in grupos) {
+        const labSection = document.createElement('div');
+        labSection.className = 'lab-group'; // Clase de Equipos
+        
+        labSection.innerHTML = `
+            <h3 class="lab-title">📍 ${lab}</h3>
+            <div class="equipment-grid-inner"></div>
+        `;
+        
+        const gridInner = labSection.querySelector('.equipment-grid-inner');
 
-  const grupos = {};
-
-  consumibles.forEach(c => {
-    if (!grupos[c.id_laboratorio]) {
-      grupos[c.id_laboratorio] = {
-        nombre_lab: c.nombre_lab,
-        edificio: c.edificio,
-        consumibles: []
-      };
-    }
-    grupos[c.id_laboratorio].consumibles.push(c);
-  });
-
-  // 🔥 Recorrer cada laboratorio
-  Object.values(grupos).forEach(grupo => {
-
-    let html = `
-      <div class="lab-section">
-        <h2 class="lab-title">📍 ${grupo.nombre_lab} - ${grupo.edificio}</h2>
-        <div class="consumibles-grid">
-    `;
-
-    grupo.consumibles.forEach(c => {
-
-      html += `
-        <div class="staff-card">
-            <div class="card-header-bg"></div>
-
-            <div class="avatar-container">
-                <div class="avatar-circle">
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M12 2v4M12 18v4"/>
+        grupos[lab].forEach(c => {
+            const card = document.createElement('div');
+            card.className = `eq-card blue-theme`; // Usamos el diseño de tarjetas de equipos
+            
+            card.innerHTML = `
+                <div class="eq-status-container">
+                    <span class="status-badge status-in-use">STOCK: ${c.stock}</span>
+                </div>
+                
+                <div class="eq-icon-box">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4"/>
                     </svg>
                 </div>
-            </div>
 
-            <div class="staff-info">
-                <h3>${c.nombre_con}</h3>
-                <p class="role">ID_CONSUMIBLE: ${c.id}</p>
-
-                <div class="details">
-                    <p>📦 <strong>Stock:</strong> ${c.stock}</p>
+                <div class="eq-info">
+                    <span class="eq-id">ID: ${c.id}</span>
+                    <h4>${c.nombre_con}</h4>
+                    <p class="sn-text">Existencia: ${c.stock} unidades</p>
+                    <div class="db-details">
+                        <span>🏢 Ubicación: ${c.edificio}</span>
+                        <span>📍 Lab: ${c.nombre_lab}</span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="card-actions">
-                <button class="btn-edit" onclick='abrirEditar(${JSON.stringify(c)})'>Editar</button>
-                <button class="btn-delete" onclick="abrirModalEliminar('${c.id}', '${c.nombre_con}')">Eliminar</button>
-            </div>
-        </div>
-      `;
-    });
-
-    html += `
-        </div>
-      </div>
-    `;
-
-    listaConsumibles.innerHTML += html;
-
-  });
-
+                <div class="eq-actions">
+                    <button class="btn-eq-edit" onclick='abrirEditar(${JSON.stringify(c)})'>Editar</button>
+                    <button class="btn-eq-delete" onclick="abrirModalEliminar('${c.id}', '${c.nombre_con}')">Eliminar</button>
+                </div>
+            `;
+            gridInner.appendChild(card);
+        });
+        listaConsumibles.appendChild(labSection);
+    }
 }
-
 // =============================
 // GUARDAR O ACTUALIZAR
 // =============================

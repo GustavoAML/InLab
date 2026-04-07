@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 06-04-2026 a las 06:21:44
+-- Tiempo de generación: 07-04-2026 a las 22:06:53
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -39,9 +39,10 @@ CREATE TABLE `consumibles` (
 --
 
 INSERT INTO `consumibles` (`id`, `nombre_con`, `stock`, `id_laboratorio`) VALUES
-(1, 'Memoria RAM DDR4', 24, 1),
+(1, 'Memoria RAM DDR4', 10, 1),
 (4, 'Mouses', 35, 1),
-(5, 'Teclados', 34, 6);
+(5, 'Teclados', 34, 6),
+(6, 'Cables HDMI', 50, 6);
 
 -- --------------------------------------------------------
 
@@ -74,7 +75,7 @@ CREATE TABLE `equipo` (
   `no_serie` varchar(100) NOT NULL,
   `numero` int(11) NOT NULL,
   `id_laboratorio` int(11) NOT NULL,
-  `tipo` enum('PC','Monitor') DEFAULT NULL
+  `tipo` enum('PC','Monitor') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -83,7 +84,9 @@ CREATE TABLE `equipo` (
 
 INSERT INTO `equipo` (`id_equipo`, `nombre`, `no_serie`, `numero`, `id_laboratorio`, `tipo`) VALUES
 (1, 'MAC', '2r32e23r', 22, 6, 'PC'),
-(2, 'Dell HP23', '2e2er33q', 22, 1, 'PC');
+(2, 'Dell HP23', '2e2er33q', 22, 1, 'PC'),
+(3, 'Asus', '008236496', 83047, 1, 'Monitor'),
+(4, 'dfgdf', '34534534534', 4345345, 1, 'Monitor');
 
 -- --------------------------------------------------------
 
@@ -235,7 +238,7 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `consumibles`
 --
 ALTER TABLE `consumibles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `encargado`
@@ -247,7 +250,7 @@ ALTER TABLE `encargado`
 -- AUTO_INCREMENT de la tabla `equipo`
 --
 ALTER TABLE `equipo`
-  MODIFY `id_equipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_equipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `incidencia`

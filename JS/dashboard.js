@@ -1,68 +1,86 @@
-// dashboard.js - Panel de Gestión Técnica INLAB
 const token = localStorage.getItem('token');
-const nombreUsuario = localStorage.getItem('nombre'); // Asegúrate de guardar el nombre en el login
+const nombreUsuario = localStorage.getItem('nombre');
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (!token) { window.location.href = 'login.html'; return; }
+    
     actualizarSaludo();
     cargarEstadisticas();
     cargarIncidenciasRecientes();
 });
 
-// 1. Mostrar el nombre del usuario logueado
 function actualizarSaludo() {
     if (nombreUsuario) {
         document.getElementById('userName').innerText = nombreUsuario;
     }
 }
 
-// 2. Cargar los números de las tarjetas superiores
+// Carga las 3 tarjetas superiores
 async function cargarEstadisticas() {
     try {
-        // Petición a tu API para obtener conteos
-        // Nota: Ajusta las URLs según tus endpoints de Node.js/PHP
-        const resEquipos = await fetch('/api/dashboard/contar-equipos', {
+        const res = await fetch('http://localhost:3000/api/dashboard/stats', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        const resConsumibles = await fetch('/api/dashboard/contar-consumibles', {
+        const data = await res.json();
+
+        // 1. Números principales
+        document.getElementById('countPC').innerText = data.totalPCs || 0;
+        document.getElementById('countMonitores').innerText = data.totalMonitores || 0;
+        document.getElementById('countConsumibles').innerText = `Total: ${data.stockTotalConsumibles || 0}`;
+
+        // 2. Llenar tabla de stock
+        const resCon = await fetch('http://localhost:3000/api/consumibles', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
+        const consumibles = await resCon.json();
+        
+        const tbodyStock = document.getElementById('listaConsumiblesDashboard');
+        tbodyStock.innerHTML = '';
 
-        const equipos = await resEquipos.json();
-        const consumibles = await resConsumibles.json();
+        // Solo mostramos los primeros 4 o 5 para no saturar
+        consumibles.slice(0, 5).forEach(c => {
+    const tr = document.createElement('tr');
+    
+    // Nueva lógica más descriptiva
+    let indicador;
+    if (c.stock <= 5) {
+        indicador = '<span style="color:#ef4444; font-weight:bold;">⚠️ Crítico</span>';
+    } else if (c.stock <= 15) {
+        indicador = '<span style="color:#f39c12; font-weight:bold;">📦 Por agotarse</span>';
+    } else {
+        indicador = '<span style="color:#22c55e;">✅ Abastecido</span>';
+    }
 
-        // Actualizar PCs y Monitores (Tabla 'equipo')
-       
-        document.getElementById('countPC').innerText = equipos.pcs || 0;
-        document.getElementById('countMonitores').innerText = equipos.monitores || 0;
-
-        // Actualizar Mouses y Teclados (Tabla 'consumibles')
-        document.getElementById('countMouses').innerText = consumibles.mouses || 0;
-        document.getElementById('countTeclados').innerText = consumibles.teclados || 0;
+    tr.innerHTML = `
+        <td>${c.nombre_con}</td>
+        <td>${c.stock}</td>
+        <td>${indicador}</td>
+    `;
+    tbodyStock.appendChild(tr);
+});
 
     } catch (error) {
-        console.error("Error al cargar estadísticas:", error);
+        console.error("Error al cargar Dashboard:", error);
     }
 }
 
-// 3. Cargar las últimas incidencias en la tabla
+// Carga la tabla inferior
 async function cargarIncidenciasRecientes() {
     try {
-        const response = await fetch('/api/dashboard/incidencias-recientes', {
+        const res = await fetch('/api/dashboard/incidencias-recientes', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        const incidencias = await response.json();
+        const incidencias = await res.json();
         
         const tbody = document.getElementById('tablaIncidencias');
         tbody.innerHTML = '';
 
-        // Actualizar contador de críticas en el saludo (ejemplo: estado 'Crítico' o 'Pendiente')
-        const criticas = incidencias.filter(i => i.estado === 'PENDIENTE').length;
-        document.getElementById('criticasCount').innerText = `${criticas} incidencias críticas`;
+        // Actualizar contador de pendientes en el saludo
+        const pendientes = incidencias.filter(i => i.estado.toUpperCase() === 'PENDIENTE').length;
+        document.getElementById('criticasCount').innerText = `${pendientes} incidencias`;
 
         incidencias.forEach(i => {
             const tr = document.createElement('tr');
-            
-            // Lógica de color de estado
             const statusClass = i.estado.toLowerCase() === 'pendiente' ? 'pending' : 'resolved';
 
             tr.innerHTML = `
@@ -74,51 +92,29 @@ async function cargarIncidenciasRecientes() {
             tbody.appendChild(tr);
         });
     } catch (error) {
-        console.error("Error al cargar incidencias:", error);
+        console.error("Error incidencias:", error);
     }
 }
-// --- FUNCIONES GLOBALES  ---
 
+// Navegación
 function irAPractica(tipo) {
-    // Jalamos el rol de nuevo por si acaso
-    const miRol = localStorage.getItem('rol'); 
+    const rol = localStorage.getItem('rol');
     const rutas = {
-        'laboratorios': 'laboratorios.html',
-        'consumibles': 'consumibles.html',
-        'encargados': 'encargado.html',
-        'equipos': 'equipo.html',
-        'historial_completo': 'historial_completo.html',
-        'incidencias_actual': 'incidencias_actual.html',
-        'usuario': 'usuario.html'
+        'laboratorios': 'laboratorios.html', 'consumibles': 'consumibles.html',
+        'encargados': 'encargado.html', 'equipos': 'equipo.html',
+        'usuario': 'usuario.html', 'historial_completo': 'historial_completo.html',
+        'incidencias_actual': 'incidencias_actual.html'
     };
-
-    // Validación de seguridad de la UTM
-    if (miRol !== 'admin' && (tipo === 'usuario' || tipo === 'laboratorios')) {
-        alert("No tienes permisos de administrador.");
-        return;
-    }
-
-    if (rutas[tipo]) {
-        window.location.href = rutas[tipo];
-    }
+    if (rol !== 'admin' && (tipo === 'usuario' || tipo === 'laboratorios')) return;
+    if(rutas[tipo]) window.location.href = rutas[tipo];
 }
 
 function toggleDrawer() {
-    const drawer = document.getElementById('sideDrawer');
-    const overlay = document.getElementById('drawerOverlay');
-    if (drawer && overlay) {
-        drawer.classList.toggle('active');
-        overlay.classList.toggle('active');
-    }
+    document.getElementById('sideDrawer').classList.toggle('active');
+    document.getElementById('drawerOverlay').classList.toggle('active');
 }
-function toggleDrawer() {
-    const drawer = document.getElementById('sideDrawer');
-    const overlay = document.getElementById('drawerOverlay');
-    
-    if (drawer && overlay) {
-        drawer.classList.toggle('active');
-        overlay.classList.toggle('active');
-    } else {
-        console.error("No se encontraron los elementos del Drawer en el HTML.");
-    }
+
+function logout() {
+    localStorage.clear();
+    window.location.href = 'login.html';
 }

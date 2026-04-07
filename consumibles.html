@@ -129,20 +129,20 @@
 
     <script>
         function openConModal(mode, name='', id='', lab='', stock='') {
-    // 1. Buscamos el modal por su ID real: "conModal"
+    
     const modal = document.getElementById('conModal');
     const modalTitle = document.getElementById('modalTitle');
     
     if (modal) {
         modalTitle.innerText = mode === 'add' ? 'Registrar Nuevo Consumible' : 'Editar Consumible';
         
-        // 2. Llenamos los campos con los IDs correctos de TU HTML
+        
         document.getElementById('consumibleId').value = id; 
         document.getElementById('nombre').value = name;
         document.getElementById('stock').value = stock;
         document.getElementById('id_laboratorio').value = lab;
 
-        // 3. Mostramos el modal
+      
         modal.classList.add('active');
     } else {
         console.error("No se encontró el modal con ID 'conModal'");
@@ -152,30 +152,30 @@
         // Función de filtrado
     function filtrarConsumibles() {
     const busqueda = document.getElementById('inputBusqueda').value.toLowerCase().trim();
-    const tarjetas = document.querySelectorAll('.staff-card'); 
+    const grupos = document.querySelectorAll('.lab-group'); // Buscamos por bloques de laboratorio
 
-    tarjetas.forEach(tarjeta => {
-        // 1. Buscamos el texto del nombre (h3) y el texto del ID (ID_CONSUMIBLE: X)
-        const nombre = tarjeta.querySelector('h3')?.innerText.toLowerCase() || "";
-        
-        // Buscamos cualquier elemento que tenga el ID. 
-        // Si no tienes una clase específica, busca en los span o p.
-        const idTexto = tarjeta.querySelector('.id-text, span, p')?.innerText.toLowerCase() || "";
+    grupos.forEach(grupo => {
+        const tarjetas = grupo.querySelectorAll('.eq-card');
+        let tieneCoincidencias = false;
 
-        // 2. Comprobamos si la búsqueda está en el nombre O en el texto del ID
-        // Esto permite que si pones "1", encuentre "ID: 1", "ID: 10", "ID: 101", etc.
-        const coincideNombre = nombre.includes(busqueda);
-        const coincideID = idTexto.includes(busqueda);
+        tarjetas.forEach(tarjeta => {
+            // Buscamos en el nombre (h4) y en el ID (la clase .eq-id)
+            const nombre = tarjeta.querySelector('h4')?.innerText.toLowerCase() || "";
+            const idTexto = tarjeta.querySelector('.eq-id')?.innerText.toLowerCase() || "";
 
-        // 3. Mostramos si coincide cualquiera de los dos
-        if (busqueda === "" || coincideNombre || coincideID) {
-            tarjeta.style.display = "";
-        } else {
-            tarjeta.style.display = "none";
-        }
+            // Si la búsqueda coincide con el nombre O con el ID
+            if (nombre.includes(busqueda) || idTexto.includes(busqueda)) {
+                tarjeta.style.display = ""; // Mostrar
+                tieneCoincidencias = true;
+            } else {
+                tarjeta.style.display = "none"; // Ocultar
+            }
+        });
+
+        // Si el laboratorio no tiene ninguna tarjeta que coincida, ocultamos todo el bloque 
+        grupo.style.display = tieneCoincidencias ? "" : "none";
     });
 }
-
         // Navegación y Auth
         const token = localStorage.getItem('token');
         const rol = localStorage.getItem('rol');

@@ -1,141 +1,145 @@
-/* --- VARIABLES DE COLOR --- */
+/* --- VARIABLES --- */
 :root {
     --bg-dark: #0f172a;
     --bg-split: #1e293b;
     --primary-cyan: #00bcd4;
-    --primary-hover: #26c6da;
     --text-gray: #94a3b8;
     --white: #ffffff;
     --danger-red: #ef4444;
-    --danger-hover: #dc2626;
+    --warning-orange: #f39c12;
     --shadow-cyan: 0 0 20px rgba(0, 188, 212, 0.2);
 }
-/* --- ESTILOS DEL BUSCADOR --- */
-.search-box-container {
-    position: relative;
-    flex: 1;
-    max-width: 450px; /* Tamaño ideal para que no se vea gigante */
-    margin: 0 30px;
-    display: flex;
-    align-items: center;
+
+/* --- GRID Y LABS --- */
+.lab-group { margin-top: 40px; }
+.lab-title {
+    font-size: 1.2rem;
+    color: var(--white);
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 25px;
 }
 
-.search-box-container input {
-    width: 100%;
-    padding: 12px 45px 12px 20px;
-    background: rgba(30, 41, 59, 0.4);
-    border: 1px solid rgba(0, 188, 212, 0.2);
-    border-radius: 12px;
-    color: white;
-    font-size: 0.95rem;
-    outline: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
 }
 
-.search-box-container input:focus {
-    border-color: var(--primary-cyan);
-    background: rgba(30, 41, 59, 0.7);
-    box-shadow: 0 0 15px rgba(0, 188, 212, 0.2);
-}
-
-.search-icon {
-    position: absolute;
-    right: 15px;
-    color: var(--text-gray);
-    pointer-events: none;
-    display: flex;
-    align-items: center;
+/* --- TARJETA --- */
+.eq-card {
+    background: var(--bg-split);
+    border-radius: 24px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
     transition: 0.3s;
-}
-
-.search-box-container input:focus + .search-icon {
-    color: var(--primary-cyan);
-    transform: scale(1.1);
-}
-
-/* Ajuste para que el header no se rompa en pantallas pequeñas */
-@media (max-width: 900px) {
-    .section-header {
-        flex-direction: column;
-        gap: 15px;
-    }
-    .search-box-container {
-        max-width: 100%;
-        margin: 0;
-    }
-}
-/* Responsivo  */
-@media (max-width: 1024px) {
-    .sidebar { width: 200px; padding: 15px; }
-    .main-content { padding: 20px; }
-    .cards-grid { grid-template-columns: repeat(2, 1fr); }
-}
-.main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    padding: 30px 40px;
-}
-
-/* Top Bar (Header) */
-.top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 40px;
-}
-
-.search-box {
+    text-align: center;
     position: relative;
-    width: 300px;
 }
 
-.search-box input {
-    width: 100%;
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid #334155;
-    border-radius: 8px;
-    padding: 10px 15px 10px 40px;
-    color: white;
-    font-size: 1rem;
-    outline: none;
-    transition: all 0.3s;
-}
-
-.search-box input:focus {
+.eq-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-cyan);
     border-color: var(--primary-cyan);
-    box-shadow: 0 0 10px rgba(0, 188, 212, 0.15);
 }
 
-.search-btn {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--primary-cyan);
-    cursor: pointer;
-    padding: 0;
+/* ESTADOS */
+.status-available { 
+    background: rgba(34, 197, 94, 0.1); 
+    color: #22c55e; 
+    border: 1px solid rgba(34, 197, 94, 0.3); 
+} /* Verde */
+
+.status-in-use { 
+    background: rgba(6, 182, 212, 0.1); 
+    color: #06b6d4; 
+    border: 1px solid rgba(6, 182, 212, 0.3); 
+} /* Cian/Azul */
+
+.status-maintenance { 
+    background: rgba(249, 115, 22, 0.1); 
+    color: #f97316; 
+    border: 1px solid rgba(249, 115, 22, 0.3); 
+} /* Naranja */
+
+.status-out-of-service { 
+    background: rgba(239, 68, 68, 0.1); 
+    color: #ef4444; 
+    border: 1px solid rgba(239, 68, 68, 0.3); 
+} /* Rojo */
+
+/* 2. Temas de la Tarjeta (Borde Superior de color) */
+.green-theme { border-top: 4px solid #22c55e !important; }
+.blue-theme { border-top: 4px solid #06b6d4 !important; }
+.orange-theme { border-top: 4px solid #f97316 !important; }
+.red-theme { border-top: 4px solid #ef4444 !important; }
+
+/* 3. Ajuste de la clase general del badge (asegúrate de que tenga esto) */
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+/* ICONOS E INFO */
+.eq-icon-box {
+    width: 100%; height: 100px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--primary-cyan); margin-bottom: 20px;
 }
 
-.nav-item.active {
-    background-color: rgba(0, 188, 212, 0.15) !important; /* El color cian de tu logo */
-    color: var(--primary-cyan) !important;
-    border-right: 3px solid var(--primary-cyan); /* Una rayita para que resalte más */
-    font-weight: bold;
-}
-/* --- ESTRUCTURA DE LA SECCIÓN --- */
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 35px;
-    width: 100%;
+.sn-text {
+    color: var(--warning-orange);
+    font-weight: 700;
+    font-family: monospace;
+    background: rgba(243, 156, 18, 0.1);
+    padding: 4px 8px; border-radius: 5px;
+    display: inline-block; margin-top: 10px;
 }
 
-/* Botón Nuevo Encargado (Cian) */
+.db-details {
+    display: flex; flex-direction: column; gap: 5px;
+    margin-top: 15px; padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: left; font-size: 0.8rem; color: var(--text-gray);
+}
+
+/* BOTONES CARD */
+.eq-actions { display: flex; gap: 10px; margin-top: 20px; }
+.btn-eq-edit, .btn-eq-delete {
+    flex: 1; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s;
+}
+.btn-eq-edit { background: transparent; border: 1px solid var(--primary-cyan); color: var(--primary-cyan); }
+.btn-eq-delete { background: transparent; border: 1px solid var(--danger-red); color: var(--danger-red); }
+
+/* MODALES */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+    display: flex; justify-content: center; align-items: center;
+    visibility: hidden; opacity: 0; transition: 0.3s; z-index: 1000;
+}
+.modal-overlay.active { visibility: visible; opacity: 1; }
+.modal-content {
+    background: var(--bg-split); padding: 35px; border-radius: 24px;
+    width: 100%; max-width: 450px; border: 1px solid var(--primary-cyan);
+}
+.form-row { display: flex; gap: 15px; }
+.form-group { margin-bottom: 15px; flex: 1; }
+.form-group label { display: block; margin-bottom: 5px; color: var(--text-gray); font-size: 0.85rem; }
+.form-group input, .form-group select {
+    width: 100%; padding: 12px; background: rgba(255,255,255,0.05);
+    border: 1px solid #334155; border-radius: 10px; color: white; outline: none; box-sizing: border-box;
+}
+.modal-actions { display: flex; gap: 10px; margin-top: 25px; }
+.btn-save { background: var(--primary-cyan); border: none; flex: 2; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+.btn-danger-action { background: var(--danger-red); color: white; border: none; flex: 2; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+.btn-cancel { background: transparent; border: 1px solid var(--text-gray); color: var(--text-gray); flex: 1; padding: 12px; border-radius: 10px; cursor: pointer; }
+.warning-icon { font-size: 3rem; margin-bottom: 10px; display: block; text-align: center; }
 .btn-add-cyan {
     background-color: var(--primary-cyan);
     color: var(--bg-dark);
@@ -145,375 +149,13 @@
     font-weight: 700;
     cursor: pointer;
     box-shadow: var(--shadow-cyan);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-add-cyan:hover {
-    transform: translateY(-2px) scale(1.05);
-    background-color: var(--primary-hover);
-    box-shadow: 0 6px 20px rgba(0, 188, 212, 0.4);
-}
-
-/* --- GRID DE ENCARGADOS --- */
-.staff-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 30px;
-}
-
-.staff-card {
-    background-color: var(--bg-split);
-    border-radius: 24px;
-    overflow: hidden;
-    position: relative;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.staff-card:hover {
-    transform: translateY(-10px);
-    box-shadow: var(--shadow-cyan);
-}
-
-.card-header-bg {
-    height: 100px;
-    background-color: #334155; /* Gris azulado espacial */
-}
-
-/* --- AVATAR CIRCULAR --- */
-.avatar-container {
-    display: flex;
-    justify-content: center;
-    margin-top: -50px;
-}
-
-.avatar-circle {
-    width: 100px;
-    height: 100px;
-    background-color: var(--bg-split);
-    border: 3px solid var(--primary-cyan);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--primary-cyan);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 10px rgba(0, 188, 212, 0.2);
-}
-
-/* --- INFORMACIÓN DEL ENCARGADO --- */
-.staff-info {
-    padding: 20px 25px;
-    text-align: center;
-}
-
-.staff-info h3 {
-    font-size: 1.6rem;
-    margin: 10px 0 5px 0;
-    color: var(--white);
-}
-
-.role {
-    color: var(--primary-cyan);
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-}
-
-.details {
-    text-align: left;
-    color: var(--text-gray);
-    font-size: 0.9rem;
-    line-height: 1.8;
-    background: rgba(255, 255, 255, 0.02);
-    padding: 15px;
-    border-radius: 12px;
-}
-
-/* --- BOTONES DE LA CARD --- */
-.card-actions {
-    display: flex;
-    padding: 0 20px 25px 20px;
-    gap: 12px;
-}
-
-.btn-edit, .btn-delete {
-    flex: 1;
-    padding: 12px;
-    border-radius: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 0.9rem;
     transition: all 0.3s;
 }
 
-.btn-edit {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid #334155;
-    color: var(--white);
+.btn-add-cyan:hover {
+    transform: scale(1.05);
+    background-color: var(--primary-hover);
 }
-
-.btn-edit:hover {
-    border-color: var(--primary-cyan);
-    color: var(--primary-cyan);
-}
-
-.btn-delete {
-    background: transparent;
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    color: var(--danger-red);
-}
-
-.btn-delete:hover {
-    background: rgba(239, 68, 68, 0.1);
-    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
-}
-
-/* --- VENTANAS MODALES --- */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(4px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    visibility: hidden;
-    opacity: 0;
-    transition: all 0.3s ease;
-    z-index: 1000;
-}
-
-.modal-overlay.active {
-    visibility: visible;
-    opacity: 1;
-}
-
-.modal-content {
-    background: var(--bg-split);
-    padding: 35px;
-    border-radius: 24px;
-    width: 90%;
-    max-width: 420px;
-    border: 1px solid var(--primary-cyan);
-    box-shadow: var(--shadow-cyan);
-    transform: scale(0.9);
-    transition: transform 0.3s ease;
-}
-
-.modal-overlay.active .modal-content {
-    transform: scale(1);
-}
-
-.modal-content h3 {
-    margin-top: 0;
-    margin-bottom: 25px;
-    color: var(--white);
-}
-
-/* Estilo para Formulario en Modal */
-.form-group {
-    margin-bottom: 20px;
-    text-align: left;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-    color: var(--text-gray);
-}
-
-.form-group input, .form-group select {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid #334155;
-    border-radius: 10px;
-    padding: 12px;
-    color: white;
-    outline: none;
-    box-sizing: border-box;
-}
-
-.form-group input:focus {
-    border-color: var(--primary-cyan);
-}
-
-/* Botones en Modales */
-.modal-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 30px;
-}
-
-.btn-save, .btn-danger-action {
-    flex: 1;
-    padding: 14px;
-    border-radius: 10px;
-    font-weight: 700;
-    border: none;
-    cursor: pointer;
-}
-
-.btn-save {
-    background-color: var(--primary-cyan);
-    color: var(--bg-dark);
-}
-
-.btn-danger-action {
-    background-color: var(--danger-red);
-    color: var(--white);
-}
-
-.btn-danger-action:hover {
-    background-color: var(--danger-hover);
-    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
-}
-
-.btn-cancel {
-    flex: 1;
-    background: transparent;
-    border: 1px solid var(--text-gray);
-    color: var(--text-gray);
-    padding: 14px;
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-.btn-cancel:hover {
-    color: var(--white);
-    border-color: var(--white);
-}
-
-/* Modal de Eliminación específica */
-.confirm-delete {
-    text-align: center;
-    border-color: var(--danger-red);
-}
-
-.warning-icon {
-    font-size: 3.5rem;
-    margin-bottom: 10px;
-    display: block;
-}
-.side-drawer {
-            position: fixed;
-            right: -400px;
-            top: 0;
-            width: 350px;
-            height: 100%;
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(20px);
-            border-left: 1px solid var(--primary-cyan);
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 200;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .side-drawer.active { right: 0; }
-        .drawer-btn {
-            background: var(--glass);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            padding: 25px;
-            margin: 15px 0;
-            border-radius: 15px;
-            text-align: left;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        /* --- PANEL LATERAL (DRAWER) --- */
-.side-drawer {
-    position: fixed;
-    right: -450px; /* Oculto por defecto */
-    top: 0;
-    width: 400px;
-    height: 100%;
-    background: rgba(30, 41, 59, 0.7); /* Transparente */
-    backdrop-filter: blur(20px);      /* Efecto cristal */
-    -webkit-backdrop-filter: blur(20px);
-    border-left: 1px solid rgba(0, 188, 212, 0.3);
-    z-index: 2000;
-    padding: 40px 30px;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
-}
-
-.side-drawer.active {
-    right: 0; /* Se desliza hacia adentro */
-}
-
-/* --- CABECERA Y SUBTÍTULO --- */
-.drawer-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.drawer-subtitle {
-    color: var(--text-gray);
-    font-size: 0.9rem;
-    margin-bottom: 40px;
-}
-
-.btn-close-drawer {
-    background: none;
-    border: none;
-    color: var(--text-gray);
-    font-size: 2.5rem;
-    cursor: pointer;
-    line-height: 1;
-}
-
-.btn-close-drawer:hover { color: var(--primary-cyan); }
-
-/* --- TARJETAS DE OPCIÓN --- */
-.drawer-options {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.drawer-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 25px;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    transition: all 0.3s ease;
-}
-
-.drawer-card:hover {
-    background: rgba(0, 188, 212, 0.1);
-    border-color: var(--primary-cyan);
-    transform: translateX(-10px);
-}
-
-.card-icon { font-size: 2.5rem; }
-
-.card-content h3 {
-    margin: 0 0 5px 0;
-    color: var(--primary-cyan);
-    font-size: 1.1rem;
-}
-
-.card-content p {
-    margin: 0;
-    color: var(--text-gray);
-    font-size: 0.85rem;
-    line-height: 1.4;
-}
-
-/* --- OVERLAY DE FONDO --- */
 .side-drawer {
     position: fixed;
     left: -450px; /* Escondido a la izquierda */
@@ -748,7 +390,12 @@ nav {
     padding-top: 20px !important;
     font-weight: bold;
 }
-
+.nav-item.active {
+    background-color: rgba(0, 188, 212, 0.15) !important; /* El color cian de tu logo */
+    color: var(--primary-cyan) !important;
+    border-right: 3px solid var(--primary-cyan); /* Una rayita para que resalte más */
+    font-weight: bold;
+}
 .nav-item-logout:hover {
     background: rgba(239, 68, 68, 0.1) !important;
     color: #ff5f5f !important;
@@ -768,10 +415,70 @@ nav {
     padding-top: 20px !important;
     font-weight: bold;
 }
+/* --- ESTILOS DEL BUSCADOR --- */
+.search-box-container {
+    position: relative;
+    flex: 1;
+    max-width: 450px; /* Tamaño ideal para que no se vea gigante */
+    margin: 0 30px;
+    display: flex;
+    align-items: center;
+}
 
+.search-box-container input {
+    width: 100%;
+    padding: 12px 45px 12px 20px;
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid rgba(0, 188, 212, 0.2);
+    border-radius: 12px;
+    color: white;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-box-container input:focus {
+    border-color: var(--primary-cyan);
+    background: rgba(30, 41, 59, 0.7);
+    box-shadow: 0 0 15px rgba(0, 188, 212, 0.2);
+}
+
+.search-icon {
+    position: absolute;
+    right: 15px;
+    color: var(--text-gray);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.search-box-container input:focus + .search-icon {
+    color: var(--primary-cyan);
+    transform: scale(1.1);
+}
+
+/* Ajuste para que el header no se rompa en pantallas pequeñas */
+@media (max-width: 900px) {
+    .section-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .search-box-container {
+        max-width: 100%;
+        margin: 0;
+    }
+}
 .nav-item-logout:hover {
     background: rgba(239, 68, 68, 0.1) !important;
     color: #ff5f5f !important;
+}
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+    width: 100%;
 }
 .btn-logout-card {
     display: flex;
@@ -793,4 +500,30 @@ nav {
     color: white;
     box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
     transform: translateY(-2px);
+}
+/* Agrega esto a tu archivo CSS */
+.lab-group {
+    margin-bottom: 50px;
+    width: 100%;
+}
+
+.lab-title {
+    font-size: 1.5rem;
+    color: var(--primary-cyan);
+    border-bottom: 2px solid rgba(0, 188, 212, 0.2);
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+/* El grid ahora vive dentro de cada edificio */
+.equipment-grid-inner {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+/* Cambiamos el original por si acaso */
+#listaEquipos {
+    display: block; /* Para que los lab-groups bajen uno tras otro */
 }
