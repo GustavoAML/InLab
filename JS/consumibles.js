@@ -18,13 +18,22 @@ btnNuevo.addEventListener('click', () => { prepararModoCrear(); document.getElem
 conForm.addEventListener('submit', guardarOActualizar);
 
 function getToken() { return localStorage.getItem('token'); }
+function getRol() { return (localStorage.getItem('rol') || '').trim().toLowerCase(); }
+function getIdLaboratorioUsuario() { const v = localStorage.getItem('id_laboratorio'); return v ? parseInt(v, 10) : null; }
 
 async function cargarConsumibles() {
     try {
         const response = await fetch(API_URL, {
             headers: { 'Authorization': `Bearer ${getToken()}` }
         });
-        if (!response.ok) throw new Error('Error al obtener consumibles');
+        if (!response.ok) {
+            if (response.status === 401) {
+                localStorage.clear();
+                window.location.href = 'login.html';
+                return;
+            }
+            throw new Error('Error al obtener consumibles');
+        }
         const consumibles = await response.json();
         mostrarConsumibles(consumibles);
     } catch (error) {
@@ -45,7 +54,7 @@ function mostrarConsumibles(consumibles) {
 
     for (const lab in grupos) {
         const labSection = document.createElement('div');
-        labSection.className = 'lab-group'; // Clase de Equipos
+        labSection.className = 'lab-group';
         
         labSection.innerHTML = `
             <h3 class="lab-title">📍 ${lab}</h3>
@@ -56,7 +65,7 @@ function mostrarConsumibles(consumibles) {
 
         grupos[lab].forEach(c => {
             const card = document.createElement('div');
-            card.className = `eq-card blue-theme`; // Usamos el diseño de tarjetas de equipos
+            card.className = `eq-card blue-theme`;
             
             card.innerHTML = `
                 <div class="eq-status-container">
@@ -104,6 +113,12 @@ async function guardarOActualizar(event) {
     id_laboratorio: inputIdLaboratorio.value,
   };
 
+  // Si el usuario es encargado, forzar id_laboratorio desde localStorage
+  if (getRol() === 'encargado') {
+    const idLab = getIdLaboratorioUsuario();
+    consumible.id_laboratorio = idLab;
+  }
+
   try {
 
     let response;
@@ -142,6 +157,11 @@ async function guardarOActualizar(event) {
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
+      if (response.status === 401) {
+        localStorage.clear();
+        window.location.href = 'login.html';
+        return;
+      }
       throw new Error(err.error || 'Error en la operación');
     }
 
@@ -173,7 +193,15 @@ async function abrirEditar(consumible) {
 
   await cargarLaboratorios();
 
-  inputIdLaboratorio.value = consumible.id_laboratorio || '';
+  // Si el usuario es encargado, forzar su laboratorio
+  if (getRol() === 'encargado') {
+    const idLab = getIdLaboratorioUsuario();
+    inputIdLaboratorio.value = idLab || '';
+    inputIdLaboratorio.disabled = true;
+  } else {
+    inputIdLaboratorio.value = consumible.id_laboratorio || '';
+    inputIdLaboratorio.disabled = false;
+  }
   
   modalTitulo.textContent = 'Editar Consumible';
   btnGuardar.textContent = 'Actualizar';
@@ -192,6 +220,16 @@ function prepararModoCrear() {
 
   modalTitulo.textContent = 'Nuevo Consumible';
   btnGuardar.textContent = 'Guardar';
+
+  // Si el usuario es encargado, forzar su laboratorio en el select
+  if (getRol() === 'encargado') {
+    const idLab = getIdLaboratorioUsuario();
+    inputIdLaboratorio.value = idLab || '';
+    inputIdLaboratorio.disabled = true;
+  } else {
+    inputIdLaboratorio.value = '';
+    inputIdLaboratorio.disabled = false;
+  }
 
 }
 
@@ -221,6 +259,11 @@ async function confirmarEliminacion() {
 
         if (!response.ok) {
             const err = await response.json().catch(() => ({}));
+            if (response.status === 401) {
+                localStorage.clear();
+                window.location.href = 'login.html';
+                return;
+            }
             throw new Error(err.error || 'Error al eliminar');
         }
 
@@ -251,6 +294,16 @@ async function cargarLaboratorios() {
             }
         });
 
+        if (!respuesta.ok) {
+          const err = await respuesta.json().catch(() => ({}));
+          if (respuesta.status === 401) {
+            localStorage.clear();
+            window.location.href = 'login.html';
+            return;
+          }
+          throw new Error(err.error || 'Error al cargar laboratorios');
+        }
+
         const laboratorios = await respuesta.json();
 
         console.log(laboratorios);
@@ -258,7 +311,22 @@ async function cargarLaboratorios() {
         // Limpiar el select y poner opción inicial
         select.innerHTML = `<option value="">Seleccione un laboratorio...</option>`;
 
-        //El ciclo forEach
+        //Si el usuario es encargado, mostrar solo su laboratorio y deshabilitar
+        if (getRol() === 'encargado') {
+            const idLabUsuario = getIdLaboratorioUsuario();
+            const lab = (laboratorios || []).find(l => l.id_laboratorio === idLabUsuario);
+            if (lab) {
+                select.innerHTML = `<option value="${lab.id_laboratorio}">${lab.nombre_lab} - ${lab.edificio}</option>`;
+                select.value = lab.id_laboratorio;
+                select.disabled = true;
+            } else {
+                select.innerHTML = `<option value="">No asignado</option>`;
+                select.disabled = true;
+            }
+            return;
+        }
+
+        //El ciclo forEach para admin
         laboratorios.forEach(item => {
             // Crear el elemento <option>
             const opcion = document.createElement('option');
@@ -279,3 +347,38 @@ async function cargarLaboratorios() {
 
 // Llamar a la función cuando cargue la página
 document.addEventListener('DOMContentLoaded', cargarLaboratorios);
+
+// Función auxiliar para cerrar modales (se asume existe en tu HTML/CSS)
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('active');
+}
+function irAPractica(tipo) {
+    const rol = localStorage.getItem('rol').trim().toLowerCase();
+    
+    const rutas = {
+        'usuario': 'usuario.html',      // Checa si es 'usuario' o 'usuarios'
+        'laboratorios': 'laboratorios.html',
+        'encargados': 'encargado.html',
+        'consumibles': 'consumibles.html',
+        'equipos': 'equipo.html',
+       'dashboard': 'Dashboard.html',
+        'historial_completo': 'historial_completo.html', // <--- Revisa que el nombre del archivo .html sea correcto
+        'incidencias_actual': 'incidencias_actual.html'
+        
+    };
+
+    // Bloqueo solo si es encargado e intenta entrar a lo prohibido
+    const prohibidoEncargado = ['usuario', 'laboratorios', 'encargados'];
+    
+    if (rol === 'encargado' && prohibidoEncargado.includes(tipo)) {
+        alert("Acceso restringido.");
+        return;
+    }
+
+    if (rutas[tipo]) {
+        window.location.href = rutas[tipo];
+    } else {
+        console.error("Ruta no encontrada para:", tipo);
+    }
+}

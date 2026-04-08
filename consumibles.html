@@ -20,13 +20,14 @@
             </div>
         </div>
             <nav>
-                <a href="#" class="nav-item" onclick="irAPractica('usuario')">Usuarios</a>
-                <a href="#" class="nav-item" onclick="irAPractica('laboratorios')">Laboratorios</a>
-                <a href="#" class="nav-item" onclick="irAPractica('encargados')">Encargados</a>
-                <a href="#" class="nav-item" onclick="irAPractica('consumibles')">Consumibles</a>
-                <a href="#" class="nav-item" onclick="irAPractica('equipos')">Equipo</a>
-                <a href="#" class="nav-item" onclick="toggleDrawer()">Incidencias</a>
-                
+                <a href="javascript:void(0)" class="nav-item admin-only" onclick="irAPractica('usuarios')">Usuarios</a>
+    <a href="javascript:void(0)" class="nav-item admin-only" onclick="irAPractica('laboratorios')">Laboratorios</a>
+    <a href="javascript:void(0)" class="nav-item admin-only" onclick="irAPractica('encargados')">Encargados</a>
+    
+    <a href="javascript:void(0)" class="nav-item" onclick="irAPractica('consumibles')">Consumibles</a>
+    <a href="javascript:void(0)" class="nav-item" onclick="irAPractica('equipos')">Equipo</a>
+    <a href="javascript:void(0)" class="nav-item" onclick="toggleDrawer()">Incidencias</a>
+
                 <a href="#" class="btn-logout-card" onclick="logout()">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -65,7 +66,7 @@
             <form id="conForm">
                 <div class="form-group">
                     <label>ID</label>
-                    <input type="text" id="consumibleId" placeholder="Ej. 001" readonly>
+                    <input type="text" id="consumibleId" placeholder="Generado Automaticamente" readonly>
                 </div>
                 <div class="form-group">
                     <label>Nombre del Consumible</label>
@@ -209,16 +210,55 @@
         }
 
         // Active Link Logic
-        document.addEventListener("DOMContentLoaded", () => {
+      document.addEventListener('DOMContentLoaded', () => {
+    // 1. Obtener datos del login
+    const token = localStorage.getItem('token');
+    const rolRaw = localStorage.getItem('rol');
+
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // Normalizamos el rol para evitar errores de espacios o mayúsculas
+    const rol = (rolRaw || '').trim().toLowerCase();
+    console.log("Validando acceso para el rol:", rol);
+
+    // 2. CONTROL DE VISIBILIDAD TOTAL
+    const elementosAdmin = document.querySelectorAll('.admin-only');
+
+    if (rol === 'encargado') {
+        // Si es encargado, ocultamos a fuerza
+        elementosAdmin.forEach(el => {
+            el.style.setProperty('display', 'none', 'important');
+        });
+    } else {
+        // SI ES ADMIN (o cualquier otro), nos aseguramos de que SE VEAN
+        // Esto corrige que desaparezcan al navegar
+        elementosAdmin.forEach(el => {
+            el.style.setProperty('display', 'block', 'important');
+        });
+    }
+});
+  document.addEventListener("DOMContentLoaded", function() {
             const currentFile = window.location.pathname.split("/").pop();
-            const map = { 'usuario.html': 'usuario', 'laboratorios.html': 'laboratorios', 'encargado.html': 'encargados', 'consumibles.html': 'consumibles', 'equipo.html': 'equipos' };
-            const activeSec = map[currentFile];
-            document.querySelectorAll('.nav-item').forEach(item => {
-                const attr = item.getAttribute('onclick');
-                if (activeSec && attr && attr.includes(`'${activeSec}'`)) item.classList.add('active');
+            const mapPaginas = {
+                'usuario.html': 'usuario',
+                'laboratorios.html': 'laboratorios',
+                'encargado.html': 'encargados',
+                'consumibles.html': 'consumibles',
+                'equipo.html': 'equipos'
+            };
+            const seccionActiva = mapPaginas[currentFile];
+            const menuItems = document.querySelectorAll('.nav-item');
+            menuItems.forEach(item => {
+                item.classList.remove('active');
+                const clickAtributo = item.getAttribute('onclick');
+                if (seccionActiva && clickAtributo && clickAtributo.includes(`'${seccionActiva}'`)) {
+                    item.classList.add('active');
+                }
             });
         });
-        
     </script>
     <script src="/JS/consumibles.js"></script>
 </body>

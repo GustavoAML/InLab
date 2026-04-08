@@ -17,7 +17,20 @@
     
     --shadow-cyan: 0 0 20px rgba(0, 188, 212, 0.2);
 }
+.admin-only {
+    display: none !important;
+}
+.data-table-mini td {
+    padding: 15px 10px; /* Un poquito más de espacio vertical */
+    vertical-align: middle;
+}
 
+/* Para que el texto no se amontone si el nombre del lab es muy largo */
+.data-table-mini small {
+    display: block;
+    margin-top: 2px;
+    opacity: 0.8;
+}
 /* --- CONTENEDOR DEL LOGO (TARJETA) --- */
 .logo-area {
     margin-bottom: 800px; /* Antes era 50px */

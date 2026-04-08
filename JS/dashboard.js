@@ -1,120 +1,188 @@
+// dashboard.js - Manejo de token, rol y carga de datos del dashboard
 const token = localStorage.getItem('token');
 const nombreUsuario = localStorage.getItem('nombre');
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (!token) { window.location.href = 'login.html'; return; }
-    
+    // 1. Validamos que existan los datos
+    const rolRaw = localStorage.getItem('rol');
+
+    if (!token || !rolRaw) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const rol = rolRaw.trim().toLowerCase();
+    console.log("Rol detectado:", rol);
+
+    // 2. LÓGICA DE VISIBILIDAD
+    if (rol === 'encargado') {
+        document.querySelectorAll('.admin-only').forEach(el => {
+            el.style.setProperty('display', 'none', 'important');
+        });
+    } else if (rol === 'admin') {
+        document.querySelectorAll('.nav-item').forEach(el => {
+            el.style.setProperty('display', 'block', 'important');
+        });
+    }
+
     actualizarSaludo();
     cargarEstadisticas();
     cargarIncidenciasRecientes();
 });
 
 function actualizarSaludo() {
-    if (nombreUsuario) {
-        document.getElementById('userName').innerText = nombreUsuario;
-    }
+    const el = document.getElementById('userName');
+    if (el && nombreUsuario) el.innerText = nombreUsuario;
 }
 
-// Carga las 3 tarjetas superiores
+function authHeaders() {
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    };
+}
+
 async function cargarEstadisticas() {
     try {
-        const res = await fetch('http://localhost:3000/api/dashboard/stats', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        // 1. Cargar Stats Generales (Tarjetas)
+        const res = await fetch('/api/dashboard/stats', { headers: authHeaders() });
+        if (!res.ok) {
+            if (res.status === 401) return manejarNoAutorizado();
+            throw new Error('Error al obtener estadísticas');
+        }
         const data = await res.json();
 
-        // 1. Números principales
-        document.getElementById('countPC').innerText = data.totalPCs || 0;
-        document.getElementById('countMonitores').innerText = data.totalMonitores || 0;
-        document.getElementById('countConsumibles').innerText = `Total: ${data.stockTotalConsumibles || 0}`;
+        const pcEl = document.getElementById('countPC');
+        const monEl = document.getElementById('countMonitores');
+        const conEl = document.getElementById('countConsumibles');
 
-        // 2. Llenar tabla de stock
-        const resCon = await fetch('http://localhost:3000/api/consumibles', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        if (pcEl) pcEl.innerText = data.totalPCs ?? 0;
+        if (monEl) monEl.innerText = data.totalMonitores ?? 0;
+        if (conEl) conEl.innerText = `Total: ${data.stockTotalConsumibles ?? 0}`;
+
+        // 2. Cargar Mini-Tabla de Consumibles
+        const resCon = await fetch('/api/consumibles', { headers: authHeaders() });
         const consumibles = await resCon.json();
-        
+
         const tbodyStock = document.getElementById('listaConsumiblesDashboard');
-        tbodyStock.innerHTML = '';
+        if (tbodyStock) {
+            tbodyStock.innerHTML = '';
+            (consumibles || []).slice(0, 5).forEach(c => {
+                const tr = document.createElement('tr');
+                let indicadorText = '';
+                let indicadorClass = '';
+                
+                if (c.stock <= 5) {
+                    indicadorText = '⚠️ Crítico';
+                    indicadorClass = 'stock-critical';
+                } else if (c.stock <= 15) {
+                    indicadorText = '📦 Por agotarse';
+                    indicadorClass = 'stock-warning';
+                } else {
+                    indicadorText = '✅ Abastecido';
+                    indicadorClass = 'stock-ok';
+                }
 
-        // Solo mostramos los primeros 4 o 5 para no saturar
-        consumibles.slice(0, 5).forEach(c => {
-    const tr = document.createElement('tr');
-    
-    // Nueva lógica más descriptiva
-    let indicador;
-    if (c.stock <= 5) {
-        indicador = '<span style="color:#ef4444; font-weight:bold;">⚠️ Crítico</span>';
-    } else if (c.stock <= 15) {
-        indicador = '<span style="color:#f39c12; font-weight:bold;">📦 Por agotarse</span>';
-    } else {
-        indicador = '<span style="color:#22c55e;">✅ Abastecido</span>';
-    }
-
-    tr.innerHTML = `
-        <td>${c.nombre_con}</td>
-        <td>${c.stock}</td>
-        <td>${indicador}</td>
-    `;
-    tbodyStock.appendChild(tr);
-});
-
+                // AQUÍ AGREGAMOS EL ID (c.id) Y LA UBICACIÓN
+                tr.innerHTML = `
+                    <td>
+                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 0.65rem; color: #94a3b8; font-weight: bold;">ID: ${c.id ?? '—'}</span>
+                                <span style="font-weight: 600;">${escapeHtml(c.nombre_con)}</span>
+                            </div>
+                            <small style="color: var(--primary-cyan); font-size: 0.72rem; opacity: 0.8;">
+                                📍 ${escapeHtml(c.nombre_lab)} — ${escapeHtml(c.edificio)}
+                            </small>
+                        </div>
+                    </td>
+                    <td style="font-weight: bold; text-align: center;">${c.stock ?? 0}</td>
+                    <td><span class="status ${indicadorClass}">${indicadorText}</span></td>
+                `;
+                tbodyStock.appendChild(tr);
+            });
+        }
     } catch (error) {
-        console.error("Error al cargar Dashboard:", error);
+        console.error('Error al cargar Estadísticas:', error);
     }
 }
 
-// Carga la tabla inferior
 async function cargarIncidenciasRecientes() {
     try {
-        const res = await fetch('/api/dashboard/incidencias-recientes', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await fetch('/api/dashboard/incidencias-recientes', { headers: authHeaders() });
+        if (!res.ok) throw new Error('Error al obtener incidencias');
         const incidencias = await res.json();
-        
+
         const tbody = document.getElementById('tablaIncidencias');
-        tbody.innerHTML = '';
+        if (tbody) tbody.innerHTML = '';
 
-        // Actualizar contador de pendientes en el saludo
-        const pendientes = incidencias.filter(i => i.estado.toUpperCase() === 'PENDIENTE').length;
-        document.getElementById('criticasCount').innerText = `${pendientes} incidencias`;
+        const pendientes = (incidencias || []).filter(i => (i.estado || '').toLowerCase() === 'pendiente').length;
+        const critEl = document.getElementById('criticasCount');
+        if (critEl) critEl.innerText = `${pendientes} incidencias`;
 
-        incidencias.forEach(i => {
+        (incidencias || []).forEach(i => {
             const tr = document.createElement('tr');
-            const statusClass = i.estado.toLowerCase() === 'pendiente' ? 'pending' : 'resolved';
+            const estado = (i.estado || '').toString();
+            const statusClass = estado.toLowerCase() === 'pendiente' ? 'pending' : 'resolved';
 
             tr.innerHTML = `
-                <td>${i.nombre_equipo} (${i.no_serie})</td>
-                <td>${i.nombre_usuario}</td>
-                <td>${i.tipo_equipo}</td>
-                <td><span class="status ${statusClass}">${i.estado.toUpperCase()}</span></td>
+                <td>${escapeHtml(i.nombre_equipo)} ${i.no_serie ? `(${escapeHtml(i.no_serie)})` : ''}</td>
+                <td>${escapeHtml(i.nombre_usuario)}</td>
+                <td>${escapeHtml(i.tipo_equipo)}</td>
+                <td><span class="status ${statusClass}">${escapeHtml(estado.toUpperCase())}</span></td>
             `;
             tbody.appendChild(tr);
         });
     } catch (error) {
-        console.error("Error incidencias:", error);
+        console.error('Error incidencias:', error);
     }
 }
 
-// Navegación
 function irAPractica(tipo) {
-    const rol = localStorage.getItem('rol');
+    const rol = localStorage.getItem('rol').trim().toLowerCase();
     const rutas = {
-        'laboratorios': 'laboratorios.html', 'consumibles': 'consumibles.html',
-        'encargados': 'encargado.html', 'equipos': 'equipo.html',
-        'usuario': 'usuario.html', 'historial_completo': 'historial_completo.html',
+        'usuarios': 'usuario.html',
+        'laboratorios': 'laboratorios.html',
+        'encargados': 'encargado.html',
+        'consumibles': 'consumibles.html',
+        'equipos': 'equipo.html',
+        'dashboard': 'Dashboard.html',
+        'historial_completo': 'historial_completo.html',
         'incidencias_actual': 'incidencias_actual.html'
     };
-    if (rol !== 'admin' && (tipo === 'usuario' || tipo === 'laboratorios')) return;
-    if(rutas[tipo]) window.location.href = rutas[tipo];
+
+    if (rol === 'encargado' && ['usuarios', 'laboratorios', 'encargados'].includes(tipo)) {
+        alert("Acceso restringido: Solo Administradores.");
+        return;
+    }
+
+    if (rutas[tipo]) {
+        window.location.href = rutas[tipo];
+    }
 }
 
-function toggleDrawer() {
-    document.getElementById('sideDrawer').classList.toggle('active');
-    document.getElementById('drawerOverlay').classList.toggle('active');
+function manejarNoAutorizado() {
+    localStorage.clear();
+    window.location.href = 'login.html';
 }
 
 function logout() {
     localStorage.clear();
     window.location.href = 'login.html';
 }
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function toggleDrawer() {
+    const drawer = document.getElementById('sideDrawer');
+    const overlay = document.getElementById('drawerOverlay');
+    if (drawer) drawer.classList.toggle('active');
+    if (overlay) overlay.classList.toggle('active');
+}
+
+window.irAPractica = irAPractica;
+window.toggleDrawer = toggleDrawer;
+window.logout = logout;
