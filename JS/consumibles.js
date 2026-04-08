@@ -98,146 +98,131 @@ function mostrarConsumibles(consumibles) {
         listaConsumibles.appendChild(labSection);
     }
 }
+
 // =============================
 // GUARDAR O ACTUALIZAR
 // =============================
 async function guardarOActualizar(event) {
+    event.preventDefault();
 
-  event.preventDefault();
+    const id = inputId.value;
 
-  const id = inputId.value;
+    const consumible = {
+        nombre: inputNombre.value.trim(),
+        stock: inputStock.value,
+        id_laboratorio: inputIdLaboratorio.value,
+    };
 
-  const consumible = {
-    nombre: inputNombre.value.trim(),
-    stock: inputStock.value,
-    id_laboratorio: inputIdLaboratorio.value,
-  };
-
-  // Si el usuario es encargado, forzar id_laboratorio desde localStorage
-  if (getRol() === 'encargado') {
-    const idLab = getIdLaboratorioUsuario();
-    consumible.id_laboratorio = idLab;
-  }
-
-  try {
-
-    let response;
-
-    // ====================
-    // CREAR
-    // ====================
-    if (!id) {
-
-      response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getToken()}`
-        },
-        body: JSON.stringify(consumible)
-      });
-
+    // Si el usuario es encargado, forzar id_laboratorio desde localStorage
+    if (getRol() === 'encargado') {
+        const idLab = getIdLaboratorioUsuario();
+        consumible.id_laboratorio = idLab;
     }
 
-    // ====================
-    // EDITAR
-    // ====================
-    else {
+    try {
+        let response;
 
-      response = await fetch(`${API_URL}/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getToken()}`
-        },
-        body: JSON.stringify(consumible)
-      });
+        // ====================
+        // CREAR
+        // ====================
+        if (!id) {
+            response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getToken()}`
+                },
+                body: JSON.stringify(consumible)
+            });
+        }
+        // ====================
+        // EDITAR
+        // ====================
+        else {
+            response = await fetch(`${API_URL}/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getToken()}`
+                },
+                body: JSON.stringify(consumible)
+            });
+        }
 
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            if (response.status === 401) {
+                localStorage.clear();
+                window.location.href = 'login.html';
+                return;
+            }
+            throw new Error(err.error || 'Error en la operación');
+        }
+
+        document.getElementById('conModal').classList.remove('active');
+
+        // limpiar
+        conForm.reset();
+        inputId.value = '';
+
+        await cargarConsumibles();
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert(error.message || 'Error al guardar/editar');
     }
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      if (response.status === 401) {
-        localStorage.clear();
-        window.location.href = 'login.html';
-        return;
-      }
-      throw new Error(err.error || 'Error en la operación');
-    }
-
-    document.getElementById('conModal').classList.remove('active');
-
-    // limpiar
-    conForm.reset();
-    inputId.value = '';
-
-    await cargarConsumibles();
-
-  } catch (error) {
-
-    console.error('Error:', error);
-    alert(error.message || 'Error al guardar/editar');
-
-  }
-
 }
 
 // =============================
 // EDITAR
 // =============================
 async function abrirEditar(consumible) {
+    inputId.value = consumible.id;
+    inputNombre.value = consumible.nombre_con || '';
+    inputStock.value = consumible.stock || '';
 
-  inputId.value = consumible.id;
-  inputNombre.value = consumible.nombre_con || '';
-  inputStock.value = consumible.stock || '';
+    await cargarLaboratorios();
 
-  await cargarLaboratorios();
-
-  // Si el usuario es encargado, forzar su laboratorio
-  if (getRol() === 'encargado') {
-    const idLab = getIdLaboratorioUsuario();
-    inputIdLaboratorio.value = idLab || '';
-    inputIdLaboratorio.disabled = true;
-  } else {
-    inputIdLaboratorio.value = consumible.id_laboratorio || '';
-    inputIdLaboratorio.disabled = false;
-  }
+    // Si el usuario es encargado, forzar su laboratorio
+    if (getRol() === 'encargado') {
+        const idLab = getIdLaboratorioUsuario();
+        inputIdLaboratorio.value = idLab || '';
+        inputIdLaboratorio.disabled = true;
+    } else {
+        inputIdLaboratorio.value = consumible.id_laboratorio || '';
+        inputIdLaboratorio.disabled = false;
+    }
   
-  modalTitulo.textContent = 'Editar Consumible';
-  btnGuardar.textContent = 'Actualizar';
+    modalTitulo.textContent = 'Editar Consumible';
+    btnGuardar.textContent = 'Actualizar';
 
-  document.getElementById('conModal').classList.add('active');
-
+    document.getElementById('conModal').classList.add('active');
 }
 
 // =============================
 // PREPARAR CREAR
 // =============================
 function prepararModoCrear() {
+    inputId.value = '';
+    conForm.reset();
 
-  inputId.value = '';
-  conForm.reset();
+    modalTitulo.textContent = 'Nuevo Consumible';
+    btnGuardar.textContent = 'Guardar';
 
-  modalTitulo.textContent = 'Nuevo Consumible';
-  btnGuardar.textContent = 'Guardar';
-
-  // Si el usuario es encargado, forzar su laboratorio en el select
-  if (getRol() === 'encargado') {
-    const idLab = getIdLaboratorioUsuario();
-    inputIdLaboratorio.value = idLab || '';
-    inputIdLaboratorio.disabled = true;
-  } else {
-    inputIdLaboratorio.value = '';
-    inputIdLaboratorio.disabled = false;
-  }
-
+    // Si el usuario es encargado, forzar su laboratorio en el select
+    if (getRol() === 'encargado') {
+        const idLab = getIdLaboratorioUsuario();
+        inputIdLaboratorio.value = idLab || '';
+        inputIdLaboratorio.disabled = true;
+    } else {
+        inputIdLaboratorio.value = '';
+        inputIdLaboratorio.disabled = false;
+    }
 }
 
 function abrirModalEliminar(id, nombre_con) {
     consumibleAEliminar = id;
-
     document.getElementById('deleteTarget').innerText = nombre_con;
-
     document.getElementById('deleteModal').classList.add('active');
 }
 
@@ -245,11 +230,9 @@ function abrirModalEliminar(id, nombre_con) {
 // ELIMINAR
 // =============================
 async function confirmarEliminacion() {
-
     if (!consumibleAEliminar) return;
 
     try {
-
         const response = await fetch(`${API_URL}/${consumibleAEliminar}`, {
             method: 'DELETE',
             headers: {
@@ -306,8 +289,6 @@ async function cargarLaboratorios() {
 
         const laboratorios = await respuesta.json();
 
-        console.log(laboratorios);
-
         // Limpiar el select y poner opción inicial
         select.innerHTML = `<option value="">Seleccione un laboratorio...</option>`;
 
@@ -328,14 +309,9 @@ async function cargarLaboratorios() {
 
         //El ciclo forEach para admin
         laboratorios.forEach(item => {
-            // Crear el elemento <option>
             const opcion = document.createElement('option');
-
-            // Asignar los valores
             opcion.value = item.id_laboratorio;
             opcion.textContent = `${item.nombre_lab} - ${item.edificio}`;
-
-            //Insertarlo en el select
             select.appendChild(opcion);
         });
 
@@ -344,35 +320,38 @@ async function cargarLaboratorios() {
     }
 }
 
-
 // Llamar a la función cuando cargue la página
 document.addEventListener('DOMContentLoaded', cargarLaboratorios);
 
-// Función auxiliar para cerrar modales (se asume existe en tu HTML/CSS)
+// Función auxiliar para cerrar modales
 function closeModal(id) {
   const el = document.getElementById(id);
   if (el) el.classList.remove('active');
 }
+
+// =============================
+// MANEJO DE NAVEGACIÓN
+// =============================
 function irAPractica(tipo) {
     const rol = localStorage.getItem('rol').trim().toLowerCase();
     
     const rutas = {
-        'usuario': 'usuario.html',      // Checa si es 'usuario' o 'usuarios'
+        'usuario': 'usuario.html',
+        'usuarios': 'usuario.html',      // <--- AÑADIDO PARA EVITAR EL ERROR
         'laboratorios': 'laboratorios.html',
         'encargados': 'encargado.html',
         'consumibles': 'consumibles.html',
         'equipos': 'equipo.html',
-       'dashboard': 'Dashboard.html',
-        'historial_completo': 'historial_completo.html', // <--- Revisa que el nombre del archivo .html sea correcto
+        'dashboard': 'Dashboard.html',
+        'historial_completo': 'historial_completo.html', 
         'incidencias_actual': 'incidencias_actual.html'
-        
     };
 
     // Bloqueo solo si es encargado e intenta entrar a lo prohibido
-    const prohibidoEncargado = ['usuario', 'laboratorios', 'encargados'];
+    const prohibidoEncargado = ['usuario', 'usuarios', 'laboratorios', 'encargados'];
     
     if (rol === 'encargado' && prohibidoEncargado.includes(tipo)) {
-        alert("Acceso restringido.");
+        alert("Acceso restringido: Solo Administradores.");
         return;
     }
 

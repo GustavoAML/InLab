@@ -19,6 +19,7 @@
     align-items: center;
     margin-bottom: 30px;
 }
+
 /* Agrega esto en la sección de formularios */
 .form-row {
     display: flex;
@@ -37,6 +38,7 @@
         gap: 0;
     }
 }
+
 /* ==========================================================================
    2. BOTÓN "NUEVO ENCARGADO"
    ========================================================================== */
@@ -132,8 +134,15 @@
 .modal-overlay.active { opacity: 1; visibility: visible; }
 
 .modal-content {
-    background-color: var(--bg-split); border: 1px solid var(--primary-cyan);
-    border-radius: 24px; padding: 30px; width: 100%; max-width: 450px; text-align: center;
+    background-color: var(--bg-split); 
+    border: 1px solid var(--primary-cyan);
+    border-radius: 24px; 
+    padding: 30px; 
+    width: 100%; 
+    max-width: 550px; 
+    text-align: center;
+    position: relative; /* <-- NECESARIO PARA LA X GRANDE */
+    box-sizing: border-box;
 }
 
 .modal-overlay.active .modal-content { animation: modalShow 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -143,13 +152,85 @@
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.form-group { text-align: left; margin-bottom: 15px; }
-.form-group label { display: block; color: var(--text-gray); margin-bottom: 5px; font-size: 0.85rem; }
-.form-group input, .form-group select {
-    width: 100%; padding: 12px; background: rgba(15, 23, 42, 0.7);
-    border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; outline: none;
+/* --- LA "X" GRANDE PARA CERRAR --- */
+.btn-close {
+    position: absolute !important;
+    top: 15px !important;
+    right: 20px !important;
+    background: none !important;
+    border: none !important;
+    color: var(--text-gray) !important;
+    font-size: 2.2rem !important; /* Tamaño grande */
+    cursor: pointer !important;
+    line-height: 1 !important;
+    transition: 0.2s ease !important;
 }
 
+.btn-close:hover {
+    color: var(--danger-red) !important; /* Se pone roja al pasar el mouse */
+    transform: scale(1.1);
+}
+
+/* --- FORMULARIOS Y SELECTS --- */
+.form-group { 
+    text-align: left; 
+    margin-bottom: 15px; 
+    width: 100% !important; /* Forzar el ancho del contenedor */
+    display: block !important;
+}
+
+.form-group label { display: block; color: var(--text-gray); margin-bottom: 5px; font-size: 0.85rem; }
+
+.form-group input, .form-group select {
+    width: 100% !important; 
+    padding: 12px 15px !important; 
+    background: rgba(15, 23, 42, 0.7) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important; 
+    border-radius: 10px !important; 
+    color: white !important; 
+    outline: none !important;
+    box-sizing: border-box !important; /* <-- MÁGIA: ESTO HACE QUE EL SELECT MIDAN LO MISMO */
+    transition: 0.3s !important;
+    font-size: 0.95rem !important;
+}
+
+/* Estilo específico para el SELECT */
+select {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important; /* Doble seguro */
+    background-color: #1e293b !important;
+    border: 1px solid #334155 !important;
+    border-radius: 8px !important;
+    color: white !important;
+    padding: 12px 15px !important;
+    font-size: 0.95rem !important;
+    outline: none !important;
+    cursor: pointer !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 15px center !important;
+    background-size: 18px !important;
+    margin-bottom: 15px !important;
+}
+
+select:focus {
+    border-color: var(--primary-cyan) !important;
+    box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.2) !important;
+}
+
+.form-group input:focus { border-color: var(--primary-cyan); }
+
+select option {
+    background-color: var(--bg-dark);
+    color: white;
+}
+
+/* BOTONES DEL MODAL */
 .modal-actions { display: flex; gap: 12px; margin-top: 25px; }
 
 .btn-save, .btn-danger-action, .btn-cancel { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-weight: bold; cursor: pointer; }
@@ -267,11 +348,13 @@
     transition: 0.3s;
     z-index: 1500;
 }
+.drawer-overlay.active { visibility: visible; opacity: 1; }
+
 /* --- ESTILOS DEL BUSCADOR --- */
 .search-box-container {
     position: relative;
     flex: 1;
-    max-width: 450px; /* Tamaño ideal para que no se vea gigante */
+    max-width: 450px;
     margin: 0 30px;
     display: flex;
     align-items: center;
@@ -321,108 +404,26 @@
         margin: 0;
     }
 }
+
 .nav-item.active {
-    background-color: rgba(0, 188, 212, 0.15) !important; /* El color cian de tu logo */
+    background-color: rgba(0, 188, 212, 0.15) !important;
     color: var(--primary-cyan) !important;
-    border-right: 3px solid var(--primary-cyan); /* Una rayita para que resalte más */
+    border-right: 3px solid var(--primary-cyan);
     font-weight: bold;
 }
-.drawer-overlay.active { visibility: visible; opacity: 1; }
-/* ==========================================================================
-   VARIABLES Y BASE
-   ========================================================================== */
-:root {
-    --bg-dark: #0f172a;
-    --bg-split: #1e293b;
-    --primary-cyan: #00bcd4;
-    --primary-hover: #26c6da;
-    --text-gray: #94a3b8;
-    --white: #ffffff;
-    --danger-red: #ef4444;
-    --warning-orange: #f39c12;
-    --shadow-cyan: 0 0 20px rgba(0, 188, 212, 0.2);
-}
 
 /* ==========================================================================
-   MODALES Y FORMULARIOS
+   NAVEGACIÓN / MENU LATERAL
    ========================================================================== */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
-    display: flex; justify-content: center; align-items: center;
-    opacity: 0; visibility: hidden; transition: 0.3s; z-index: 3000;
-}
-
-.modal-overlay.active { opacity: 1; visibility: visible; }
-
-.modal-content {
-    background-color: var(--bg-split); 
-    border: 1px solid var(--primary-cyan);
-    border-radius: 24px; 
-    padding: 30px; 
-    width: 95%; 
-    max-width: 550px; /* Ancho ajustado para que quepan las columnas */
-    text-align: center;
-    box-sizing: border-box;
-}
-
-/* FILAS PARA AGRUPAR CAMPOS */
-.form-row {
-    display: flex;
-    gap: 15px;
-    width: 100%;
-}
-
-.form-row .form-group {
-    flex: 1;
-}
-
-.form-group { text-align: left; margin-bottom: 15px; }
-.form-group label { display: block; color: var(--text-gray); margin-bottom: 5px; font-size: 0.85rem; }
-
-.form-group input, .form-group select {
-    width: 100%; 
-    padding: 12px; 
-    background: rgba(15, 23, 42, 0.7);
-    border: 1px solid rgba(255,255,255,0.1); 
-    border-radius: 10px; 
-    color: white; 
-    outline: none;
-    box-sizing: border-box;
-    transition: 0.3s;
-}
-
-.form-group input:focus { border-color: var(--primary-cyan); }
-
-/* BOTONES */
-.modal-actions { display: flex; gap: 12px; margin-top: 25px; }
-
-.btn-save { 
-    background: var(--primary-cyan); color: var(--bg-dark); border: none; 
-    flex: 2; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer;
-}
-.btn-cancel { 
-    background: transparent; border: 1px solid var(--text-gray); color: var(--text-gray); 
-    flex: 1; padding: 12px; border-radius: 10px; cursor: pointer;
-}
-
-/* RESPONSIVO */
-@media (max-width: 480px) {
-    .form-row {
-        flex-direction: column;
-        gap: 0;
-    }
-}
 nav {
     display: flex;
     flex-direction: column;
-    height: calc(100% - 100px); /* Ajusta según el tamaño de tu logo */
+    height: calc(100% - 100px);
 }
 
-/* El botón de salir específicamente */
 .nav-item-logout {
-    margin-top: auto; /* <--- Esto lo empuja hasta abajo */
-    color: #ff4d4d !important; /* Un rojo que resalte pero no lastime */
+    margin-top: auto; 
+    color: #ff4d4d !important; 
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 20px !important;
     font-weight: bold;
@@ -432,26 +433,7 @@ nav {
     background: rgba(239, 68, 68, 0.1) !important;
     color: #ff5f5f !important;
 }
-/* Contenedor del menú para que empuje el botón al fondo */
-nav {
-    display: flex;
-    flex-direction: column;
-    height: calc(100% - 100px); /* Ajusta según el tamaño de tu logo */
-}
 
-/* El botón de salir específicamente */
-.nav-item-logout {
-    margin-top: auto; /* <--- Esto lo empuja hasta abajo */
-    color: #ff4d4d !important; /* Un rojo que resalte pero no lastime */
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 20px !important;
-    font-weight: bold;
-}
-
-.nav-item-logout:hover {
-    background: rgba(239, 68, 68, 0.1) !important;
-    color: #ff5f5f !important;
-}
 .btn-logout-card {
     display: flex;
     align-items: center;

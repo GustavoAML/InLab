@@ -186,3 +186,59 @@ function toggleDrawer() {
 window.irAPractica = irAPractica;
 window.toggleDrawer = toggleDrawer;
 window.logout = logout;
+async function abrirListaDetallada(tipo) {
+    const titulo = document.getElementById('tituloModalDetalle');
+    const head = document.getElementById('headDetalle');
+    const body = document.getElementById('bodyDetalle');
+    
+    // Cambiar título según el botón
+    titulo.innerText = `Detalle de ${tipo.toUpperCase()}`;
+    body.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
+    
+    // Configurar encabezado según si es equipo o consumible
+    if (tipo === 'consumibles') {
+        head.innerHTML = `<tr><th>ID</th><th>Material</th><th>Stock</th><th>Ubicación</th><th>Edificio</th></tr>`;
+    } else {
+        head.innerHTML = `<tr><th>ID</th><th>Nombre</th><th>S/N</th><th>Laboratorio</th><th>Edificio</th></tr>`;
+    }
+
+    try {
+        // Reutilizamos tus endpoints existentes que ya tienen filtro por ROL
+        const url = tipo === 'consumibles' ? '/api/consumibles' : '/api/equipos';
+        const res = await fetch(url, { headers: authHeaders() });
+        let data = await res.json();
+
+        // Si son equipos, filtramos por tipo (PC o Monitor)
+        if (tipo === 'pc' || tipo === 'monitor') {
+            data = data.filter(e => e.tipo.toLowerCase() === tipo);
+        }
+
+        body.innerHTML = '';
+        data.forEach(item => {
+            const tr = document.createElement('tr');
+            if (tipo === 'consumibles') {
+                tr.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.nombre_con}</td>
+                    <td>${item.stock}</td>
+                    <td>${item.nombre_lab} (${item.edificio})</td>
+                    <td>${item.edificio}</td>
+                `;
+            } else {
+                tr.innerHTML = `
+                    <td>${item.id_equipo}</td>
+                    <td>${item.nombre} ${item.numero}</td>
+                    <td>${item.no_serie}</td>
+                    <td>${item.nombre_lab}</td>
+                    <td>${item.edificio}</td>
+                `;
+            }
+            body.appendChild(tr);
+        });
+
+        document.getElementById('modalListaDetallada').classList.add('active');
+    } catch (error) {
+        console.error(error);
+        alert("Error al cargar la lista");
+    }
+}

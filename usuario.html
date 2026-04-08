@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LabManager - Usuarios</title>
+    <title>INLAB - Gestión de Usuarios</title>
     <link rel="stylesheet" href="CSS/dashboard.css">
     <link rel="stylesheet" href="CSS/usuario.css">
 </head>
@@ -14,18 +14,18 @@
         <div class="logo-area">
             <div class="logo-wrapper">
                 <a href="Dashboard.html" style="z-index: 10; display: flex; align-items: center; gap: 10px; text-decoration: none;">
-                    <img src="/logo_nuevo2.png" alt="Logo" style="height: 35px; width: auto;">
+                    <img src="/logo_nuevo2.png" alt="Logo INLAB" style="height: 35px; width: auto;">
                     <span style="color: white; font-weight: 800; font-size: 1.5rem;">INLAB</span>
                 </a>
             </div>
         </div>
             <nav>
-                <a href="#" class="nav-item" onclick="irAPractica('usuario')">Usuarios</a>
-                <a href="#" class="nav-item" onclick="irAPractica('laboratorios')">Laboratorios</a>
-                <a href="#" class="nav-item" onclick="irAPractica('encargados')">Encargados</a>
-                <a href="#" class="nav-item" onclick="irAPractica('consumibles')">Consumibles</a>
-                <a href="#" class="nav-item" onclick="irAPractica('equipos')">Equipo</a>
-                <a href="#" class="nav-item" onclick="toggleDrawer()">Incidencias</a>
+                <a href="javascript:void(0)" class="nav-item" onclick="irAPractica('usuario')">Usuarios</a>
+                <a href="javascript:void(0)" class="nav-item" onclick="irAPractica('laboratorios')">Laboratorios</a>
+                <a href="javascript:void(0)" class="nav-item" onclick="irAPractica('encargados')">Encargados</a>
+                <a href="javascript:void(0)" class="nav-item" onclick="irAPractica('consumibles')">Consumibles</a>
+                <a href="javascript:void(0)" class="nav-item" onclick="irAPractica('equipos')">Equipo</a>
+                <a href="javascript:void(0)" class="nav-item" onclick="toggleDrawer()">Incidencias</a>
                 
                 <a href="#" class="btn-logout-card" onclick="logout()">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -56,27 +56,27 @@
             </section>
 
             <section class="staff-grid" id="listaUsuarios">
-            </section>
+                </section>
         </main>
     </div>
 
     <div id="staffModal" class="modal-overlay">
         <div class="modal-content">
-            <h3 id="modalTitle">Nuevo Usuario</h3>
-            <form id="staffForm">
+            <button class="btn-close" type="button" onclick="closeModal('staffModal')">×</button>
+            
+            <h3 id="modalTitle" style="margin-bottom: 25px;">Nuevo Usuario</h3>
+            
+            <form id="staffForm" style="display: flex; flex-direction: column; width: 100%;">
                 
-                <div class="form-row">
-                    <div class="form-group">
-                        <input type="hidden" id="usuarioId">
-                    </div>
-                    <div class="form-group">
-                        <label>Puesto / Rol</label>
-                        <select id="rol">
-                            <option value="encargado">Encargado de Lab</option>
-                            <option value="profesor">Profesor</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </div>
+                <input type="hidden" id="usuarioId">
+                
+                <div class="form-group">
+                    <label for="userRol">Puesto / Rol</label>
+                    <select id="userRol" required>
+                        <option value="encargado">Encargado de Lab</option>
+                        <option value="profesor">Profesor</option>
+                        <option value="admin">Admin</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -99,13 +99,13 @@
                     <label for="correo">Correo</label>
                     <input type="email" id="correo" placeholder="usuario@utm.edu.mx" required>
                 </div>
+
                 <div class="form-group">
                     <label for="password">Contraseña</label>
                     <input type="password" id="password" placeholder="••••••••" required>
                 </div>
 
-
-                <div class="modal-actions">
+                <div class="modal-actions" style="margin-top: 20px;">
                     <button type="button" class="btn-cancel" onclick="closeModal('staffModal')">Cancelar</button>
                     <button type="submit" class="btn-save" id="btnGuardar">Guardar Datos</button>
                 </div>
@@ -137,6 +137,7 @@
             document.getElementById(id).classList.remove('active');
         }
 
+        // Cerrar modal al hacer clic afuera
         window.onclick = function(event) {
             if (event.target.classList.contains('modal-overlay')) {
                 event.target.classList.remove('active');
@@ -159,10 +160,13 @@
             });
         }
 
+        // Cerrar Drawer con Escape
         window.addEventListener('keydown', function(e) {
             if (e.key === "Escape") {
-                document.getElementById('sideDrawer').classList.remove('active');
-                document.getElementById('drawerOverlay').classList.remove('active');
+                const drawer = document.getElementById('sideDrawer');
+                const overlay = document.getElementById('drawerOverlay');
+                if(drawer) drawer.classList.remove('active');
+                if(overlay) overlay.classList.remove('active');
             }
         });
 
@@ -170,12 +174,13 @@
             const modal = document.getElementById('staffModal');
             modal.classList.add('active');
             if (modo === 'add') {
+                // Esta función debe existir en tu usuario.js
                 if(typeof prepararModoCrear === 'function') prepararModoCrear();
             }
         }
 
+        // Lógica de sesión y navegación básica
         const token = localStorage.getItem('token');
-        const usuario = localStorage.getItem('correo');
         const rol = localStorage.getItem('rol');
         if (!token) {
             window.location.href = 'login.html';
@@ -184,44 +189,38 @@
         function irAPractica(tipo) {
             switch(tipo) {
                 case 'laboratorios':
-                    if (rol !== 'admin') { window.location.href = '.html'; return; }
+                    if (rol !== 'admin') { alert("Acceso denegado"); return; }
                     window.location.href = 'laboratorios.html';
                     break;
                 case 'consumibles':
-                    if (rol !== 'admin') { window.location.href = '.html'; return; }
                     window.location.href = 'consumibles.html';
                     break;
                 case 'encargados':
-                    if (rol !== 'admin') { window.location.href = '.html'; return; }
+                    if (rol !== 'admin') { alert("Acceso denegado"); return; }
                     window.location.href = 'encargado.html';
                     break;
                 case 'equipos':
-                    if (rol !== 'admin') { window.location.href = '.html'; return; }
                     window.location.href = 'equipo.html';
                     break;
                 case 'historial_completo':
-                    if (rol !== 'admin') { window.location.href = '.html'; return; }
                     window.location.href = 'historial_completo.html';
                     break;
                 case 'incidencias_actual':
-                    if (rol !== 'admin') { window.location.href = '.html'; return; }
                     window.location.href = 'incidencias_actual.html';
                     break;
                 case 'usuario':
-                    if (rol !== 'admin') { window.location.href = '.html'; return; }
+                    if (rol !== 'admin') { alert("Acceso denegado"); return; }
                     window.location.href = 'usuario.html';
                     break;
             }
         }
 
         async function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('correo');
-            localStorage.removeItem('rol');
-            document.cookie = 'token=; Max-Age=0; path=/';
-            window.location.href = '/login.html';
+            localStorage.clear();
+            window.location.href = 'login.html';
         }
 
+        // Marcar menú activo
         document.addEventListener("DOMContentLoaded", function() {
             const currentFile = window.location.pathname.split("/").pop();
             const mapPaginas = {
@@ -244,6 +243,7 @@
             });
         });
     </script>
+
     <div id="sideDrawer" class="side-drawer">
         <div class="centered-drawer-header">
             <div class="header-top-row">
@@ -254,7 +254,7 @@
         </div>
         
         <div class="drawer-options">
-            <a href="#" class="drawer-card" onclick="irAPractica('incidencias_actual')">
+            <a href="javascript:void(0)" class="drawer-card" onclick="irAPractica('incidencias_actual')">
                 <div class="card-icon">⚠️</div>
                 <div class="card-content">
                     <h3>Gestión Actual</h3>
@@ -262,7 +262,7 @@
                 </div>
             </a>
 
-            <a href="#" class="drawer-card" onclick="irAPractica('historial_completo')">
+            <a href="javascript:void(0)" class="drawer-card" onclick="irAPractica('historial_completo')">
                 <div class="card-icon">📜</div>
                 <div class="card-content">
                     <h3>Historial Completo</h3>
@@ -272,6 +272,7 @@
         </div>
     </div>
     <div id="drawerOverlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
-    <script src="/JS/usuario.js"></script>
+
+    <script src="JS/usuario.js"></script>
 </body>
 </html>

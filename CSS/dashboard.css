@@ -1136,7 +1136,90 @@ nav {
     box-shadow: var(--shadow-cyan);
     transition: all 0.3s;
 }
+.modal-large {
+    width: 80% !important;
+    max-width: 900px !important;
+}
+/* Botón estilo Glass para las tarjetas */
+.btn-detalles-glass {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
 
+.btn-detalles-glass:hover {
+    background: var(--primary-cyan);
+    color: var(--dark-bg);
+    border-color: var(--primary-cyan);
+}
+/* Limitar la altura del contenido del modal */
+.modal-body {
+    max-height: 450px; /* Tú decides qué tan alta quieres la ventana */
+    overflow-y: auto;  /* Esto activa la barrita solo si el contenido se desborda */
+    padding-right: 10px; /* Espacio para que la barrita no tape el texto */
+}
+.modal-header {
+    position: relative; /* Necesario para que la X se mueva respecto a esto */
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 15px;
+}
+
+/* El botón de la X */
+.modal-header .btn-close {
+    position: absolute;
+    top: -5px;      /* Ajusta qué tan arriba la quieres */
+    right: -5px;    /* Ajusta qué tan a la derecha */
+    background: none;
+    border: none;
+    color: #94a3b8; /* Gris azulado */
+    font-size: 3rem; /* Aquí la hacemos grande (32px aprox) */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1;
+    padding: 10px;
+}
+
+/* Efecto al pasar el mouse */
+.modal-header .btn-close:hover {
+    color: #ef4444; /* Se pone roja al pasar el mouse */
+    transform: scale(1.1); /* Crece un poquito */
+}
+/* Opcional: Dale un estilo "pro" a la barrita (Scrollbar) */
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+.data-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #1e293b; /* El color de fondo de tu tabla */
+    z-index: 10;
+}
+.modal-body::-webkit-scrollbar-thumb {
+    background: var(--primary-cyan);
+    border-radius: 10px;
+}
+/* Ajuste para el modal grande */
+.modal-large {
+    width: 90%;
+    max-width: 1000px;
+    background: #0f172a; /* Color oscuro para que combine */
+}
+.modal-body {
+    max-height: 60vh;
+    overflow-y: auto; /* Para que tenga scroll si hay muchas PCs */
+}
 .btn-link:hover {
     transform: scale(1.05);
     background-color: var(--primary-hover);
