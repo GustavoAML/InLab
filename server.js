@@ -175,14 +175,34 @@ app.get('/api/encargados', auth, requireRole('admin'), (req, res) => {
 });
 
 // =============================
-// LABORATORIOS
+//// =============================
+// LABORATORIOS (CORREGIDO)
 // =============================
 app.get('/api/laboratorios', auth, requireRole('admin', 'encargado'), (req, res) => {
-  const query = 'SELECT id_laboratorio, nombre_lab, edificio, planta, id_encargado FROM laboratorio ORDER BY nombre_lab ASC';
-  connection.query(query, (err, results) => {
-    if (err) return res.status(500).json({ error: 'Error interno del servidor' });
-    res.json(results);
-  });
+    const { rol, id: userId } = req.user;
+    
+    // 1. Para ADMIN: Agregamos planta e id_encargado
+    let query = 'SELECT id_laboratorio, nombre_lab, edificio, planta, id_encargado FROM laboratorio';
+    let params = [];
+
+    if (rol === 'encargado') {
+        // 2. Para ENCARGADO: También agregamos los campos faltantes
+        query = `
+            SELECT l.id_laboratorio, l.nombre_lab, l.edificio, l.planta, l.id_encargado 
+            FROM laboratorio l
+            JOIN encargado e ON l.id_encargado = e.id_encargado
+            WHERE e.id_usuario = ?
+        `;
+        params.push(userId);
+    }
+
+    connection.query(query, params, (err, results) => {
+        if (err) {
+            console.error('Error SQL:', err);
+            return res.status(500).json({ error: 'Error al obtener laboratorios' });
+        }
+        res.json(results);
+    });
 });
 
 app.post('/api/laboratorios', auth, requireRole('admin'), (req, res) => {
@@ -580,4 +600,101 @@ app.get('/', (req, res) => {
 // =============================
 app.listen(PORT, () => {
   console.log(`Servidor en http://localhost:${PORT}`);
+});
+// ==========================================
+// RUTAS PARA INCIDENCIAS (INLAB)
+// ==========================================
+
+// 1. CREAR NUEVA INCIDENCIA (POST)
+app.post('/api/incidencias', auth, (req, res) => {
+    // Ya no recibimos el id_usuario del frontend, lo sacamos del token seguro
+    const id_usuario = req.user.id; 
+    const { id_equipo, fecha, hora, descripcion, estado } = req.body;
+    
+    // Nombres de tabla en singular: incidencia
+    const query = `
+        INSERT INTO incidencia (id_equipo, id_usuario, fecha, hora, descripcion, estado)
+        VALUES (?, ?, ?, ?, ?, ?)
+    `;
+    
+    connection.query(query, [id_equipo, id_usuario, fecha, hora, descripcion, estado], (err, results) => {
+        if (err) {
+            console.error('Error al guardar incidencia:', err);
+            return res.status(500).json({ error: 'Error al registrar la incidencia' });
+        }
+        res.status(201).json({ message: 'Incidencia creada con éxito', id: results.insertId });
+    });
+});
+
+// ==========================================
+// 2. OBTENER INCIDENCIAS ACTUALES (GET) - ¡Agregamos 'auth'!
+// ==========================================
+app.get('/api/incidencias/actuales', auth, (req, res) => {
+    // Nombres de tabla en singular: incidencia, equipo, usuario
+    const query = `
+        SELECT 
+            i.id_incidencia,
+            e.nombre AS nombre_equipo,
+            e.id_equipo,
+            e.id_laboratorio,
+            u.nombre AS nombre_usuario,
+            i.id_usuario,
+            i.fecha,
+            i.hora,
+            i.descripcion,
+            i.estado
+        FROM incidencia i
+        LEFT JOIN equipo e ON i.id_equipo = e.id_equipo
+        LEFT JOIN usuario u ON i.id_usuario = u.id_usuario
+        WHERE i.estado = 'pendiente'
+        ORDER BY i.fecha DESC, i.hora DESC
+    `;
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('Error al obtener incidencias:', err);
+            return res.status(500).json({ error: 'Error al cargar la tabla' });
+        }
+        res.json(results);
+    });
+});
+
+// ==========================================
+// 3. RESOLVER INCIDENCIA (PUT) - ¡Agregamos 'auth'!
+// ==========================================
+app.put('/api/incidencias/:id/resolver', auth, (req, res) => {
+    const id_incidencia = req.params.id;
+    const { estado, solucion } = req.body; 
+
+    // Nombre de tabla en singular
+    const query = `
+        UPDATE incidencia 
+        SET estado = ?, solucion = ?, fecha_resolucion = NOW() 
+        WHERE id_incidencia = ?
+    `;
+    connection.query(query, [estado, solucion, id_incidencia], (err, results) => {
+        if (err) {
+            console.error('Error al resolver incidencia:', err);
+            return res.status(500).json({ error: 'Error al actualizar la incidencia' });
+        }
+        res.json({ message: 'Incidencia archivada correctamente' });
+    });
+});
+
+// OBTENER TODAS LAS INCIDENCIAS (Para el historial)
+app.get('/api/incidencias', auth, (req, res) => {
+    const query = `
+        SELECT 
+            i.*, 
+            e.nombre AS nombre_equipo, 
+            u.nombre AS nombre_usuario, 
+            e.id_laboratorio 
+        FROM incidencia i
+        JOIN equipo e ON i.id_equipo = e.id_equipo
+        JOIN usuario u ON i.id_usuario = u.id_usuario
+        ORDER BY i.fecha DESC, i.hora DESC
+    `;
+    connection.query(query, (err, results) => {
+        if (err) return res.status(500).json({ error: 'Error al obtener historial' });
+        res.json(results);
+    });
 });

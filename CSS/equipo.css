@@ -25,7 +25,41 @@
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 30px;
 }
+/* --- ESTILOS DE NÚMEROS Y BADGES --- */
 
+/* Mantenemos tu estilo original para el S/N (Naranja) */
+.sn-text {
+    color: var(--warning-orange); /* #f39c12 */
+    font-weight: 700;
+    font-family: monospace;
+    background: rgba(243, 156, 18, 0.1);
+    padding: 4px 8px; 
+    border-radius: 5px;
+    display: inline-block; 
+    margin-top: 10px;
+    margin-bottom: 5px; /* Agregamos espacio abajo */
+}
+
+/* ✨ NUEVO: Estilo para el Número de Equipo (Cian) */
+.eq-numero {
+    color: var(--primary-cyan); /* #00bcd4 */
+    font-weight: 700;
+    font-family: monospace;
+    background: rgba(0, 188, 212, 0.1); /* Fondo cian muy suave */
+    padding: 4px 8px; 
+    border-radius: 5px;
+    display: inline-block; /* Para que el fondo no ocupe todo el ancho */
+    margin-bottom: 10px; /* Espacio antes del Tipo */
+    border: 1px solid rgba(0, 188, 212, 0.2); /* Un borde sutil */
+}
+
+/* Ajuste opcional para el título */
+.eq-info h4 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 1.2rem;
+    color: var(--white);
+}
 /* --- TARJETA --- */
 .eq-card {
     background: var(--bg-split);
@@ -82,6 +116,61 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+/* --- CONTENEDOR DE BADGES --- */
+.badges-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    margin: 15px 0;
+}
+
+/* Estilo para el Número de Serie (Naranja) */
+.sn-text {
+    color: var(--warning-orange);
+    font-weight: 700;
+    font-family: 'Courier New', Courier, monospace;
+    background: rgba(243, 156, 18, 0.1); /* Fondo naranja muy sutil */
+    padding: 5px 12px; 
+    border-radius: 6px;
+    font-size: 0.85rem;
+    border: 1px solid rgba(243, 156, 18, 0.2);
+    display: inline-block;
+    width: fit-content;
+}
+
+/* Estilo para el Número de Equipo (Cian) */
+.num-text {
+    color: var(--primary-cyan);
+    font-weight: 800;
+    background: rgba(0, 188, 212, 0.1); /* Fondo cian muy sutil */
+    padding: 5px 12px; 
+    border-radius: 6px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(0, 188, 212, 0.2);
+    display: inline-block;
+    width: fit-content;
+    box-shadow: 0 0 10px rgba(0, 188, 212, 0.1); /* Un brillo leve */
+}
+
+/* Ajuste del título para que no se pegue */
+.eq-info h3 {
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    color: var(--white);
+}
+
+/* Línea divisoria suave antes de los detalles */
+.db-details {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 12px;
+    margin-top: 5px;
+    font-size: 0.8rem;
+    color: var(--text-gray);
+    width: 100%;
 }
 /* ICONOS E INFO */
 .eq-icon-box {

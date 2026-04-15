@@ -170,21 +170,37 @@ async function guardarOActualizar(event) {
 // EDITAR
 // =============================
 async function abrirEditar(laboratorio) {
+    console.log("Datos del lab a editar:", laboratorio);
 
-  inputId.value = laboratorio.id_laboratorio;
-  inputNombre.value = laboratorio.nombre_lab || '';
-  inputEdificio.value = laboratorio.edificio || '';
-  inputPlanta.value = laboratorio.planta || '';
+    // 1. Llenamos los inputs de texto (estos no fallan)
+    inputId.value = laboratorio.id_laboratorio;
+    inputNombre.value = laboratorio.nombre_lab || '';
+    inputEdificio.value = laboratorio.edificio || '';
+    
+    // 2. Cargamos los encargados desde la API y ESPERAMOS a que termine
+    await cargarEncargados();
 
-  await cargarEncargados();
+    // 3. Pequeño truco: usamos un mini-delay para asegurar que el DOM 
+    // ya pintó las <option> dentro del <select>
+    setTimeout(() => {
+        // Asignamos Planta
+        if (laboratorio.planta) {
+            inputPlanta.value = laboratorio.planta;
+        }
 
-  inputIdEncargado.value = laboratorio.id_encargado || '';
-  
-  modalTitulo.textContent = 'Editar Laboratorio';
-  btnGuardar.textContent = 'Actualizar';
+        // Asignamos el Encargado (OJO: usamos id_encargado que es lo que manda tu servidor)
+        if (laboratorio.id_encargado) {
+            inputIdEncargado.value = laboratorio.id_encargado;
+            console.log("Encargado asignado al select:", inputIdEncargado.value);
+        } else {
+            console.warn("No se encontró id_encargado en el objeto laboratorio");
+        }
+    }, 150); 
 
-  document.getElementById('labModal').classList.add('active');
+    modalTitulo.textContent = 'Editar Laboratorio';
+    btnGuardar.textContent = 'Actualizar';
 
+    document.getElementById('labModal').classList.add('active');
 }
 
 // =============================

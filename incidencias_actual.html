@@ -92,47 +92,68 @@
             </div>
         </main>
     </div>
-
-    <div id="incidenciaModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Reportar Falla Técnica</h3>
-            <form id="incidenciaForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>ID Equipo</label>
-                        <input type="text" placeholder="Ej. 101" required>
-                    </div>
-                    <div class="form-group">
-                        <label>ID Usuario (Reporta)</label>
-                        <input type="text" placeholder="Tu ID" required>
-                    </div>
-                </div>
+<div id="resolverModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px;">
+            <button class="btn-close" type="button" onclick="closeModal('resolverModal')">×</button>
+            <h3 style="margin-bottom: 20px;">Cerrar Incidencia</h3>
+            
+            <form id="resolverForm" style="display: flex; flex-direction: column; width: 100%;">
+                <input type="hidden" id="resolverIdIncidencia">
                 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Fecha</label>
-                        <input type="date" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Hora</label>
-                        <input type="time" required>
-                    </div>
-                </div>
-
                 <div class="form-group">
-                    <label>Descripción de la Falla</label>
-                    <textarea rows="4" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid #334155; border-radius: 10px; color: white; padding: 10px; outline: none;" placeholder="Detalla el problema..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Estado Inicial</label>
-                    <select id="statusSelect">
-                        <option value="Abierta">Abierta</option>
-                        <option value="En proceso">En proceso</option>
+                    <label>¿Se solucionó el problema?</label>
+                    <select id="resolverEstado" required>
+                        <option value="resuelto">✅ Sí, equipo reparado / solucionado</option>
+                        <option value="no_resuelto">❌ No, requiere baja o envío a garantía</option>
                     </select>
                 </div>
 
-                <div class="modal-actions">
+                <div class="form-group">
+                    <label>Solución / Diagnóstico Final</label>
+                    <textarea id="resolverComentario" rows="3" style="width: 100%; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; padding: 12px; outline: none; font-family: inherit; resize: vertical;" placeholder="Ej. Se cambió la memoria RAM, o la tarjeta madre se quemó..." required></textarea>
+                </div>
+
+                <div class="modal-actions" style="margin-top: 15px;">
+                    <button type="button" class="btn-cancel" onclick="closeModal('resolverModal')">Cancelar</button>
+                    <button type="submit" class="btn-save" style="background: #ef4444; color: white;">Archivar Incidencia</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="incidenciaModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="btn-close" type="button" onclick="closeModal('incidenciaModal')">×</button>
+            <h3 style="margin-bottom: 25px;">Reportar Falla Técnica</h3>
+            
+            <form id="incidenciaForm" style="display: flex; flex-direction: column; width: 100%;">
+                
+                <div class="form-group" id="grupoEdificio">
+                    <label>Edificio</label>
+                    <select id="selectEdificio" onchange="cargarLaboratoriosPorEdificio()" required>
+                        <option value="" disabled selected>Cargando edificios...</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="grupoLaboratorio">
+                    <label>Laboratorio</label>
+                    <select id="selectLaboratorio" onchange="cargarEquiposPorLaboratorio()" required disabled>
+                        <option value="" disabled selected>Seleccione un edificio primero</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Equipo con Falla</label>
+                    <select id="selectEquipo" required disabled>
+                        <option value="" disabled selected>Seleccione un laboratorio primero</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Descripción de la Falla</label>
+                    <textarea id="descFalla" rows="4" style="width: 100%; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; padding: 12px; outline: none; font-family: inherit; resize: vertical;" placeholder="Detalla el problema (Ej. Pantalla azul, no enciende, hace ruido extraño...)" required></textarea>
+                </div>
+
+                <div class="modal-actions" style="margin-top: 15px;">
                     <button type="button" class="btn-cancel" onclick="closeModal('incidenciaModal')">Cancelar</button>
                     <button type="submit" class="btn-save">Registrar Incidencia</button>
                 </div>
@@ -270,5 +291,34 @@
 });
         
     </script>
+    <div id="resolverModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px;">
+            <button class="btn-close" type="button" onclick="closeModal('resolverModal')">×</button>
+            <h3 style="margin-bottom: 20px;">Cerrar Incidencia</h3>
+            
+            <form id="resolverForm" style="display: flex; flex-direction: column; width: 100%;">
+                <input type="hidden" id="resolverIdIncidencia">
+                
+                <div class="form-group">
+                    <label>¿Se solucionó el problema?</label>
+                    <select id="resolverEstado" required>
+                        <option value="resuelto">✅ Sí, equipo reparado / solucionado</option>
+                        <option value="no_resuelto">❌ No, requiere baja o envío a garantía</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Solución / Diagnóstico Final</label>
+                    <textarea id="resolverComentario" rows="3" style="width: 100%; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; padding: 12px; outline: none; font-family: inherit; resize: vertical;" placeholder="Ej. Se cambió la memoria RAM, o la tarjeta madre se quemó..." required></textarea>
+                </div>
+
+                <div class="modal-actions" style="margin-top: 15px;">
+                    <button type="button" class="btn-cancel" onclick="closeModal('resolverModal')">Cancelar</button>
+                    <button type="submit" class="btn-save" style="background: #ef4444; color: white;">Archivar Incidencia</button>
+                </div>
+            </form>
+        </div>
+    </div>
+     <script src="/JS/incidencias.js"></script>
 </body>
 </html>

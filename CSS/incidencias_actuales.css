@@ -489,3 +489,19 @@ nav {
     box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
     transform: translateY(-2px);
 }
+/* Evita que los textos largos rompan la tabla */
+.data-table td {
+    max-width: 300px; /* Ajusta este ancho a tu gusto */
+    white-space: normal; /* Permite que el texto salte de línea */
+    word-wrap: break-word; /* Rompe palabras largas si es necesario */
+    vertical-align: middle;
+    line-height: 1.4;
+}
+
+
+.data-table td:nth-child(5) {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
