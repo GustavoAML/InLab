@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 07-04-2026 a las 22:06:53
+-- Tiempo de generación: 15-04-2026 a las 21:40:29
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -42,7 +42,14 @@ INSERT INTO `consumibles` (`id`, `nombre_con`, `stock`, `id_laboratorio`) VALUES
 (1, 'Memoria RAM DDR4', 10, 1),
 (4, 'Mouses', 35, 1),
 (5, 'Teclados', 34, 6),
-(6, 'Cables HDMI', 50, 6);
+(6, 'Cables HDMI', 50, 6),
+(7, 'Cables HDMI', 5, 1),
+(8, 'Cables HDMI', 20, 7),
+(9, 'Cable HDMI', 5, 8),
+(10, 'Mouses', 20, 8),
+(11, 'Teclados', 10, 8),
+(12, 'Mouses', 10, 9),
+(14, 'Cable HDMI', 5, 10);
 
 -- --------------------------------------------------------
 
@@ -61,7 +68,9 @@ CREATE TABLE `encargado` (
 
 INSERT INTO `encargado` (`id_encargado`, `id_usuario`) VALUES
 (10, 12),
-(11, 13);
+(11, 13),
+(13, 16),
+(14, 17);
 
 -- --------------------------------------------------------
 
@@ -85,8 +94,14 @@ CREATE TABLE `equipo` (
 INSERT INTO `equipo` (`id_equipo`, `nombre`, `no_serie`, `numero`, `id_laboratorio`, `tipo`) VALUES
 (1, 'MAC', '2r32e23r', 22, 6, 'PC'),
 (2, 'Dell HP23', '2e2er33q', 22, 1, 'PC'),
-(3, 'Asus', '008236496', 83047, 1, 'Monitor'),
-(4, 'dfgdf', '34534534534', 4345345, 1, 'Monitor');
+(3, 'Asus', '008236496', 14, 1, 'Monitor'),
+(5, 'HVICTUS', '0003991', 2, 7, 'PC'),
+(6, 'HP paviblion', '02930293020', 1, 8, 'PC'),
+(7, 'Asus', '29477474', 1, 8, 'Monitor'),
+(8, 'Dell', '838989234', 12, 8, 'PC'),
+(9, 'Lenovo', '393942', 2, 9, 'PC'),
+(10, 'Dell', '2494930', 2, 9, 'Monitor'),
+(11, 'Lenovo', '393942', 14, 10, 'Monitor');
 
 -- --------------------------------------------------------
 
@@ -102,8 +117,29 @@ CREATE TABLE `incidencia` (
   `hora` time NOT NULL,
   `descripcion` text NOT NULL,
   `estado` varchar(100) NOT NULL,
-  `foto` longtext DEFAULT NULL
+  `foto` longtext DEFAULT NULL,
+  `solucion` text DEFAULT NULL,
+  `fecha_resolucion` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `incidencia`
+--
+
+INSERT INTO `incidencia` (`id_incidencia`, `id_equipo`, `id_usuario`, `fecha`, `hora`, `descripcion`, `estado`, `foto`, `solucion`, `fecha_resolucion`) VALUES
+(1, 1, 1, '2026-04-13', '12:35:04', 'asdas', 'pendiente', NULL, NULL, NULL),
+(3, 1, 1, '2026-04-13', '12:46:36', 'hukguhl', 'no_resuelto', NULL, 'kut', '2026-04-13 12:50:35'),
+(4, 1, 1, '2026-04-13', '18:33:32', 'asdasd', 'pendiente', NULL, NULL, NULL),
+(5, 5, 12, '2026-04-13', '18:59:29', 'No prende y  tiene cable danado del mouse', 'resuelto', NULL, 'La pantalla estaba rota y reemplazamos el cable del mouse', '2026-04-13 19:10:05'),
+(6, 3, 12, '2026-04-13', '18:59:59', 'asdasd', 'resuelto', NULL, 'asd', '2026-04-13 19:11:16'),
+(8, 5, 12, '2026-04-13', '19:05:36', 'ola123', 'no_resuelto', NULL, 'no se pudo jeje', '2026-04-13 19:10:15'),
+(11, 9, 16, '2026-04-15', '00:19:39', 'no prende', 'resuelto', NULL, 'cambiamos fuente', '2026-04-15 00:20:25'),
+(12, 9, 16, '2026-04-15', '00:21:15', 'ola', 'no_resuelto', NULL, 'zxvzdv', '2026-04-15 00:21:39'),
+(13, 9, 16, '2026-04-15', '00:21:24', 'adios', 'resuelto', NULL, 'ksdn', '2026-04-15 00:21:31'),
+(14, 9, 12, '2026-04-15', '11:57:04', 'kln', 'no_resuelto', NULL, 'uig', '2026-04-15 11:57:30'),
+(15, 2, 1, '2026-04-15', '12:02:07', 'hhjhjhj', 'pendiente', NULL, NULL, NULL),
+(16, 11, 17, '2026-04-15', '12:52:10', 'se apago', 'resuelto', NULL, 'wiuerh', '2026-04-15 12:52:34'),
+(17, 8, 1, '2026-04-15', '13:30:24', 'PAntalla azul', 'no_resuelto', NULL, 'NO QUEDO', '2026-04-15 13:30:56');
 
 -- --------------------------------------------------------
 
@@ -124,8 +160,12 @@ CREATE TABLE `laboratorio` (
 --
 
 INSERT INTO `laboratorio` (`id_laboratorio`, `nombre_lab`, `edificio`, `planta`, `id_encargado`) VALUES
-(1, 'Laboratorio de Redes', 'Pesado 2', 'Alta', 10),
-(6, 'Laboratorio de Idiomas', 'D', 'Alta', 11);
+(1, 'Laboratorio de Redes', 'Pesado 2', 'Alta', 13),
+(6, 'Laboratorio de Idiomas', 'D', 'Alta', 13),
+(7, 'Laboratorio de computo', 'Pesado 2', 'Baja', 10),
+(8, 'Labortorio de idiomas', 'A', 'Alta', 10),
+(9, 'laboratorio de Idiomas', 'Pesado 1', 'Alta', 10),
+(10, 'Lab de prueba', 'E', 'Alta', 14);
 
 -- --------------------------------------------------------
 
@@ -150,7 +190,10 @@ CREATE TABLE `usuario` (
 INSERT INTO `usuario` (`id_usuario`, `nombre`, `appaterno`, `apmaterno`, `rol`, `correo`, `password`) VALUES
 (1, 'Jorge', 'Salgado', 'Ceja', 'admin', 'jorgesalgado4521@gmail.com', 'Jorge123'),
 (12, 'David', 'Rangel', 'Solis', 'encargado', 'DavidSolis@gmail.com', 'David123'),
-(13, 'Daniel', 'Salgado', 'Ceja', 'encargado', 'Dani656@gmail.com', 'Dani1234');
+(13, 'Daniel', 'Salgado', 'Ceja', 'encargado', 'Dani656@gmail.com', 'Dani1234'),
+(14, 'Rod', 'Gonzalez', 'Lopez', 'admin', 'rod.wav@gmail.com', 'Rod123'),
+(16, 'Rodrigo', 'Torres', 'De la garza', 'encargado', 'Nsqk@gmail.com', 'Nsqk1'),
+(17, 'Armando', 'Martinez', 'Lopez', 'encargado', 'Armando@gmail.com', 'Ar123');
 
 --
 -- Disparadores `usuario`
@@ -238,37 +281,37 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `consumibles`
 --
 ALTER TABLE `consumibles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de la tabla `encargado`
 --
 ALTER TABLE `encargado`
-  MODIFY `id_encargado` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id_encargado` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de la tabla `equipo`
 --
 ALTER TABLE `equipo`
-  MODIFY `id_equipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_equipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `incidencia`
 --
 ALTER TABLE `incidencia`
-  MODIFY `id_incidencia` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_incidencia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT de la tabla `laboratorio`
 --
 ALTER TABLE `laboratorio`
-  MODIFY `id_laboratorio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_laboratorio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- Restricciones para tablas volcadas
