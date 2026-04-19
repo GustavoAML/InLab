@@ -58,11 +58,25 @@ async function cargarEstadisticas() {
 
         if (pcEl) pcEl.innerText = data.totalPCs ?? 0;
         if (monEl) monEl.innerText = data.totalMonitores ?? 0;
-        if (conEl) conEl.innerText = `Total: ${data.stockTotalConsumibles ?? 0}`;
 
         // 2. Cargar Mini-Tabla de Consumibles
         const resCon = await fetch('/api/consumibles', { headers: authHeaders() });
         const consumibles = await resCon.json();
+        
+        // Calcular total de consumibles según el rol
+        let totalStock = 0;
+        const rolActual = (localStorage.getItem('rol') || '').trim().toLowerCase();
+        
+        if (rolActual === 'admin') {
+            // Admin: cuenta TODOS los consumibles
+            totalStock = (consumibles || []).reduce((sum, c) => sum + (c.stock ?? 0), 0);
+        } else if (rolActual === 'encargado') {
+            // Encargado: cuenta solo consumibles de sus laboratorios
+            const idLabEncargado = localStorage.getItem('id_laboratorio');
+            totalStock = (consumibles || []).filter(c => String(c.id_laboratorio) === String(idLabEncargado)).reduce((sum, c) => sum + (c.stock ?? 0), 0);
+        }
+        
+        if (conEl) conEl.innerText = `Total: ${totalStock}`;
 
         const tbodyStock = document.getElementById('listaConsumiblesDashboard');
         if (tbodyStock) {

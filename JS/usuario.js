@@ -47,6 +47,13 @@ async function cargarUsuarios() {
 function mostrarUsuarios(usuarios) {
     listaUsuarios.innerHTML = '';
     usuarios.forEach((u) => {
+        // ✨ Lógica para mostrar el laboratorio solo si es profesor o encargado
+       const infoLaboratorio = (u.rol === 'profesor' || u.rol === 'encargado') 
+    ? `<p style="color: #00f2ff; font-size: 0.85rem; margin-top: 4px; font-weight: bold;">
+        📍 Lab: ${u.nombre_lab ? u.nombre_lab : '<span style="color:orange;">Sin asignar</span>'}
+       </p>` 
+    : '';
+
         const usuariosHTML = `
         <div class="staff-card">
             <div class="card-header-bg"></div>
@@ -57,10 +64,11 @@ function mostrarUsuarios(usuarios) {
             </div>
             <div class="staff-info">
                 <h3>${u.nombre} ${u.appaterno}</h3>
-                <p class="role">${u.rol}</p>
+                <p class="role">${u.rol.toUpperCase()}</p>
                 <div class="details">
                     <p><strong>ID:</strong> ${u.id_usuario}</p>
                     <p><strong>📧</strong> ${u.correo}</p>
+                    ${infoLaboratorio}
                 </div>
             </div>
             <div class="card-actions">
@@ -71,70 +79,78 @@ function mostrarUsuarios(usuarios) {
         listaUsuarios.innerHTML += usuariosHTML;
     });
 }
+async function guardarOActualizar(e) {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
 
-async function guardarOActualizar(event) {
-    event.preventDefault();
-    const id = inputId.value;
+    // 1. Capturamos los valores de los inputs (esto ya lo tienes)
+    const id = document.getElementById('usuarioId').value;
+    const nombre = document.getElementById('nombre').value;
+    const appaterno = document.getElementById('apPaterno').value;
+    const apmaterno = document.getElementById('apMaterno').value;
+    const correo = document.getElementById('correo').value;
+    const rol = document.getElementById('rolUsuario').value;
+    const password = document.getElementById('password').value;
 
-    // OBJETO CORREGIDO (Nombres de campos para el servidor)
+    // 2. Lógica para el laboratorio
+    let id_laboratorio = null;
+    // Si es profesor o encargado, sacamos el valor del select de laboratorio
+    if (rol === 'profesor' || rol === 'encargado') {
+        const selectLab = document.getElementById('selectLabProfesor');
+        id_laboratorio = selectLab ? selectLab.value : null;
+    }
+
+    // 3. Creamos el objeto usuario (Aquí es donde estaba el error "u is not defined")
     const usuario = {
-        nombre: inputNombre.value.trim(),
-        appaterno: inputapPaterno.value.trim(), // <--- Nombre corregido para el Backend
-        apmaterno: inputapMaterno.value.trim(), // <--- Nombre corregido para el Backend
-        rol: inputRol.value,
-        correo: inputCorreo.value.trim(),
-        password: inputPassword.value
+        nombre: nombre.trim(),
+        appaterno: appaterno.trim(),
+        apmaterno: apmaterno.trim(),
+        rol: rol,
+        correo: correo.trim(),
+        password: password,
+        id_laboratorio: id_laboratorio // 👈 Mandamos el ID que acabamos de capturar
     };
 
     try {
         let response;
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        };
+
         if (!id) {
-            response = await fetch(API_URL, {
+            // CREAR NUEVO
+            response = await fetch('/api/usuarios', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getToken()}`
-                },
+                headers: headers,
                 body: JSON.stringify(usuario)
             });
         } else {
-            response = await fetch(`${API_URL}/${id}`, {
+            // ACTUALIZAR EXISTENTE
+            response = await fetch(`/api/usuarios/${id}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getToken()}`
-                },
+                headers: headers,
                 body: JSON.stringify(usuario)
             });
         }
 
-        if (!response.ok) throw new Error('Error en la operación');
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error en la operación');
+        }
 
+        alert("✅ Usuario guardado correctamente");
         document.getElementById('staffModal').classList.remove('active');
         staffForm.reset();
-        inputId.value = '';
-        await cargarUsuarios();
+        document.getElementById('usuarioId').value = '';
+        
+        await cargarUsuarios(); // Recargamos la lista
 
     } catch (error) {
         console.error('Error:', error);
-        alert(error.message);
+        alert("❌ " + error.message);
     }
 }
-
-function abrirEditar(usuario) {
-    inputId.value = usuario.id_usuario;
-    inputNombre.value = usuario.nombre || '';
-    inputapPaterno.value = usuario.appaterno || '';
-    inputapMaterno.value = usuario.apmaterno || '';
-    inputCorreo.value = usuario.correo || '';
-    inputRol.value = usuario.rol || 'encargado';
-    inputPassword.value = usuario.password || '';
-
-    modalTitulo.textContent = 'Editar Usuario';
-    btnGuardar.textContent = 'Actualizar';
-    document.getElementById('staffModal').classList.add('active');
-}
-
 function prepararModoCrear() {
     inputId.value = '';
     staffForm.reset();
@@ -163,3 +179,88 @@ async function confirmarEliminacion() {
         alert(error.message);
     }
 }
+async function alternarSelectProfesor() {
+    const rolSeleccionado = document.getElementById('rolUsuario').value;
+    const divLaboratorio = document.getElementById('grupoLaboratorioProfesor');
+    const selectLab = document.getElementById('selectLabProfesor');
+
+    if (rolSeleccionado === 'profesor' || rolSeleccionado === 'encargado') {
+        // ✨ APARECE cuando es profesor o encargado
+        divLaboratorio.style.display = 'block';
+        
+        // Cargamos los laboratorios de la API si el select está vacío
+        if (selectLab.options.length <= 1) {
+            try {
+                const res = await fetch('/api/laboratorios', { 
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } 
+                });
+                const labs = await res.json();
+                
+                selectLab.innerHTML = '<option value="" disabled selected>Selecciona laboratorio...</option>';
+                labs.forEach(l => {
+                    selectLab.innerHTML += `<option value="${l.id_laboratorio}">${l.nombre_lab} (${l.edificio})</option>`;
+                });
+            } catch (error) {
+                console.error("Error al cargar laboratorios:", error);
+            }
+        }
+    } else {
+        // ❌ DESAPARECE si seleccionas Admin
+        divLaboratorio.style.display = 'none';
+        selectLab.value = ""; // Reseteamos la selección
+    }
+}
+function irAPractica(tipo) {
+    const rol = (localStorage.getItem('rol') || '').trim().toLowerCase();
+    const rutas = {
+        'usuario': 'usuario.html',
+        'usuarios': 'usuario.html',
+        'laboratorios': 'laboratorios.html',
+        'encargados': 'encargado.html',
+        'consumibles': 'consumibles.html',
+        'equipos': 'equipo.html',
+        'equipo': 'equipo.html',
+        'dashboard': 'Dashboard.html',
+        'historial_completo': 'historial_completo.html',
+        'incidencias_actual': 'incidencias_actual.html'
+    };
+
+    const prohibidoEncargado = ['usuario', 'usuarios', 'laboratorios', 'encargados'];
+    if (rol === 'encargado' && prohibidoEncargado.includes(tipo)) {
+        alert("Acceso restringido: Solo Administradores.");
+        return;
+    }
+
+    if (rutas[tipo]) {
+        window.location.href = rutas[tipo];
+    }
+}
+
+// ✨ ESTA LÍNEA ES LA QUE CORRIGE EL ERROR:
+window.irAPractica = irAPractica; 
+window.logout = logout; // Aprovecha y expón también el logout si te da error
+async function abrirEditar(u) {
+    console.log("Datos del usuario a editar:", u);
+
+    // 1. Llenar los campos básicos
+    document.getElementById('usuarioId').value = u.id_usuario;
+    document.getElementById('nombre').value = u.nombre;
+    document.getElementById('apPaterno').value = u.appaterno;
+    document.getElementById('apMaterno').value = u.apmaterno;
+    document.getElementById('correo').value = u.correo;
+    document.getElementById('rolUsuario').value = u.rol;
+
+    // 2. Mostrar el campo de laboratorio según rol y cargar opciones
+    if (u.rol === 'profesor' || u.rol === 'encargado') {
+        await verificarRolProfesor(u.id_laboratorio || '');
+    } else {
+        await verificarRolProfesor('');
+    }
+
+    // 3. Abrir modal
+    document.getElementById('modalTitle').textContent = 'Editar Usuario';
+    document.getElementById('staffModal').classList.add('active');
+}
+
+// ✨ CRUCIAL: Exponerla para que el onclick del HTML la vea
+window.abrirEditar = abrirEditar;

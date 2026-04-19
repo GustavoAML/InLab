@@ -4,14 +4,37 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const connection = require("./db");
 const path = require("path");
+const multer = require("multer");
+const fs = require("fs");
 
 const app = express();
 const PORT = 3000;
 
+// Configurar multer para subir imágenes ANTES de los middlewares JSON
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const timestamp = Date.now();
+    const originalName = file.originalname.replace(/\s+/g, '_');
+    cb(null, `${timestamp}_${originalName}`);
+  }
+});
+
+const upload = multer({ storage });
+
+// MIDDLEWARES - EL ORDEN IMPORTA
 app.use(cors());
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(express.static(path.join(__dirname)));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const JWT_SECRET = "esto-es-una-contraseña-segura";
 
@@ -35,11 +58,10 @@ app.post("/api/login", (req, res) => {
       u.rol,
       u.correo,
       u.password,
-      l.id_laboratorio,
+      u.id_laboratorio,
       l.nombre_lab
     FROM usuario AS u
-    LEFT JOIN encargado AS e ON u.id_usuario = e.id_usuario
-    LEFT JOIN laboratorio AS l ON e.id_encargado = l.id_encargado
+    LEFT JOIN laboratorio AS l ON u.id_laboratorio = l.id_laboratorio
     WHERE u.correo = ?
   `;
 
@@ -118,14 +140,24 @@ function requireRole(...roles) {
 // =============================
 // USUARIOS Y ENCARGADOS
 // =============================
-app.get("/api/usuarios", auth, requireRole("admin"), (req, res) => {
-  const query =
-    "SELECT id_usuario, nombre, appaterno, apmaterno, rol, correo, password FROM usuario";
-  connection.query(query, (err, results) => {
-    if (err)
-      return res.status(500).json({ error: "Error al obtener usuarios" });
-    res.json(results);
-  });
+app.get("/api/usuarios", auth, (req, res) => {
+    // Traemos los datos del usuario y el nombre de su lab asignado
+    const sql = `
+        SELECT 
+            u.id_usuario, u.nombre, u.appaterno, u.apmaterno, u.rol, u.correo, u.password, u.id_laboratorio,
+            l.nombre_lab
+        FROM usuario u
+        LEFT JOIN laboratorio l ON u.id_laboratorio = l.id_laboratorio
+        ORDER BY u.nombre ASC
+    `;
+
+    connection.query(sql, (err, results) => {
+        if (err) {
+            console.error("❌ ERROR SQL USUARIOS:", err);
+            return res.status(500).json({ error: "Error al obtener usuarios" });
+        }
+        res.json(results);
+    });
 });
 
 app.post("/api/usuarios", auth, requireRole("admin"), (req, res) => {
@@ -147,22 +179,22 @@ app.post("/api/usuarios", auth, requireRole("admin"), (req, res) => {
 
 app.put("/api/usuarios/:id", auth, requireRole("admin"), (req, res) => {
   const { id } = req.params;
-  const { nombre, appaterno, apmaterno, correo, rol, password } = req.body;
-  if (!nombre || !appaterno || !correo || !rol || !password) {
-    return res.status(400).json({ error: "Campos obligatorios faltantes" });
-  }
-  const query =
-    "UPDATE usuario SET nombre = ?, appaterno = ?, apmaterno = ?, correo = ?, rol = ?, password = ? WHERE id_usuario = ?";
+  const { nombre, appaterno, apmaterno, correo, rol, password, id_laboratorio } = req.body; // ✨ Recibimos id_laboratorio
+
+  // Agregamos id_laboratorio a la consulta SQL
+  const query = `
+    UPDATE usuario 
+    SET nombre = ?, appaterno = ?, apmaterno = ?, correo = ?, rol = ?, password = ?, id_laboratorio = ? 
+    WHERE id_usuario = ?
+  `;
+
   connection.query(
     query,
-    [nombre, appaterno, apmaterno, correo, rol, password, id],
+    [nombre, appaterno, apmaterno, correo, rol, password, id_laboratorio, id],
     (err, result) => {
-      if (err)
-        return res.status(500).json({ error: "Error al editar usuario" });
-      if (result.affectedRows === 0)
-        return res.status(404).json({ error: "Usuario no encontrado" });
-      res.json({ mensaje: "Usuario actualizado" });
-    },
+      if (err) return res.status(500).json({ error: "Error al editar usuario" });
+      res.json({ mensaje: "Usuario actualizado correctamente" });
+    }
   );
 });
 
@@ -196,39 +228,41 @@ app.get("/api/encargados", auth, requireRole("admin"), (req, res) => {
 //// =============================
 // LABORATORIOS
 // =============================
-app.get(
-  "/api/laboratorios",
-  auth,
-  requireRole("admin", "encargado"),
-  (req, res) => {
+app.get("/api/laboratorios", auth, (req, res) => {
     const { rol, id: userId } = req.user;
 
-    // 1. Para ADMIN: Agregamos planta e id_encargado
-    let query =
-      "SELECT id_laboratorio, nombre_lab, edificio, planta, id_encargado FROM laboratorio";
+    // Esta query trae TODO: id, nombre, edificio, planta e id_encargado
+    let query = `
+        SELECT id_laboratorio, nombre_lab, edificio, planta, id_encargado 
+        FROM laboratorio
+    `;
     let params = [];
 
-    if (rol === "encargado") {
-      // 2. Para ENCARGADO: También agregamos los campos faltantes
-      query = `
+    // Si es PROFESOR, ve solo el laboratorio asignado en usuario.id_laboratorio
+    if (rol === "profesor") {
+        query = `
             SELECT l.id_laboratorio, l.nombre_lab, l.edificio, l.planta, l.id_encargado 
             FROM laboratorio l
-            JOIN encargado e ON l.id_encargado = e.id_encargado
-            WHERE e.id_usuario = ?
+            JOIN usuario u ON l.id_laboratorio = u.id_laboratorio
+            WHERE u.id_usuario = ?
         `;
-      params.push(userId);
+        params.push(userId);
+    } 
+    // Si es ENCARGADO, ve los laboratorios que maneja
+    else if (rol === "encargado") {
+        query = `
+            SELECT l.id_laboratorio, l.nombre_lab, l.edificio, l.planta, l.id_encargado 
+            FROM laboratorio l
+            WHERE l.id_encargado = (SELECT id_encargado FROM encargado WHERE id_usuario = ?)
+        `;
+        params.push(userId);
     }
 
     connection.query(query, params, (err, results) => {
-      if (err) {
-        console.error("Error SQL:", err);
-        return res.status(500).json({ error: "Error al obtener laboratorios" });
-      }
-      res.json(results);
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
     });
-  },
-);
-
+});
 app.post("/api/laboratorios", auth, requireRole("admin"), (req, res) => {
   const { nombre, edificio, planta, id_encargado } = req.body;
   if (!nombre || !edificio || !planta || !id_encargado) {
@@ -570,6 +604,21 @@ app.get("/api/equipos", auth, (req, res) => {
         return res.status(500).json({ error: "Error al obtener equipos" });
       res.json(rows);
     });
+  } else if (rol === "profesor") {
+    const query = `
+      SELECT e.id_equipo, e.nombre, e.no_serie, e.numero, e.tipo, l.nombre_lab, l.edificio, e.id_laboratorio
+      FROM equipo e
+      JOIN laboratorio l ON e.id_laboratorio = l.id_laboratorio
+      WHERE e.id_laboratorio = (
+        SELECT id_laboratorio FROM usuario WHERE id_usuario = ?
+      )
+      ORDER BY e.nombre ASC
+    `;
+    connection.query(query, [userId], (err, rows) => {
+      if (err)
+        return res.status(500).json({ error: "Error al obtener equipos" });
+      res.json(rows);
+    });
   } else {
     return res.status(403).json({ error: "No autorizado" });
   }
@@ -900,20 +949,28 @@ app.listen(PORT, () => {
 // ==========================================
 
 // 1. CREAR NUEVA INCIDENCIA (POST)
-app.post("/api/incidencias", auth, (req, res) => {
+app.post("/api/incidencias", auth, upload.single('imagen'), (req, res) => {
   // Ya no recibimos el id_usuario del frontend, lo sacamos del token seguro
   const id_usuario = req.user.id;
   const { id_equipo, fecha, hora, descripcion, estado } = req.body;
+  
+  // Validar que los campos requeridos estén presentes
+  if (!id_equipo || !fecha || !hora || !descripcion) {
+    return res.status(400).json({ error: "Faltan datos requeridos" });
+  }
+  
+  // Obtener nombre del archivo si se subió imagen
+  const nombreFoto = req.file ? req.file.filename : null;
 
   // Nombres de tabla en singular: incidencia
   const query = `
-        INSERT INTO incidencia (id_equipo, id_usuario, fecha, hora, descripcion, estado)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO incidencia (id_equipo, id_usuario, id_usuario_reporte, fecha, hora, descripcion, estado, foto)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
   connection.query(
     query,
-    [id_equipo, id_usuario, fecha, hora, descripcion, estado],
+    [id_equipo, id_usuario, id_usuario, fecha, hora, descripcion, estado || 'pendiente', nombreFoto],
     (err, results) => {
       if (err) {
         console.error("Error al guardar incidencia:", err);
@@ -932,32 +989,39 @@ app.post("/api/incidencias", auth, (req, res) => {
 // 2. OBTENER INCIDENCIAS ACTUALES (GET) - ¡Agregamos 'auth'!
 // ==========================================
 app.get("/api/incidencias/actuales", auth, (req, res) => {
-  // Nombres de tabla en singular: incidencia, equipo, usuario
-  const query = `
-        SELECT 
-            i.id_incidencia,
-            e.nombre AS nombre_equipo,
-            e.id_equipo,
-            e.id_laboratorio,
-            u.nombre AS nombre_usuario,
-            i.id_usuario,
-            i.fecha,
-            i.hora,
-            i.descripcion,
-            i.estado
+    const { rol, id: userId } = req.user;
+    
+    let query = `
+        SELECT i.*, e.nombre AS nombre_equipo, u.nombre AS nombre_usuario, l.nombre_lab, e.id_laboratorio
         FROM incidencia i
-        LEFT JOIN equipo e ON i.id_equipo = e.id_equipo
-        LEFT JOIN usuario u ON i.id_usuario = u.id_usuario
+        JOIN equipo e ON i.id_equipo = e.id_equipo
+        JOIN usuario u ON i.id_usuario = u.id_usuario
+        JOIN laboratorio l ON e.id_laboratorio = l.id_laboratorio
         WHERE i.estado = 'pendiente'
-        ORDER BY i.fecha DESC, i.hora DESC
     `;
-  connection.query(query, (err, results) => {
-    if (err) {
-      console.error("Error al obtener incidencias:", err);
-      return res.status(500).json({ error: "Error al cargar la tabla" });
+    let params = [];
+
+    // Si es profesor, filtra por su laboratorio asignado en usuario
+    if (rol === "profesor") {
+        query += " AND e.id_laboratorio = (SELECT id_laboratorio FROM usuario WHERE id_usuario = ?)";
+        params.push(userId);
     }
-    res.json(results);
-  });
+    // Si es encargado, filtra por los laboratorios que maneja
+    else if (rol === "encargado") {
+        query += `
+            AND e.id_laboratorio IN (
+                SELECT l2.id_laboratorio 
+                FROM laboratorio l2 
+                WHERE l2.id_encargado = (SELECT id_encargado FROM encargado WHERE id_usuario = ?)
+            )
+        `;
+        params.push(userId);
+    }
+
+    connection.query(query, params, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
 });
 
 // ==========================================
@@ -966,14 +1030,15 @@ app.get("/api/incidencias/actuales", auth, (req, res) => {
 app.put("/api/incidencias/:id/resolver", auth, (req, res) => {
   const id_incidencia = req.params.id;
   const { estado, solucion } = req.body;
+  const id_usuario_solucion = req.user.id;
 
   // Nombre de tabla en singular
   const query = `
         UPDATE incidencia 
-        SET estado = ?, solucion = ?, fecha_resolucion = NOW() 
+        SET estado = ?, solucion = ?, fecha_resolucion = NOW(), id_usuario_solucion = ? 
         WHERE id_incidencia = ?
     `;
-  connection.query(query, [estado, solucion, id_incidencia], (err, results) => {
+  connection.query(query, [estado, solucion, id_usuario_solucion, id_incidencia], (err, results) => {
     if (err) {
       console.error("Error al resolver incidencia:", err);
       return res
@@ -986,20 +1051,47 @@ app.put("/api/incidencias/:id/resolver", auth, (req, res) => {
 
 // OBTENER TODAS LAS INCIDENCIAS (Para el historial)
 app.get("/api/incidencias", auth, (req, res) => {
-  const query = `
+  const { rol, id: userId } = req.user;
+    
+    let query = `
         SELECT 
             i.*, 
             e.nombre AS nombre_equipo, 
-            u.nombre AS nombre_usuario, 
+            ur.nombre AS nombre_reporte,
+            us.nombre AS nombre_solucion,
             e.id_laboratorio 
         FROM incidencia i
         JOIN equipo e ON i.id_equipo = e.id_equipo
-        JOIN usuario u ON i.id_usuario = u.id_usuario
-        ORDER BY i.fecha DESC, i.hora DESC
+        JOIN usuario ur ON COALESCE(i.id_usuario_reporte, i.id_usuario) = ur.id_usuario
+        LEFT JOIN usuario us ON i.id_usuario_solucion = us.id_usuario
     `;
-  connection.query(query, (err, results) => {
-    if (err)
-      return res.status(500).json({ error: "Error al obtener historial" });
-    res.json(results);
-  });
+    
+    const params = [];
+
+    // 🔒 Si es profesor, solo ve incidencias de su laboratorio asignado
+    if (rol === "profesor") {
+        query += " WHERE e.id_laboratorio = (SELECT id_laboratorio FROM usuario WHERE id_usuario = ?)";
+        params.push(userId);
+    } 
+    // 🔒 Si es encargado, solo ve incidencias de los laboratorios que maneja
+    else if (rol === "encargado") {
+        query += `
+            WHERE e.id_laboratorio IN (
+                SELECT l.id_laboratorio 
+                FROM laboratorio l 
+                WHERE l.id_encargado = (SELECT id_encargado FROM encargado WHERE id_usuario = ?)
+            )
+        `;
+        params.push(userId);
+    }
+
+    query += " ORDER BY i.fecha DESC, i.hora DESC";
+
+    connection.query(query, params, (err, results) => {
+        if (err) {
+            console.error("Error al obtener historial de incidencias:", err);
+            return res.status(500).json({ error: "Error al obtener historial" });
+        }
+        res.json(results);
+    });
 });

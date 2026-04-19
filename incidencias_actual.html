@@ -67,6 +67,7 @@
                             <th>ID</th>
                             <th>Equipo</th>
                             <th>Encargado</th>
+                            <th>Evidencia</th>
                             <th>Fecha/Hora</th>
                             <th>Descripción</th>
                             <th>Estado</th>
@@ -75,17 +76,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>1</td>
-                            <td>Dell OptiPlex (EQ-45)</td>
-                            <td>ROD</td>
-                            <td>2026-03-15 | 09:00</td>
-                            <td>Pantalla azul al iniciar</td>
-                            <td><span class="status pending">Abierta</span></td>
-                            <td>
-                                <div style="display: flex; gap: 8px;">
-                                    <button class="btn-edit" style="padding: 5px 10px;">Resolver</button>
-                                </div>
-                            </td>
+                            <td colspan="8" style="text-align:center; padding: 20px; color: var(--text-gray);">Cargando incidencias...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -126,6 +117,14 @@
             <h3 style="margin-bottom: 25px;">Reportar Falla Técnica</h3>
             
             <form id="incidenciaForm" style="display: flex; flex-direction: column; width: 100%;">
+                <div class="form-group" style="margin-top: 10px;">
+    <label>Evidencia Fotográfica (Opcional)</label>
+    <div style="position: relative; margin-top: 5px;">
+        <input type="file" id="fotoIncidencia" accept="image/*" 
+            style="width: 100%; padding: 10px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white;">
+        <small style="color: var(--text-gray); font-size: 0.75rem;">Captura el daño o error del equipo.</small>
+    </div>
+</div>
                 
                 <div class="form-group" id="grupoEdificio">
                     <label>Edificio</label>
@@ -217,6 +216,14 @@
         const rol = localStorage.getItem('rol');
         if (!token) { window.location.href = 'login.html'; }
 
+        if (rol === 'profesor') {
+            const logoLink = document.querySelector('.logo-wrapper a');
+            if (logoLink) {
+                logoLink.href = window.location.pathname;
+                logoLink.style.pointerEvents = 'none';
+            }
+        }
+
  function irAPractica(tipo) {
     // 1. Limpiamos el rol
     const rolRaw = localStorage.getItem('rol');
@@ -237,20 +244,27 @@
     };
 
     // 3. BLOQUEO PARA ENCARGADOS
-    const prohibidos = ['usuarios', 'laboratorios', 'encargados'];
-    if (rol === 'encargado' && prohibidos.includes(tipo)) {
+    const prohibidosEncargado = ['usuarios', 'laboratorios', 'encargados'];
+    if (rol === 'encargado' && prohibidosEncargado.includes(tipo)) {
         alert("Acceso restringido: Solo Administradores.");
         return;
     }
 
-    // 4. EJECUCIÓN
+    // 4. BLOQUEO PARA PROFESOR
+    const prohibidosProfesor = ['usuarios', 'laboratorios', 'encargados', 'consumibles', 'equipos', 'dashboard'];
+    if (rol === 'profesor' && prohibidosProfesor.includes(tipo)) {
+        alert("Acceso restringido: Solo Incidencias e Historial.");
+        return;
+    }
+
+    // 5. EJECUCIÓN
     if (rutas[tipo]) {
         console.log("Navegando a:", rutas[tipo]);
         window.location.href = rutas[tipo];
     } else {
         console.error("No se encontró la ruta para:", tipo);
     }
-}
+}   
 
 
         async function logout() {

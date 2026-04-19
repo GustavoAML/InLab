@@ -60,38 +60,26 @@
                 <button class="btn-add-cyan" onclick="window.print()">🖨️ Imprimir Reporte</button>
             </section>
 
-            <div class="history-table-container">
-                <table class="data-table" id="tablaHistorial">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Acción</th>
-                            <th>Fecha y Hora</th>
-                            <th>ID Incidencia</th>
-                            <th>ID Equipo</th>
-                            <th>ID Usuario</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td><span class="action-badge action-create">Nueva Incidencia</span></td>
-                            <td>2026-03-14 10:30:15</td>
-                            <td>101</td>
-                            <td>EQ-45</td>
-                            <td>ROD</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td><span class="action-badge action-update">Actualización</span></td>
-                            <td>2026-03-14 11:45:00</td>
-                            <td>102</td>
-                            <td>EQ-12</td>
-                            <td>USR-JORGO</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+           <div class="history-table-container">
+    <table class="data-table" id="tablaHistorial">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>EQUIPO</th>
+                <th>REPORTADO POR</th>
+                <th>RESUELTO POR</th>
+                <th>FECHA Y HORA</th>
+                <th>SOLUCION</th>
+                <th>ESTADO</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTablaHistorial">
+            <tr>
+                <td colspan="7" style="text-align:center;">Cargando historial...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
         </main>
     </div>
 
@@ -145,6 +133,14 @@
             window.location.href = 'login.html';
         }
 
+        if (rol === 'profesor') {
+            const logoLink = document.querySelector('.logo-wrapper a');
+            if (logoLink) {
+                logoLink.href = window.location.pathname;
+                logoLink.style.pointerEvents = 'none';
+            }
+        }
+
        function irAPractica(tipo) {
     // 1. Limpiamos el rol
     const rolRaw = localStorage.getItem('rol');
@@ -165,13 +161,20 @@
     };
 
     // 3. BLOQUEO PARA ENCARGADOS
-    const prohibidos = ['usuarios', 'laboratorios', 'encargados'];
-    if (rol === 'encargado' && prohibidos.includes(tipo)) {
+    const prohibidosEncargado = ['usuarios', 'laboratorios', 'encargados'];
+    if (rol === 'encargado' && prohibidosEncargado.includes(tipo)) {
         alert("Acceso restringido: Solo Administradores.");
         return;
     }
 
-    // 4. EJECUCIÓN
+    // 4. BLOQUEO PARA PROFESOR
+    const prohibidosProfesor = ['usuarios', 'laboratorios', 'encargados', 'consumibles', 'equipos', 'dashboard'];
+    if (rol === 'profesor' && prohibidosProfesor.includes(tipo)) {
+        alert("Acceso restringido: Solo Incidencias e Historial.");
+        return;
+    }
+
+    // 5. EJECUCIÓN
     if (rutas[tipo]) {
         console.log("Navegando a:", rutas[tipo]);
         window.location.href = rutas[tipo];

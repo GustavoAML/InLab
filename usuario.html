@@ -9,18 +9,18 @@
 </head>
 <body>
 
- <div class="dashboard-container">
-    <aside class="sidebar">
-        <div class="logo-area">
-            <div class="logo-wrapper">
-                <a href="Dashboard.html" style="z-index: 10; display: flex; align-items: center; gap: 10px; text-decoration: none;">
-                    <img src="/logo_nuevo2.png" alt="Logo INLAB" style="height: 35px; width: auto;">
-                    <span style="color: white; font-weight: 800; font-size: 1.5rem;">INLAB</span>
-                </a>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo-wrapper">
+                    <a href="Dashboard.html" style="z-index: 10; display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                        <img src="/logo_nuevo2.png" alt="Logo INLAB" style="height: 35px; width: auto;">
+                        <span style="color: white; font-weight: 800; font-size: 1.5rem;">INLAB</span>
+                    </a>
+                </div>
             </div>
-        </div>
             <nav>
-                <a href="javascript:void(0)" class="nav-item" onclick="irAPractica('usuario')">Usuarios</a>
+                <a href="javascript:void(0)" class="nav-item active" onclick="irAPractica('usuario')">Usuarios</a>
                 <a href="javascript:void(0)" class="nav-item" onclick="irAPractica('laboratorios')">Laboratorios</a>
                 <a href="javascript:void(0)" class="nav-item" onclick="irAPractica('encargados')">Encargados</a>
                 <a href="javascript:void(0)" class="nav-item" onclick="irAPractica('consumibles')">Consumibles</a>
@@ -40,10 +40,13 @@
 
         <main class="main-content">
             <section class="section-header">
-                <h2>Gestión de Usuarios</h2>
+                <div>
+                    <h2>Gestión de Usuarios</h2>
+                    <p style="color: var(--text-gray); margin-top: 5px;">Administra el personal y sus roles en el sistema</p>
+                </div>
 
                 <div class="search-box-container">
-                    <input type="text" id="inputBusqueda" placeholder="Buscar usuario por nombre o correo..." onkeyup="filtrarUsuarios()">
+                    <input type="text" id="inputBusqueda" placeholder="Buscar usuario..." onkeyup="filtrarUsuarios()">
                     <div class="search-icon">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8"></circle>
@@ -63,41 +66,47 @@
     <div id="staffModal" class="modal-overlay">
         <div class="modal-content">
             <button class="btn-close" type="button" onclick="closeModal('staffModal')">×</button>
-            
-            <h3 id="modalTitle" style="margin-bottom: 25px;">Nuevo Usuario</h3>
+            <h3 id="modalTitle" style="margin-bottom: 25px;">Datos del Usuario</h3>
             
             <form id="staffForm" style="display: flex; flex-direction: column; width: 100%;">
-                
                 <input type="hidden" id="usuarioId">
                 
                 <div class="form-group">
-                    <label for="userRol">Puesto / Rol</label>
-                    <select id="userRol" required>
-                        <option value="encargado">Encargado de Lab</option>
+                    <label>Rol del Sistema</label>
+                    <select id="rolUsuario" onchange="verificarRolProfesor()" required>
+                        <option value="admin">Administrador</option>
+                        <option value="encargado">Encargado</option>
                         <option value="profesor">Profesor</option>
-                        <option value="admin">Admin</option>
                     </select>
+                </div>
+
+                <div class="form-group" id="grupoLaboratorioProfesor" style="display: none; margin-top: 15px; border-left: 3px solid var(--primary-cyan); padding-left: 12px;">
+                    <label style="color: var(--primary-cyan); font-weight: bold;">Laboratorio Asignado</label>
+                    <select id="selectLabProfesor">
+                        <option value="" disabled selected>Selecciona laboratorio...</option>
+                    </select>
+                    <small style="color: #888;">El profesor solo gestionará este laboratorio.</small>
                 </div>
 
                 <div class="form-group">
                     <label for="nombre">Nombre(s)</label>
-                    <input type="text" id="nombre" placeholder="Nombre del usuario" required>
+                    <input type="text" id="nombre" placeholder="Nombre completo" required>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="apPaterno">Apellido Paterno</label>
-                        <input type="text" id="apPaterno" placeholder="Ej. Méndez" required>
+                        <input type="text" id="apPaterno" placeholder="Apellido paterno" required>
                     </div>
                     <div class="form-group">
                         <label for="apMaterno">Apellido Materno</label>
-                        <input type="text" id="apMaterno" placeholder="Ej. Pérez" required>
+                        <input type="text" id="apMaterno" placeholder="Apellido materno" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="correo">Correo</label>
-                    <input type="email" id="correo" placeholder="usuario@utm.edu.mx" required>
+                    <label for="correo">Correo UTM</label>
+                    <input type="email" id="correo" placeholder="ejemplo@utm.edu.mx" required>
                 </div>
 
                 <div class="form-group">
@@ -107,7 +116,7 @@
 
                 <div class="modal-actions" style="margin-top: 20px;">
                     <button type="button" class="btn-cancel" onclick="closeModal('staffModal')">Cancelar</button>
-                    <button type="submit" class="btn-save" id="btnGuardar">Guardar Datos</button>
+                    <button type="submit" class="btn-save" id="btnGuardar">Guardar Usuario</button>
                 </div>
             </form>
         </div>
@@ -116,133 +125,14 @@
     <div id="deleteModal" class="modal-overlay">
         <div class="modal-content confirm-delete">
             <div class="warning-icon">⚠️</div>
-            <h3>¿Estás seguro?</h3>
-            <p>Se eliminarán los datos de <strong id="deleteTarget"></strong> definitivamente.</p>
+            <h3>Eliminar Usuario</h3>
+            <p>¿Estás seguro de eliminar a <strong id="deleteTarget"></strong>? Esta acción no se puede deshacer.</p>
             <div class="modal-actions">
-                <button type="button" class="btn-cancel" onclick="closeModal('deleteModal')">No</button>
-                <button type="button" class="btn-danger-action" onclick="confirmarEliminacion()">
-                Sí, Eliminar
-                </button>
+                <button type="button" class="btn-cancel" onclick="closeModal('deleteModal')">Cancelar</button>
+                <button type="button" class="btn-danger-action" onclick="confirmarEliminacion()">Sí, Eliminar</button>
             </div>
         </div>
     </div>
-
-    <script>
-        function openDeleteModal(name) {
-            document.getElementById('deleteTarget').innerText = name;
-            document.getElementById('deleteModal').classList.add('active');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        // Cerrar modal al hacer clic afuera
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal-overlay')) {
-                event.target.classList.remove('active');
-            }
-        }
-
-        function toggleDrawer() {
-            document.getElementById('sideDrawer').classList.toggle('active');
-            document.getElementById('drawerOverlay').classList.toggle('active');
-        }
-
-        // Función de filtrado para USUARIOS
-        function filtrarUsuarios() {
-            const busqueda = document.getElementById('inputBusqueda').value.toLowerCase();
-            const tarjetas = document.querySelectorAll('.staff-card'); 
-
-            tarjetas.forEach(tarjeta => {
-                const contenido = tarjeta.innerText.toLowerCase();
-                tarjeta.style.display = contenido.includes(busqueda) ? "flex" : "none";
-            });
-        }
-
-        // Cerrar Drawer con Escape
-        window.addEventListener('keydown', function(e) {
-            if (e.key === "Escape") {
-                const drawer = document.getElementById('sideDrawer');
-                const overlay = document.getElementById('drawerOverlay');
-                if(drawer) drawer.classList.remove('active');
-                if(overlay) overlay.classList.remove('active');
-            }
-        });
-
-        function openStaffModal(modo) {
-            const modal = document.getElementById('staffModal');
-            modal.classList.add('active');
-            if (modo === 'add') {
-                // Esta función debe existir en tu usuario.js
-                if(typeof prepararModoCrear === 'function') prepararModoCrear();
-            }
-        }
-
-        // Lógica de sesión y navegación básica
-        const token = localStorage.getItem('token');
-        const rol = localStorage.getItem('rol');
-        if (!token) {
-            window.location.href = 'login.html';
-        }
-
-        function irAPractica(tipo) {
-            switch(tipo) {
-                case 'laboratorios':
-                    if (rol !== 'admin') { alert("Acceso denegado"); return; }
-                    window.location.href = 'laboratorios.html';
-                    break;
-                case 'consumibles':
-                    window.location.href = 'consumibles.html';
-                    break;
-                case 'encargados':
-                    if (rol !== 'admin') { alert("Acceso denegado"); return; }
-                    window.location.href = 'encargado.html';
-                    break;
-                case 'equipos':
-                    window.location.href = 'equipo.html';
-                    break;
-                case 'historial_completo':
-                    window.location.href = 'historial_completo.html';
-                    break;
-                case 'incidencias_actual':
-                    window.location.href = 'incidencias_actual.html';
-                    break;
-                case 'usuario':
-                    if (rol !== 'admin') { alert("Acceso denegado"); return; }
-                    window.location.href = 'usuario.html';
-                    break;
-            }
-        }
-
-        async function logout() {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        }
-
-        // Marcar menú activo
-        document.addEventListener("DOMContentLoaded", function() {
-            const currentFile = window.location.pathname.split("/").pop();
-            const mapPaginas = {
-                'usuario.html': 'usuario',
-                'laboratorios.html': 'laboratorios',
-                'encargado.html': 'encargados',
-                'consumibles.html': 'consumibles',
-                'equipo.html': 'equipos'
-            };
-
-            const seccionActiva = mapPaginas[currentFile];
-            const menuItems = document.querySelectorAll('.nav-item');
-
-            menuItems.forEach(item => {
-                item.classList.remove('active');
-                const clickAtributo = item.getAttribute('onclick');
-                if (seccionActiva && clickAtributo && clickAtributo.includes(`'${seccionActiva}'`)) {
-                    item.classList.add('active');
-                }
-            });
-        });
-    </script>
 
     <div id="sideDrawer" class="side-drawer">
         <div class="centered-drawer-header">
@@ -254,7 +144,7 @@
         </div>
         
         <div class="drawer-options">
-            <a href="javascript:void(0)" class="drawer-card" onclick="irAPractica('incidencias_actual')">
+            <a href="#" class="drawer-card" onclick="irAPractica('incidencias_actual')">
                 <div class="card-icon">⚠️</div>
                 <div class="card-content">
                     <h3>Gestión Actual</h3>
@@ -262,7 +152,7 @@
                 </div>
             </a>
 
-            <a href="javascript:void(0)" class="drawer-card" onclick="irAPractica('historial_completo')">
+            <a href="#" class="drawer-card" onclick="irAPractica('historial_completo')">
                 <div class="card-icon">📜</div>
                 <div class="card-content">
                     <h3>Historial Completo</h3>
@@ -271,8 +161,59 @@
             </a>
         </div>
     </div>
+
     <div id="drawerOverlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
 
+    <script>
+        // Función para mostrar/ocultar el select de laboratorio según el rol
+        async function verificarRolProfesor(selectedLabId = '') {
+            const rolSeleccionado = document.getElementById('rolUsuario').value;
+            const campoLab = document.getElementById('grupoLaboratorioProfesor');
+            const selectLab = document.getElementById('selectLabProfesor');
+
+            if (rolSeleccionado === 'profesor' || rolSeleccionado === 'encargado') {
+                campoLab.style.display = 'block';
+                // Solo cargamos labs si no se han cargado ya
+                if (selectLab.options.length <= 1) {
+                    try {
+                        const res = await fetch('/api/laboratorios', {
+                            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                        });
+                        const labs = await res.json();
+                        selectLab.innerHTML = '<option value="" disabled selected>Selecciona laboratorio...</option>';
+                        labs.forEach(l => {
+                            selectLab.innerHTML += `<option value="${l.id_laboratorio}">${l.nombre_lab} - ${l.edificio}</option>`;
+                        });
+                    } catch (e) {
+                        console.error("Error cargando labs:", e);
+                    }
+                }
+                if (selectedLabId) {
+                    selectLab.value = selectedLabId;
+                }
+            } else {
+                campoLab.style.display = 'none';
+                selectLab.value = "";
+            }
+        }
+
+        // Funciones de UI básicas
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function openStaffModal(modo) { 
+            document.getElementById('staffModal').classList.add('active'); 
+            if(modo === 'add') {
+                document.getElementById('staffForm').reset();
+                document.getElementById('grupoLaboratorioProfesor').style.display = 'none';
+                document.getElementById('rolUsuario').value = 'admin'; // Asegurar que admin es el rol por defecto
+                verificarRolProfesor(); // Validar y mostrar/ocultar laboratorio según rol
+            }
+        }
+        function toggleDrawer() {
+            document.getElementById('sideDrawer').classList.toggle('active');
+            document.getElementById('drawerOverlay').classList.toggle('active');
+        }
+        function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+    </script>
     <script src="JS/usuario.js"></script>
 </body>
 </html>

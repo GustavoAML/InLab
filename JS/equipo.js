@@ -16,6 +16,12 @@ const inputIdLaboratorio = document.getElementById('id_laboratorio');
 const inputTipo = document.getElementById('tipo');
 const btnConfirmarEliminar = document.getElementById('btnConfirmarEliminar');
 
+// ✅ AGREGADA: Función para proteger texto
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
 // =============================
 // INICIO Y SEGURIDAD
 // =============================
@@ -81,19 +87,25 @@ function irAPractica(tipo) {
 // =============================
 async function cargarEquipos() {
     try {
-        const response = await fetch(API_URL, {
-            headers: { 'Authorization': `Bearer ${getToken()}` }
-        });
-        if (!response.ok) throw new Error('Error al obtener Equipos');
-        const equipos = await response.json();
-        mostrarEquipos(equipos);
+        // ✅ Pide equipos e incidencias al mismo tiempo para saber el estado
+        const [resEq, resInc] = await Promise.all([
+            fetch(API_URL, { headers: { 'Authorization': `Bearer ${getToken()}` } }),
+            fetch('/api/incidencias/actuales', { headers: { 'Authorization': `Bearer ${getToken()}` } })
+        ]);
+
+        if (!resEq.ok || !resInc.ok) throw new Error('Error al obtener datos');
+        
+        const equipos = await resEq.json();
+        const incidencias = await resInc.json();
+
+        mostrarEquipos(equipos, incidencias);
     } catch (error) {
         console.error('Error:', error);
     }
 }
 
-// ✨ FUNCIÓN MOSTRAR EQUIPOS (CORREGIDA)
-function mostrarEquipos(equipos) {
+// ✨ FUNCIÓN MOSTRAR EQUIPOS (Mantiene tu CSS intacto)
+function mostrarEquipos(equipos, incidencias) {
     if(!listaEquipos) return;
     listaEquipos.innerHTML = '';
     const grupos = {};
@@ -109,41 +121,46 @@ function mostrarEquipos(equipos) {
         let html = `<div class="lab-section"><h2 class="lab-title">📍 ${grupo.nombre_lab} - ${grupo.edificio}</h2><div class="equipment-grid">`;
         
         grupo.equipos.forEach(e => {
-    // Definimos el ícono
-    const iconoSVG = e.tipo === 'PC' 
-        ? '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/></svg>'
-        : '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="12" rx="2" ry="2"/><line x1="12" y1="16" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg>';
+            // Buscamos si este equipo tiene falla activa
+           const tieneFalla = incidencias.some(inc => Number(inc.id_equipo) === Number(e.id_equipo));
+            
+            // ✅ Badge de estado (Añadido sin romper tu CSS)
+           const statusBadge = tieneFalla 
+        ? '<span class="status-badge error" style="background: rgba(255, 68, 68, 0.2); color: #ff4444; border: 1px solid #ff4444; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold;">🛠️ MANTENIMIENTO</span>' 
+        : '<span class="status-badge success" style="background: rgba(0, 255, 136, 0.2); color: #00ff88; border: 1px solid #00ff88; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold;">✅ ACTIVO</span>';
+            const iconoSVG = e.tipo === 'PC' 
+                ? '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/></svg>'
+                : '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="12" rx="2" ry="2"/><line x1="12" y1="16" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg>';
 
-    html += `
-        <div class="equipment-grid-inner">
-            <div class="eq-card green-theme">
-                <div class="eq-icon-box">${iconoSVG}</div>
-                <div class="eq-info">
-                    <span class="eq-id">ID: ${e.id_equipo}</span>
-                    
-                    <h4>${e.nombre}</h4> 
-                    
-                    <div class="data-stack" style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 12px 0;">
-                        <p class="sn-text" style="margin:0;">S/N: ${e.no_serie}</p>
-                        
-                        <span class="eq-numero">Numero de Equipo: ${e.numero || '---'}</span>
+            html += `
+                <div class="equipment-grid-inner">
+                    <div class="eq-card green-theme">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                            <div class="eq-icon-box">${iconoSVG}</div>
+                            ${statusBadge}
+                        </div>
+                        <div class="eq-info">
+                            <span class="eq-id">ID: ${e.id_equipo}</span>
+                            <h4>${escapeHtml(e.nombre)}</h4> 
+                            <div class="data-stack" style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 12px 0;">
+                                <p class="sn-text" style="margin:0;">S/N: ${escapeHtml(e.no_serie)}</p>
+                                <span class="eq-numero">Numero de Equipo: ${e.numero || '---'}</span>
+                            </div>
+                            <div class="db-details"><span>📁 Tipo: ${e.tipo}</span></div>
+                        </div>
+                        <div class="eq-actions">
+                            <button class="btn-eq-edit" onclick='abrirEditar(${JSON.stringify(e)})'>Editar</button>
+                            <button class="btn-eq-delete" onclick="abrirModalEliminar(${e.id_equipo}, '${escapeForAttr(e.nombre)}', '${escapeForAttr(e.numero)}')">Borrar</button>
+                        </div>
                     </div>
-
-                    <div class="db-details"><span>📁 Tipo: ${e.tipo}</span></div>
-                </div>
-                <div class="eq-actions">
-                    <button class="btn-eq-edit" onclick='abrirEditar(${JSON.stringify(e)})'>Editar</button>
-                    <button class="btn-eq-delete" onclick="abrirModalEliminar(${e.id_equipo}, '${escapeForAttr(e.nombre)}', '${escapeForAttr(e.numero)}')">Borrar</button>
-                </div>
-            </div>
-        </div>`;
-
+                </div>`;
         });
         html += `</div></div>`;
         listaEquipos.innerHTML += html;
     });
 }
 
+// ... (Resto de funciones: guardarOActualizar, abrirEditar, cargarLaboratorios, etc. se mantienen idénticas)
 async function guardarOActualizar(event) {
     event.preventDefault();
     const id = inputId.value;
@@ -154,9 +171,7 @@ async function guardarOActualizar(event) {
         tipo: inputTipo.value,
         id_laboratorio: inputIdLaboratorio.value,
     };
-
     if (getRol() === 'encargado') datos.id_laboratorio = getIdLaboratorioUsuario();
-
     try {
         const method = id ? 'PUT' : 'POST';
         const url = id ? `${API_URL}/${id}` : API_URL;

@@ -3,7 +3,28 @@
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    cargarHistorial();
+    const rol = localStorage.getItem('rol')?.trim().toLowerCase();
+
+    if (rol === 'profesor') {
+        // Ocultamos todo lo que no sea Incidencias o Historial
+        const itemsParaOcultar = ['Usuarios', 'Laboratorios', 'Encargados', 'Consumibles', 'Equipo', 'Gestión Actual'];
+        
+        document.querySelectorAll('.nav-item').forEach(el => {
+            const texto = el.innerText.trim();
+            // Solo dejamos "Incidencias" (el botón del drawer) y "Historial"
+            if (itemsParaOcultar.some(item => texto.includes(item)) && !texto.includes('Historial')) {
+                el.style.display = 'none';
+            }
+        });
+
+        // Si el profesor intenta entrar al Dashboard por URL, lo regresamos
+        if (window.location.pathname.includes('Dashboard.html')) {
+            window.location.href = 'incidencias_actual.html';
+        }
+    }
+});
+document.addEventListener('DOMContentLoaded', async () => {
+    cargarHistorial(); 
 });
 
 async function cargarHistorial() {
@@ -13,6 +34,11 @@ async function cargarHistorial() {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } 
         });
         const todas = await res.json();
+        if (!Array.isArray(todas)) {
+            console.error('Respuesta inesperada al cargar historial:', todas);
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px;">No se pudo cargar el historial. Intenta recargar la página.</td></tr>`;
+            return;
+        }
         
         // 2. Filtramos para que SOLO salgan las cerradas (resueltas o no resueltas)
         const historialBase = todas.filter(inc => inc.estado !== 'pendiente');
@@ -26,7 +52,7 @@ async function cargarHistorial() {
         if (rol === 'admin') {
             filtradas = historialBase;
         } else {
-            // 3. Si es ENCARGADO, obtenemos la lista de sus laboratorios permitidos
+            // 3. Si es ENCARGADO o PROFESOR, obtenemos la lista de sus laboratorios permitidos
             const resLabs = await fetch('/api/laboratorios', { 
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } 
             });
@@ -40,7 +66,7 @@ async function cargarHistorial() {
         }
 
         if (filtradas.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px;">No hay historial registrado en tus laboratorios.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px;">No hay historial registrado en tus laboratorios.</td></tr>`;
             return;
         }
 
@@ -54,6 +80,9 @@ async function cargarHistorial() {
             
             // Color de fondo manual si no tienes el CSS a la mano
             const colorBadge = inc.estado === 'resuelto' ? '#10b981' : '#ef4444';
+            
+            // Obtener la fecha formateada
+            const fechaFormato = inc.fecha ? String(inc.fecha).split('T')[0] : 'S/F';
 
             tr.innerHTML = `
                 <td>${inc.id_incidencia}</td>
@@ -61,14 +90,15 @@ async function cargarHistorial() {
                     <strong>${inc.nombre_equipo || 'Equipo Borrado'}</strong><br>
                     <small>ID Eq: ${inc.id_equipo}</small>
                 </td>
-                <td>${inc.fecha ? String(inc.fecha).split('T')[0] : 'S/F'}</td>
-                <td>${inc.descripcion}</td>
+                <td>${inc.nombre_reporte || 'Usuario Desconocido'}</td>
+                <td>${inc.nombre_solucion || 'Pendiente'}</td>
+                <td>${fechaFormato} | ${inc.hora || 'S/H'}</td>
+                <td>${inc.solucion || '<i style="color:gray;">Sin observaciones</i>'}</td>
                 <td>
                     <span style="background: ${colorBadge}; color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold;">
                         ${estadoTexto}
                     </span>
                 </td>
-                <td>${inc.solucion || '<i style="color:gray;">Sin observaciones</i>'}</td>
             `;
             tbody.appendChild(tr);
         });

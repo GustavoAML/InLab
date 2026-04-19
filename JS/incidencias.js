@@ -1,5 +1,5 @@
 // ==========================================
-// incidencias_actual.js 
+// incidencias.js - Gestión con Imágenes y Roles
 // ==========================================
 
 const API_INCIDENCIAS = '/api/incidencias';
@@ -13,7 +13,15 @@ const descFalla = document.getElementById('descFalla');
 const formIncidencia = document.getElementById('incidenciaForm');
 const inputBusqueda = document.getElementById('inputBusqueda');
 
-function authHeaders() {
+// IMPORTANTE: Para enviar IMÁGENES no usamos 'Content-Type': 'application/json'
+// El navegador pone el Content-Type correcto automáticamente con FormData
+function authHeadersMultipart() {
+    return {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+    };
+}
+
+function authHeadersJSON() {
     return {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -23,46 +31,55 @@ function authHeaders() {
 // ----------------------------------------------------
 // 1. INICIALIZACIÓN Y CARGA DE TABLA
 // ----------------------------------------------------
+document.addEventListener('DOMContentLoaded', () => {
+    const rol = localStorage.getItem('rol')?.trim().toLowerCase();
+
+    if (rol === 'profesor') {
+        // Ocultamos todo lo que no sea Incidencias o Historial
+        const itemsParaOcultar = ['Usuarios', 'Laboratorios', 'Encargados', 'Consumibles', 'Equipo', 'Gestión Actual'];
+        
+        document.querySelectorAll('.nav-item').forEach(el => {
+            const texto = el.innerText.trim();
+            // Solo dejamos "Incidencias" (el botón del drawer) y "Historial"
+            if (itemsParaOcultar.some(item => texto.includes(item)) && !texto.includes('Historial')) {
+                el.style.display = 'none';
+            }
+        });
+
+        // Si el profesor intenta entrar al Dashboard por URL, lo regresamos
+        if (window.location.pathname.includes('Dashboard.html')) {
+            window.location.href = 'incidencias_actual.html';
+        }
+    }
+});
 document.addEventListener('DOMContentLoaded', async () => {
     cargarTablaIncidencias(); 
 });
 
 async function cargarTablaIncidencias() {
     try {
-        const res = await fetch('/api/incidencias/actuales', { headers: authHeaders() });
+        const res = await fetch('/api/incidencias/actuales', { headers: authHeadersJSON() });
         const incidencias = await res.json();
         
         const rol = (localStorage.getItem('rol') || '').trim().toLowerCase();
         const tbody = document.querySelector('#tablaIncidencias tbody');
         tbody.innerHTML = '';
 
-        let incidenciasMostrables = [];
-
-        if (rol === 'admin') {
-            incidenciasMostrables = incidencias;
-        } else {
-            // Para encargado, obtenemos sus laboratorios asignados para filtrar dinámicamente
-            const resLabs = await fetch(API_LABS, { headers: authHeaders() });
-            const misLabs = await resLabs.json();
-            
-            // Creamos una lista de IDs (como strings) de TODOS sus laboratorios
-            const misIdsLabs = misLabs.map(l => String(l.id_laboratorio));
-            
-            // Filtramos incidencias que pertenezcan a cualquiera de esos laboratorios
-            incidenciasMostrables = incidencias.filter(inc => 
-                misIdsLabs.includes(String(inc.id_laboratorio))
-            );
-        }
-
-        if (incidenciasMostrables.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px;">No hay incidencias pendientes en tus laboratorios</td></tr>`;
+        // El servidor ya está filtrando, confíamos en él
+        if (incidencias.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 20px;">No hay incidencias pendientes</td></tr>`;
             return;
         }
 
-        incidenciasMostrables.forEach(inc => {
+        incidencias.forEach(inc => {
             const tr = document.createElement('tr');
             const fechaF = inc.fecha ? String(inc.fecha).split('T')[0] : 'S/F';
             
+            // Lógica para la miniatura de la imagen
+            const fotoHTML = inc.foto 
+                ? `<img src="/uploads/${inc.foto}" width="50" style="border-radius: 8px; cursor: pointer; border: 1px solid var(--primary-cyan);" onclick="window.open('/uploads/${inc.foto}')" title="Ver evidencia">`
+                : '<span style="color:gray; font-size:0.7rem;">Sin foto</span>';
+
             tr.innerHTML = `
                 <td>${inc.id_incidencia}</td>
                 <td>
@@ -71,13 +88,14 @@ async function cargarTablaIncidencias() {
                 </td>
                 <td>
                     <strong>${inc.nombre_usuario}</strong><br>
-                    <small>ID User: ${inc.id_usuario}</small>
+                    <small>User ID: ${inc.id_usuario}</small>
                 </td>
+                <td style="text-align:center;">${fotoHTML}</td>
                 <td>${fechaF} | ${inc.hora}</td>
                 <td class="desc-cell">${inc.descripcion}</td>
                 <td><span class="status pending" style="background:rgba(239,68,68,0.2); color:#ef4444; padding:4px 8px; border-radius:6px; font-size:0.8rem; font-weight:bold;">ABIERTA</span></td>
                 <td>
-                    <button class="btn-edit" style="padding: 5px 10px;" onclick="resolverIncidencia(${inc.id_incidencia})">Resolver</button>
+                    ${rol !== 'profesor' ? `<button class="btn-edit" style="padding: 5px 10px;" onclick="resolverIncidencia(${inc.id_incidencia})">Resolver</button>` : '<small>Esperando revisión</small>'}
                 </td>
             `;
             tbody.appendChild(tr);
@@ -94,65 +112,91 @@ async function openIncidenciaModal() {
     document.getElementById('incidenciaModal').classList.add('active');
     formIncidencia.reset();
     
-    const rol = (localStorage.getItem('rol') || '').trim().toLowerCase();
-    
-    if (rol === 'admin') {
-        await cargarEdificiosAdmin();
-        selectEdificio.required = true; 
-    } else if (rol === 'encargado') {
-        if (document.getElementById('grupoEdificio')) {
-            document.getElementById('grupoEdificio').style.display = 'none';
-        }
-        selectEdificio.required = false; 
-        selectLaboratorio.disabled = false;
-        selectLaboratorio.innerHTML = '<option value="" disabled selected>Cargando tus laboratorios...</option>';
-        
-        try {
-            const res = await fetch(API_LABS, { headers: authHeaders() });
-            const todosLosLabs = await res.json();
-            
-            selectLaboratorio.innerHTML = '<option value="" disabled selected>Selecciona un laboratorio</option>';
-            todosLosLabs.forEach(lab => {
-                selectLaboratorio.innerHTML += `<option value="${lab.id_laboratorio}">${lab.nombre_lab} - ${lab.edificio}</option>`;
-            });
-        } catch (error) {
-            console.error("Error cargando labs de encargado:", error);
-        }
-    }
+    // Cargamos edificios para todos (Admin y Profesor ven todo, Encargado solo su edificio)
+    await cargarEdificiosAdmin(); 
+    selectLaboratorio.disabled = true;
+    selectEquipo.disabled = true;
 }
 
 async function cargarEdificiosAdmin() {
     try {
-        const res = await fetch(API_LABS, { headers: authHeaders() });
+        const res = await fetch(API_LABS, { headers: authHeadersJSON() });
         const laboratorios = await res.json();
+
+        // 🛡️ VALIDACIÓN: Si no es una lista o hay error 403, salimos sin tronar
+        if (!Array.isArray(laboratorios)) {
+            console.error("No se pudo cargar la lista de laboratorios");
+            return;
+        }
+
+        // 1. Extraemos edificios únicos
         const edificiosUnicos = [...new Set(laboratorios.map(l => l.edificio))];
         
+        // 2. Llenamos el select
         selectEdificio.innerHTML = '<option value="" disabled selected>Seleccione un edificio</option>';
         edificiosUnicos.forEach(ed => {
             selectEdificio.innerHTML += `<option value="${ed}">${ed}</option>`;
         });
+
+        // 3. Guardamos para uso global
         window.laboratoriosGlobales = laboratorios;
+
+        // ✨ TOQUE INGENIOSO: Si es Profesor y solo hay un edificio, lo seleccionamos de una vez
+        const rol = (localStorage.getItem('rol') || '').toLowerCase().trim();
+        if (rol === 'profesor' && edificiosUnicos.length === 1) {
+            selectEdificio.value = edificiosUnicos[0];
+            // Cargamos los labs de ese edificio inmediatamente
+            cargarLaboratoriosPorEdificio();
+        }
+
     } catch (error) {
-        console.error(error);
+        console.error("Error en cargarEdificiosAdmin:", error);
     }
 }
-
 function cargarLaboratoriosPorEdificio() {
     const edificioSeleccionado = selectEdificio.value;
     const labsDelEdificio = window.laboratoriosGlobales.filter(l => l.edificio === edificioSeleccionado);
     selectLaboratorio.innerHTML = '<option value="" disabled selected>Seleccione un laboratorio</option>';
+
+    if (labsDelEdificio.length === 0) {
+        selectLaboratorio.innerHTML = '<option value="" disabled selected>No hay laboratorios disponibles</option>';
+        selectLaboratorio.disabled = true;
+        selectEquipo.innerHTML = '<option value="" disabled selected>Seleccione un laboratorio primero</option>';
+        selectEquipo.disabled = true;
+        return;
+    }
+
     labsDelEdificio.forEach(l => {
         selectLaboratorio.innerHTML += `<option value="${l.id_laboratorio}">${l.nombre_lab}</option>`;
     });
     selectLaboratorio.disabled = false;
+
+    // Si solo hay un laboratorio disponible, lo seleccionamos y cargamos los equipos
+    if (labsDelEdificio.length === 1) {
+        selectLaboratorio.value = labsDelEdificio[0].id_laboratorio;
+        cargarEquiposPorLaboratorio();
+    }
 }
 
 async function cargarEquiposPorLaboratorio() {
     const idLabSeleccionado = selectLaboratorio.value;
     try {
-        const res = await fetch(API_EQUIPOS, { headers: authHeaders() });
+        const res = await fetch(API_EQUIPOS, { headers: authHeadersJSON() });
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('Error fetching equipos:', res.status, errorText);
+            selectEquipo.innerHTML = '<option value="" disabled selected>No se pudieron cargar equipos</option>';
+            selectEquipo.disabled = true;
+            return;
+        }
         const todosLosEquipos = await res.json();
         const equiposDelLab = todosLosEquipos.filter(e => String(e.id_laboratorio) === String(idLabSeleccionado));
+
+        if (equiposDelLab.length === 0) {
+            selectEquipo.innerHTML = '<option value="" disabled selected>No hay equipos en este laboratorio</option>';
+            selectEquipo.disabled = true;
+            return;
+        }
 
         selectEquipo.innerHTML = '<option value="" disabled selected>Seleccione el equipo con falla</option>';
         equiposDelLab.forEach(e => {
@@ -160,46 +204,75 @@ async function cargarEquiposPorLaboratorio() {
         });
         selectEquipo.disabled = false;
     } catch (error) {
-        console.error(error);
+        console.error('Error en cargarEquiposPorLaboratorio:', error);
+        selectEquipo.innerHTML = '<option value="" disabled selected>Error cargando equipos</option>';
+        selectEquipo.disabled = true;
     }
 }
 
 // ----------------------------------------------------
-// 3. REGISTRAR Y RESOLVER
+// 3. REGISTRAR CON FORM DATA (IMAGENES)
 // ----------------------------------------------------
 formIncidencia.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const id_equipo = selectEquipo.value;
-    const descripcion = descFalla.value.trim();
-    if(!id_equipo) return alert("Por favor selecciona un equipo");
 
-    const ahora = new Date();
-    const tzOffset = ahora.getTimezoneOffset() * 60000; 
-    const fechaLocalIso = (new Date(ahora - tzOffset)).toISOString();
+    // 1. Creamos el FormData
+    const formData = new FormData();
     
-    const payload = {
-        id_equipo: id_equipo,
-        fecha: fechaLocalIso.split('T')[0],
-        hora: fechaLocalIso.split('T')[1].slice(0, 8),
-        descripcion: descripcion,
-        estado: 'pendiente'
-    };
+    // Obtenemos los valores de los inputs
+    const equipoVal = document.getElementById('selectEquipo').value;
+    const descVal = document.getElementById('descFalla').value.trim();
+    const fotoFile = document.getElementById('fotoIncidencia').files[0];
+
+    // 2. Llenamos el FormData (Asegúrate de que los nombres coincidan con el server)
+    formData.append('id_equipo', equipoVal);
+    formData.append('descripcion', descVal);
+    formData.append('fecha', new Date().toISOString().split('T')[0]);
+    formData.append('hora', new Date().toLocaleTimeString('it-IT').slice(0, 8));
+    
+    if (fotoFile) {
+        formData.append('imagen', fotoFile);
+    }
+
+    // 🔍 DEBUG: Mira esto en tu consola del navegador (F12)
+    console.log("Enviando id_equipo:", equipoVal);
 
     try {
-        const res = await fetch(API_INCIDENCIAS, {
-            method: 'POST',
-            headers: authHeaders(),
-            body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw new Error("Error en el servidor");
-        alert("¡Reporte enviado exitosamente!");
-        document.getElementById('incidenciaModal').classList.remove('active');
-        cargarTablaIncidencias();
-    } catch (error) {
-        alert("Error al registrar incidencia.");
-    }
+      const res = await fetch('/api/incidencias', {
+    method: 'POST',
+    headers: {
+        // ✅ SOLO EL TOKEN. El navegador pondrá el Content-Type solo.
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+    },
+    body: formData 
 });
 
+        // 3. Revisamos la respuesta antes de intentar leerla como JSON
+        const textoRespuesta = await res.text();
+        console.log("Respuesta bruta del server:", textoRespuesta);
+
+        let data;
+        try {
+            data = JSON.parse(textoRespuesta);
+        } catch (err) {
+            throw new Error("El servidor respondió algo que no es JSON (posible error 500)");
+        }
+
+        if (res.ok) {
+            alert("✅ Incidencia reportada con éxito");
+            location.reload();
+        } else {
+            alert("❌ Error del servidor: " + (data.error || "Desconocido"));
+        }
+
+    } catch (error) {
+        console.error("Error en el proceso:", error);
+        alert("Ocurrió un fallo: " + error.message);
+    }
+});
+// ----------------------------------------------------
+// 4. RESOLVER
+// ----------------------------------------------------
 function resolverIncidencia(id) {
     document.getElementById('resolverIdIncidencia').value = id;
     document.getElementById('resolverForm').reset();
@@ -216,7 +289,7 @@ document.getElementById('resolverForm').addEventListener('submit', async (e) => 
     try {
         const res = await fetch(`/api/incidencias/${id}/resolver`, {
             method: 'PUT',
-            headers: authHeaders(),
+            headers: authHeadersJSON(),
             body: JSON.stringify(payload)
         });
         if (!res.ok) throw new Error("Error al resolver");
@@ -227,13 +300,32 @@ document.getElementById('resolverForm').addEventListener('submit', async (e) => 
         alert("Error al archivar.");
     }
 });
+function renderizarIncidencias(lista) {
+    const rol = localStorage.getItem('rol');
+    const tabla = document.getElementById('cuerpoTabla');
+    tabla.innerHTML = '';
 
-// Buscador
-if (inputBusqueda) {
-    inputBusqueda.addEventListener('keyup', function() {
-        const texto = this.value.toLowerCase();
-        document.querySelectorAll('#tablaIncidencias tbody tr').forEach(fila => {
-            fila.style.display = fila.innerText.toLowerCase().includes(texto) ? '' : 'none';
-        });
+    lista.forEach(inc => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${inc.nombre_equipo}</td>
+            <td>${inc.descripcion}</td>
+            <td><span class="status ${inc.estado}">${inc.estado}</span></td>
+            <td>
+                ${rol !== 'profesor' ? `<button onclick="abrirModalResolver(${inc.id_incidencia})">Resolver</button>` : '---'}
+            </td>
+        `;
+        tabla.appendChild(tr);
     });
+}
+function prepararFormularioIncidencia() {
+    const rol = localStorage.getItem('rol');
+    const idLabProfe = localStorage.getItem('id_laboratorio');
+    const selectLab = document.getElementById('selectLabIncidencia');
+
+    if (rol === 'profesor' && idLabProfe) {
+        selectLab.value = idLabProfe;
+        selectLab.disabled = true; // El profe no puede reportar en otros labs
+        cargarEquiposPorLab(idLabProfe); // Carga solo los equipos de SU lab
+    }
 }

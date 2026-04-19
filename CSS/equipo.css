@@ -52,7 +52,39 @@
     margin-bottom: 10px; /* Espacio antes del Tipo */
     border: 1px solid rgba(0, 188, 212, 0.2); /* Un borde sutil */
 }
+/* Badges de estado ingeniosos */
+.badge-status {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
 
+.badge-status.success {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid #10b981;
+}
+
+.badge-status.error {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid #ef4444;
+    animation: pulse-red 2s infinite; /* Un pulso sutil para llamar la atención */
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Si el equipo está fallando, la tarjeta se ve sutilmente distinta */
+.eq-card.warning {
+    border-left: 5px solid #ef4444;
+    background: linear-gradient(to right, rgba(239, 68, 68, 0.05), transparent);
+}
 /* Ajuste opcional para el título */
 .eq-info h4 {
     margin-top: 5px;
