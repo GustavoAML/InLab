@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 19-04-2026 a las 16:56:15
+-- Tiempo de generación: 20-04-2026 a las 06:21:24
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -129,8 +129,9 @@ CREATE TABLE `incidencia` (
 -- Volcado de datos para la tabla `incidencia`
 --
 
-INSERT INTO `incidencia` (`id_incidencia`, `id_equipo`, `id_usuario`, `fecha`, `hora`, `descripcion`, `estado`, `foto`, `solucion`, `fecha_resolucion`, `imagen_url`) VALUES
-(24, 2, 1, '2026-04-19', '01:21:18', 'asd', 'pendiente', NULL, NULL, NULL, NULL);
+INSERT INTO `incidencia` (`id_incidencia`, `id_equipo`, `id_usuario`, `id_usuario_reporte`, `id_usuario_solucion`, `fecha`, `hora`, `descripcion`, `estado`, `foto`, `solucion`, `fecha_resolucion`, `imagen_url`) VALUES
+(24, 2, 1, NULL, NULL, '2026-04-19', '01:21:18', 'asd', 'pendiente', NULL, NULL, NULL, NULL),
+(25, 9, 12, 12, 12, '2026-04-19', '09:24:23', 'sisis', 'resuelto', NULL, 'nonono', '2026-04-19 09:24:32', NULL);
 
 -- --------------------------------------------------------
 
@@ -185,7 +186,8 @@ INSERT INTO `usuario` (`id_usuario`, `nombre`, `appaterno`, `apmaterno`, `rol`, 
 (13, 'Daniel', 'Salgado', 'Ceja', 'encargado', 'Dani656@gmail.com', 'Dani1234', NULL),
 (14, 'Rod', 'Gonzalez', 'Lopez', 'admin', 'rod.wav@gmail.com', 'Rod123', NULL),
 (16, 'Rodrigo', 'Torres', 'De la garza', 'encargado', 'Nsqk@gmail.com', 'Nsqk1', NULL),
-(17, 'Armando', 'Martinez', 'Lopez', 'encargado', 'Armando@gmail.com', 'Ar123', NULL);
+(17, 'Armando', 'Martinez', 'Lopez', 'encargado', 'Armando@gmail.com', 'Ar123', NULL),
+(23, 'roy', 'je', 'je', 'profesor', 'roy@gmail.com', '123', 1);
 
 --
 -- Disparadores `usuario`
@@ -291,7 +293,7 @@ ALTER TABLE `equipo`
 -- AUTO_INCREMENT de la tabla `incidencia`
 --
 ALTER TABLE `incidencia`
-  MODIFY `id_incidencia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id_incidencia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT de la tabla `laboratorio`
@@ -303,7 +305,7 @@ ALTER TABLE `laboratorio`
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- Restricciones para tablas volcadas

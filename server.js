@@ -6,7 +6,7 @@ const connection = require("./db");
 const path = require("path");
 const multer = require("multer");
 const fs = require("fs");
-
+const nodemailer = require("nodemailer");
 const app = express();
 const PORT = 3000;
 
@@ -949,38 +949,80 @@ app.listen(PORT, () => {
 // ==========================================
 
 // 1. CREAR NUEVA INCIDENCIA (POST)
-app.post("/api/incidencias", auth, upload.single('imagen'), (req, res) => {
-  // Ya no recibimos el id_usuario del frontend, lo sacamos del token seguro
+app.post("/api/incidencias", auth, upload.single('imagen'), async (req, res) => {
   const id_usuario = req.user.id;
   const { id_equipo, fecha, hora, descripcion, estado } = req.body;
-  
-  // Validar que los campos requeridos estén presentes
+
   if (!id_equipo || !fecha || !hora || !descripcion) {
     return res.status(400).json({ error: "Faltan datos requeridos" });
   }
-  
-  // Obtener nombre del archivo si se subió imagen
+
   const nombreFoto = req.file ? req.file.filename : null;
 
-  // Nombres de tabla en singular: incidencia
-  const query = `
-        INSERT INTO incidencia (id_equipo, id_usuario, id_usuario_reporte, fecha, hora, descripcion, estado, foto)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  const insertQuery = `
+        INSERT INTO incidencia (id_equipo, id_usuario, fecha, hora, descripcion, estado, foto)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
   connection.query(
-    query,
-    [id_equipo, id_usuario, id_usuario, fecha, hora, descripcion, estado || 'pendiente', nombreFoto],
-    (err, results) => {
+    insertQuery,
+    [id_equipo, id_usuario, fecha, hora, descripcion, estado || 'pendiente', nombreFoto],
+    (err, result) => {
       if (err) {
-        console.error("Error al guardar incidencia:", err);
-        return res
-          .status(500)
-          .json({ error: "Error al registrar la incidencia" });
+        console.error(err);
+        return res.status(500).json({ error: 'Error al crear incidencia' });
       }
-      res
-        .status(201)
-        .json({ message: "Incidencia creada con éxito", id: results.insertId });
+
+      const queryEncargado = `
+            SELECT u.correo, l.nombre_lab
+            FROM equipo eq
+            JOIN laboratorio l ON eq.id_laboratorio = l.id_laboratorio
+            JOIN encargado en ON l.id_encargado = en.id_encargado
+            JOIN usuario u ON en.id_usuario = u.id_usuario
+            WHERE eq.id_equipo = ?
+        `;
+
+      connection.query(queryEncargado, [id_equipo], async (err, rows) => {
+        if (err) {
+          console.error(err);
+          return res.status(201).json({ message: 'Incidencia creada pero sin notificación' });
+        }
+
+        if (rows.length === 0) {
+          return res.status(201).json({ message: 'Incidencia creada (sin encargado asignado)' });
+        }
+
+        const { correo, nombre_lab } = rows[0];
+
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: 'pushupvenom@gmail.com',
+            pass: 'aejaonuecmehyhyd'
+          }
+        });
+
+        const mailOptions = {
+          from: 'pushupvenom@gmail.com',
+          to: correo,
+          subject: 'Nueva incidencia en laboratorio',
+          text: `
+Se ha registrado una nueva incidencia.
+
+Laboratorio: ${nombre_lab}
+Descripción: ${descripcion}
+Fecha: ${fecha} ${hora}
+                `
+        };
+
+        try {
+          await transporter.sendMail(mailOptions);
+          res.status(201).json({ message: 'Incidencia creada y notificada correctamente' });
+        } catch (error) {
+          console.error(error);
+          res.status(201).json({ message: 'Incidencia creada pero error al enviar correo' });
+        }
+      });
     },
   );
 });
