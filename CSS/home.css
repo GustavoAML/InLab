@@ -1,0 +1,309 @@
+:root {
+    --azul-oscuro: #1a365d;
+    --azul-claro: #3182ce;
+    --gris-fondo: #f7fafc;
+    --texto: #2d3748;
+    --blanco: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--texto);
+    background-color: var(--gris-fondo);
+    scroll-behavior: smooth;
+}
+
+/* Header & Navegación */
+header {
+    background: var(--azul-oscuro);
+    color: var(--blanco);
+    padding: 1rem 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.logos-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.divider {
+    height: 30px; 
+    width: 1px; 
+    background: rgba(255,255,255,0.3);
+}
+
+.logo-placeholder {
+    font-weight: bold;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+nav a {
+    color: var(--blanco);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: var(--azul-claro);
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(rgba(26, 54, 93, 0.85), rgba(26, 54, 93, 0.85)), 
+                url('https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80') center/cover;
+    color: var(--blanco);
+    padding: 120px 5%;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 1.25rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Secciones */
+section {
+    padding: 80px 10%;
+}
+
+.bg-light {
+    background-color: #edf2f7;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 50px;
+    color: var(--azul-oscuro);
+    font-size: 2.2rem;
+    position: relative;
+}
+
+.section-title.white {
+    color: white;
+}
+
+.section-title::after {
+    content: '';
+    width: 60px;
+    height: 4px;
+    background: var(--azul-claro);
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.sub-title {
+    text-align: center;
+    margin: 50px 0 25px;
+    color: var(--azul-oscuro);
+}
+
+/* Grid & Cards */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.card {
+    background: var(--blanco);
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+    text-align: center;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card h3 {
+    margin-bottom: 15px;
+    color: var(--azul-claro);
+}
+
+.icon {
+    display: block;
+    font-size: 2rem;
+    color: var(--azul-claro);
+    margin-bottom: 15px;
+}
+
+/* Roles */
+.roles-list {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.role-tag {
+    background: var(--azul-claro);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 50px;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(49, 130, 206, 0.3);
+}
+
+/* Tecnología */
+.tech-content {
+    text-align: center;
+}
+
+.tech-stack {
+    margin-top: 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--azul-claro);
+    letter-spacing: 1px;
+}
+
+/* Equipo */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+}
+
+.member {
+    padding: 20px;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.3s;
+}
+
+.member:hover {
+    border-color: var(--azul-claro);
+}
+
+/* Contacto */
+.contact-section {
+    background: var(--azul-oscuro);
+    color: white;
+    text-align: center;
+}
+
+.mt-15 { margin-top: 15px; }
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 30px;
+    font-size: 0.85rem;
+    background: #0f172a;
+    color: #94a3b8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero h1 { font-size: 2.2rem; }
+    header { flex-direction: column; gap: 15px; }
+    nav ul { gap: 10px; }
+}
+
+/* Estilos para el Botón de Redirección */
+.cta-container {
+    margin-top: 40px;
+}
+
+.btn-primary {
+    background-color: var(--azul-claro);
+    color: white;
+    padding: 15px 35px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(49, 130, 206, 0.4);
+    display: inline-block;
+}
+
+.btn-primary:hover {
+    background-color: #2b6cb0; /* Un azul un poco más oscuro al pasar el mouse */
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(49, 130, 206, 0.6);
+    color: white;
+}
+
+.btn-primary:active {
+    transform: translateY(-1px);
+}
+
+/* Contenedor principal */
+.team-grid {
+    display: grid;
+    /* Crea 3 columnas del mismo tamaño */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 40px; /* Espacio entre los integrantes */
+    max-width: 1000px; /* Ancho máximo para que no se estiren demasiado */
+    margin: 0 auto; /* Centra el grid en la página */
+    padding: 20px;
+}
+
+/* Estilo de cada integrante */
+.member {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.member img {
+    width: 150px; /* Ajusta el tamaño según prefieras */
+    height: 150px;
+    object-fit: cover; /* Evita que la foto se estire */
+    border-radius: 50%; /* Si las quieres circulares */
+    border: 3px solid var(--azul-claro);
+    margin-bottom: 15px;
+}
+
+.member strong {
+    color: var(--azul-oscuro);
+    font-size: 1.1rem;
+    line-height: 1.2;
+}
+
+/* Responsive: Si se ve en celular, que cambie a 1 columna */
+@media (max-width: 768px) {
+    .team-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
+    }
+}
+
+@media (max-width: 480px) {
+    .team-grid {
+        grid-template-columns: 1fr; /* 1 columna en celulares */
+    }
+}
