@@ -122,35 +122,24 @@ async function cargarEdificiosAdmin() {
     try {
         const res = await fetch(API_LABS, { headers: authHeadersJSON() });
         const laboratorios = await res.json();
+        
+        if (!Array.isArray(laboratorios)) return;
 
-        // 🛡️ VALIDACIÓN: Si no es una lista o hay error 403, salimos sin tronar
-        if (!Array.isArray(laboratorios)) {
-            console.error("No se pudo cargar la lista de laboratorios");
-            return;
-        }
-
-        // 1. Extraemos edificios únicos
+        // Extraemos todos los edificios de la universidad
         const edificiosUnicos = [...new Set(laboratorios.map(l => l.edificio))];
         
-        // 2. Llenamos el select
         selectEdificio.innerHTML = '<option value="" disabled selected>Seleccione un edificio</option>';
         edificiosUnicos.forEach(ed => {
             selectEdificio.innerHTML += `<option value="${ed}">${ed}</option>`;
         });
 
-        // 3. Guardamos para uso global
         window.laboratoriosGlobales = laboratorios;
-
-        // ✨ TOQUE INGENIOSO: Si es Profesor y solo hay un edificio, lo seleccionamos de una vez
-        const rol = (localStorage.getItem('rol') || '').toLowerCase().trim();
-        if (rol === 'profesor' && edificiosUnicos.length === 1) {
-            selectEdificio.value = edificiosUnicos[0];
-            // Cargamos los labs de ese edificio inmediatamente
-            cargarLaboratoriosPorEdificio();
-        }
+        
+        // ❌ Quitamos el bloqueo/autoselección que teníamos para el profesor
+        // Ahora el profesor verá el dropdown vacío para elegir el edificio que quiera.
 
     } catch (error) {
-        console.error("Error en cargarEdificiosAdmin:", error);
+        console.error("Error cargando edificios:", error);
     }
 }
 function cargarLaboratoriosPorEdificio() {

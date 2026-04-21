@@ -229,37 +229,14 @@ app.get("/api/encargados", auth, requireRole("admin"), (req, res) => {
 // LABORATORIOS
 // =============================
 app.get("/api/laboratorios", auth, (req, res) => {
-    const { rol, id: userId } = req.user;
+    // Consulta limpia para todos los roles
+    const query = "SELECT id_laboratorio, nombre_lab, edificio, planta, id_encargado FROM laboratorio";
 
-    // Esta query trae TODO: id, nombre, edificio, planta e id_encargado
-    let query = `
-        SELECT id_laboratorio, nombre_lab, edificio, planta, id_encargado 
-        FROM laboratorio
-    `;
-    let params = [];
-
-    // Si es PROFESOR, ve solo el laboratorio asignado en usuario.id_laboratorio
-    if (rol === "profesor") {
-        query = `
-            SELECT l.id_laboratorio, l.nombre_lab, l.edificio, l.planta, l.id_encargado 
-            FROM laboratorio l
-            JOIN usuario u ON l.id_laboratorio = u.id_laboratorio
-            WHERE u.id_usuario = ?
-        `;
-        params.push(userId);
-    } 
-    // Si es ENCARGADO, ve los laboratorios que maneja
-    else if (rol === "encargado") {
-        query = `
-            SELECT l.id_laboratorio, l.nombre_lab, l.edificio, l.planta, l.id_encargado 
-            FROM laboratorio l
-            WHERE l.id_encargado = (SELECT id_encargado FROM encargado WHERE id_usuario = ?)
-        `;
-        params.push(userId);
-    }
-
-    connection.query(query, params, (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error("Error SQL Laboratorios:", err);
+            return res.status(500).json({ error: "Error en el servidor" });
+        }
         res.json(results);
     });
 });
@@ -1032,40 +1009,32 @@ Fecha: ${fecha} ${hora}
 // ==========================================
 app.get("/api/incidencias/actuales", auth, (req, res) => {
     const { rol, id: userId } = req.user;
-    
+
     let query = `
-        SELECT i.*, e.nombre AS nombre_equipo, u.nombre AS nombre_usuario, l.nombre_lab, e.id_laboratorio
+        SELECT i.*, e.nombre AS nombre_equipo, u.nombre AS nombre_usuario
         FROM incidencia i
         JOIN equipo e ON i.id_equipo = e.id_equipo
         JOIN usuario u ON i.id_usuario = u.id_usuario
-        JOIN laboratorio l ON e.id_laboratorio = l.id_laboratorio
         WHERE i.estado = 'pendiente'
     `;
-    let params = [];
+    const params = [];
 
-    // Si es profesor, filtra por su laboratorio asignado en usuario
+    // 🔒 REGLA: Si es profesor, filtramos por SU id de usuario
     if (rol === "profesor") {
-        query += " AND e.id_laboratorio = (SELECT id_laboratorio FROM usuario WHERE id_usuario = ?)";
+        query += " AND i.id_usuario = ?";
         params.push(userId);
     }
-    // Si es encargado, filtra por los laboratorios que maneja
-    else if (rol === "encargado") {
-        query += `
-            AND e.id_laboratorio IN (
-                SELECT l2.id_laboratorio 
-                FROM laboratorio l2 
-                WHERE l2.id_encargado = (SELECT id_encargado FROM encargado WHERE id_usuario = ?)
-            )
-        `;
-        params.push(userId);
-    }
+
+    query += " ORDER BY i.fecha DESC, i.hora DESC";
 
     connection.query(query, params, (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) {
+            console.error("Error SQL Incidencias:", err);
+            return res.status(500).json({ error: err.message });
+        }
         res.json(results);
     });
 });
-
 // ==========================================
 // 3. RESOLVER INCIDENCIA (PUT) - ¡Agregamos 'auth'!
 // ==========================================
