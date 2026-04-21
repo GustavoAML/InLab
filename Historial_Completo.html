@@ -57,7 +57,7 @@
                     </div>
                 </div>
 
-                <button class="btn-add-cyan" onclick="window.print()">🖨️ Imprimir Reporte</button>
+                <button class="btn-add-cyan" onclick="imprimirTablaHistorial()">🖨️ Imprimir Reporte</button>
             </section>
 
            <div class="history-table-container">
@@ -124,6 +124,72 @@
                 const contenido = filas.innerText.toLowerCase();
                 filas.style.display = contenido.includes(busqueda) ? "" : "none";
             });
+        }
+
+        // Función para imprimir solo la tabla del historial
+        function imprimirTablaHistorial() {
+            const printWindow = window.open('', '', 'height=600,width=900');
+            const tabla = document.getElementById('tablaHistorial').outerHTML;
+            const titulo = '<h2 style="text-align: center; margin-bottom: 20px;">Historial de Incidencias - INLAB</h2>';
+            const fecha = '<p style="text-align: right; font-size: 0.9em; margin-bottom: 20px;">Impreso: ' + new Date().toLocaleString('es-ES') + '</p>';
+            
+            const estilos = `
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background: white;
+                        color: #333;
+                        margin: 20px;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 20px;
+                    }
+                    thead {
+                        background-color: #1e293b;
+                        color: white;
+                    }
+                    th, td {
+                        border: 1px solid #ccc;
+                        padding: 12px;
+                        text-align: left;
+                    }
+                    th {
+                        background-color: #0f172a;
+                        color: white;
+                        font-weight: bold;
+                        padding: 15px;
+                    }
+                    tbody tr:nth-child(even) {
+                        background-color: #f9f9f9;
+                    }
+                    tbody tr:hover {
+                        background-color: #f0f0f0;
+                    }
+                    @media print {
+                        body {
+                            margin: 10px;
+                        }
+                        table {
+                            page-break-inside: avoid;
+                        }
+                        tr {
+                            page-break-inside: avoid;
+                        }
+                    }
+                </style>
+            `;
+            
+            printWindow.document.write('<!DOCTYPE html><html><head><meta charset="utf-8">' + estilos + '</head><body>');
+            printWindow.document.write(titulo + fecha + tabla);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
         }
 
         // Verificar autenticación
