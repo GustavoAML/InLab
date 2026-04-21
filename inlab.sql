@@ -106,6 +106,35 @@ INSERT INTO `equipo` (`id_equipo`, `nombre`, `no_serie`, `numero`, `id_laborator
 -- --------------------------------------------------------
 
 --
+--Estrucuta de transaccion
+--
+DELIMITER $$
+
+CREATE PROCEDURE insertar_consumible(
+    IN p_nombre VARCHAR(100),
+    IN p_stock INT,
+    IN p_id_laboratorio INT
+)
+BEGIN
+    START TRANSACTION;
+
+    -- Validar que el stock no sea negativo
+    IF p_stock < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El stock no puede ser negativo';
+    END IF;
+
+    -- Insertar datos enviados
+    INSERT INTO consumibles (nombre_con, stock, id_laboratorio)
+    VALUES (p_nombre, p_stock, p_id_laboratorio);
+
+    COMMIT;
+END$$
+
+DELIMITER ;
+
+
+--
 -- Estructura de tabla para la tabla `incidencia`
 --
 

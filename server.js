@@ -373,11 +373,6 @@ app.post(
       return res.status(400).json({ error: "Campos obligatorios faltantes" });
     }
 
-    // Validación básica
-    if (stock < 0) {
-      return res.status(400).json({ error: "El stock no puede ser negativo" });
-    }
-
     // =========================
     // SI ES ENCARGADO
     // =========================
@@ -403,22 +398,19 @@ app.post(
           });
         }
 
-        const query =
-          "INSERT INTO consumibles (nombre_con, stock, id_laboratorio) VALUES (?, ?, ?)";
-
+        // 🔥 AQUÍ USAMOS EL PROCEDURE (TRANSACCIÓN)
         connection.query(
-          query,
+          "CALL insertar_consumible(?, ?, ?)",
           [nombre, stock, id_laboratorio],
           (err, result) => {
             if (err) {
-              return res
-                .status(500)
-                .json({ error: "Error al crear consumible" });
+              return res.status(400).json({
+                error: err.sqlMessage || "Error al crear consumible",
+              });
             }
 
             res.status(201).json({
-              mensaje: "Consumible creado",
-              id: result.insertId,
+              mensaje: "Consumible creado correctamente",
             });
           }
         );
@@ -429,28 +421,25 @@ app.post(
     // SI ES ADMIN
     // =========================
     else {
-      const query =
-        "INSERT INTO consumibles (nombre_con, stock, id_laboratorio) VALUES (?, ?, ?)";
-
       connection.query(
-        query,
+        "CALL insertar_consumible(?, ?, ?)",
         [nombre, stock, id_laboratorio],
         (err, result) => {
           if (err) {
-            return res
-              .status(500)
-              .json({ error: "Error al crear consumible" });
+            return res.status(400).json({
+              error: err.sqlMessage || "Error al crear consumible",
+            });
           }
 
           res.status(201).json({
-            mensaje: "Consumible creado",
-            id: result.insertId,
+            mensaje: "Consumible creado correctamente",
           });
         }
       );
     }
   }
 );
+
 // Editar consumible (admin o encargado, encargado solo su laboratorio)
 app.put(
   "/api/consumibles/:id",
