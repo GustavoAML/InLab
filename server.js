@@ -974,13 +974,13 @@ app.post("/api/incidencias", auth, upload.single('imagen'), async (req, res) => 
         const transporter = nodemailer.createTransport({
           service: 'gmail',
           auth: {
-            user: 'pushupvenom@gmail.com',
-            pass: 'aejaonuecmehyhyd'
+            user: '',
+            pass: ''
           }
         });
 
         const mailOptions = {
-          from: 'pushupvenom@gmail.com',
+          from: '',
           to: correo,
           subject: 'Nueva incidencia en laboratorio',
           text: `
